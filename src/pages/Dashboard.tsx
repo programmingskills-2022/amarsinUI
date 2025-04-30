@@ -3,16 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Squares2X2Icon } from '@heroicons/react/24/outline'
 
 const menuItems = [
-  'ارتباط با مشتریان', 'مدیریت مشتریان', 'بازاریابی', 'فروش', 'دریافت و پرداخت', 'بانک',
-  'مشخصات نامه ها', 'جستجوی نامه', 'بستن حسابها', 'سند حساب', 'اسناد مالی', 'اسناد متفرقه',
-  'گزارشات مالی', 'گزارشات مدیریتی', 'کدینگ حسابها', 'کدینگ مراکز', 'کدینگ پروژه', 'کدینگ کالا',
-  'کدینگ اشخاص', 'کدینگ انبار', 'کدینگ خودرو', 'کدینگ پرسنل', 'کدینگ مشتری', 'کدینگ فروشنده',
-  'کدینگ خدمات', 'کدینگ هزینه', 'کدینگ درآمد', 'کدینگ دارایی', 'کدینگ سرمایه', 'کدینگ بدهی',
-  'کدینگ حقوق و دستمزد', 'انبار', 'لیست کاربران', 'لیست استفاده', 'لیست کالا', 'لیست مشتری',
-  'لیست فروشنده', 'لیست خدمات', 'لیست هزینه', 'لیست درآمد', 'لیست دارایی', 'لیست سرمایه',
-  'لیست بدهی', 'لیست حقوق و دستمزد', 'لیست انبار', 'لیست خودرو', 'لیست پرسنل', 'لیست پروژه',
-  'لیست مراکز', 'لیست حسابها', 'لیست مالی', 'لیست مدیریتی', 'لیست متفرقه', 'لیست گزارشات',
-  'لیست گزارشات مالی', 'لیست گزارشات مدیریتی', 'لیست گزارشات متفرقه',
+  'تعاریف و عملیات','ارتباط با مشتری','انبارداری','تولید','حسابداری','حقوق و دستمزد','اموال','بودجه و اعتبارات'
 ]
 
 export default function Dashboard() {
@@ -48,12 +39,14 @@ export default function Dashboard() {
         <span>سیستم: {appConfig?.systemTitle || '...'}</span>
         <span>سال مالی: {appConfig?.acc_Year || '...'}</span>
         <span>{userInfo?.nam || 'کاربر سیستم'}</span>
-        <span>{new Date().toLocaleDateString('fa-IR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        <span dir="rtl">
+          {new Date().toLocaleDateString('fa-IR', { weekday: 'long' })} {new Date().toLocaleDateString('fa-IR', { day: 'numeric' })} {new Date().toLocaleDateString('fa-IR', { month: 'long' })} {new Date().toLocaleDateString('fa-IR', { year: 'numeric' })}
+        </span>
       </div>
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-l border-gray-200 h-full overflow-y-auto">
+        <aside className="w-64 bg-white border-l border-gray-200 overflow-y-auto">
           <div className="p-2 font-bold border-b border-gray-200">منوی نرم افزار</div>
           <ul className="text-sm">
             {menuItems.map((item, idx) => (

@@ -22,13 +22,14 @@ export function useAuth() {
         isAppConfig
       }
       const response = await api.post('/api/User/login', body)
-      console.log('login info',response.data)
+      //console.log('login info',response.data)
       return response.data
     },
     onSuccess: (data) => {
       const userInfo: UserInfo = data?.data?.result?.login
       const appConfig: AppConfig = data?.data?.result?.appConfig
       setToken(userInfo.token)
+      localStorage.setItem('customerCode', xCustomerCode)
       setUserInfo(userInfo)
       setAppConfig(appConfig)
       navigate('/dashboard')

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 
 const api = axios.create({
-  baseURL: 'http://api.dotis.ir',
+  baseURL: 'http://apitest.dotis.ir',
 })
 
 api.interceptors.request.use((config) => {

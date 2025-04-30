@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
         playerId: '',
         customerTyp: 0,
         appVer: '1.0.0',
-        xCustomerCode: '',
+        //xCustomerCode: '',
         isAppConfig: true,
         token: null,
         isAuthenticated: false,
