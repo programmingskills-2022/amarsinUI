@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import { useAuthStore } from './store/authStore'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Router>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }
