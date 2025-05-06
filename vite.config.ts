@@ -24,13 +24,10 @@ export default defineConfig({
       },
     },
   },
-<<<<<<< HEAD
-=======
   resolve: {
     alias: {
       '@emotion/react': '@emotion/react',
       '@emotion/styled': '@emotion/styled',
     },
   },
->>>>>>> cee5e85 (create menu)
 })

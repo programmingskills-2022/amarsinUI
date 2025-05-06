@@ -10,26 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@heroicons/react": "^2.1.1",
-=======
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@heroicons/react": "^2.1.1",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
->>>>>>> cee5e85 (create menu)
     "@tanstack/react-query": "^5.28.4",
     "@tanstack/react-query-devtools": "^5.74.11",
     "axios": "^1.6.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
-<<<<<<< HEAD
-=======
     "stylis-plugin-rtl": "^2.1.1",
->>>>>>> cee5e85 (create menu)
     "zustand": "^4.5.2"
   },
   "devDependencies": {
