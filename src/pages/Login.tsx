@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useAuthStore } from '../store/authStore'
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+<<<<<<< HEAD
 import Logo2 from '../assets/images/logo2.svg?react'
 import Logo from '../assets/images/logo.svg?react'
 import Avatar from '../assets/images/avatar.svg?react'
@@ -18,6 +19,22 @@ export default function Login() {
   const { login, isLoading } = useAuth()
   const {
     userName, pass, setField
+=======
+import logoAvatar from '../assets/images/logo-Avatar.png'
+import SplashLogo from '../assets/images/Splash-Logo.png'
+import AmarsinSplash from '../assets/images/AmarsinSplash.png'
+import Logo from '../assets/images/Logo.png'
+import LogoBlack from '../assets/images/logo-black.png'
+
+export default function Login() {
+  const [showCodeModal, setShowCodeModal] = useState(false)
+  const [activationCode, setActivationCode] = useState<string>('')
+  const [errorPage, setErrorPage] = useState<string>('')
+  const [remember, setRemember] = useState(false)
+  const { login, isLoading } = useAuth()
+  const {
+    userName, pass, setField, message, errorCode,xCustomerCode
+>>>>>>> cee5e85 (create menu)
   } = useAuthStore()
 
   const submitButtonRef = useRef<HTMLButtonElement>(null) // Create a ref for the button
@@ -27,6 +44,7 @@ export default function Login() {
     if (submitButtonRef.current) {
       submitButtonRef.current.focus()
     }
+<<<<<<< HEAD
   }, [])
 
   const handleLogin = (e: React.FormEvent) => {
@@ -36,16 +54,42 @@ export default function Login() {
       setError('لطفا نام کاربری و رمز عبور را وارد کنید')
       return
     }
+=======
+    setActivationCode(xCustomerCode)
+  }, [])
+
+
+  const handleLogin = (e: React.FormEvent) => {
+    console.log('user',userName)
+    e.preventDefault()
+    setErrorPage('')
+
+    if (userName==='' || pass==='') {
+      setErrorPage('لطفا نام کاربری و رمز عبور را وارد کنید')
+      return
+    }
+
+>>>>>>> cee5e85 (create menu)
     login()
   }
 
   const handleActivationCode = (e: React.FormEvent) => {
     e.preventDefault()
+<<<<<<< HEAD
     if (!activationCode) {
       setError('لطفا کد فعال‌ساز را وارد کنید')
       return
     }
     setField('xCustomerCode', activationCode)
+=======
+    console.log('activation',activationCode)
+    if (activationCode==='') {
+      setErrorPage('لطفا کد فعال‌ساز را وارد کنید')
+      return
+    }
+    setField('xCustomerCode', activationCode)
+    setErrorPage('')
+>>>>>>> cee5e85 (create menu)
     setShowCodeModal(false)
   }
 
@@ -62,15 +106,23 @@ export default function Login() {
           <div className="w-full h-full flex flex-col items-center">
             {/* avatar here */}
             <img src={logoAvatar} />
+<<<<<<< HEAD
             <div className="bg-gray-300 w-full h-full flex flex-col items-center rounded-xl pt-4">
               <Logo className="opacity-20" />
+=======
+            <div className="bg-gray-300 w-full h-full flex flex-col items-center rounded-xl pt-4 -m-5">
+              <img src={Logo}/>
+>>>>>>> cee5e85 (create menu)
               <label className="font-bold text-gray-700 text-base mt-6 mb-1">
                 ورود کاربران سیستم جامع آمارسین
               </label>
               <form className="w-full flex flex-col gap-3 p-4" onSubmit={handleLogin}>
                 <input
                   type="text"
+<<<<<<< HEAD
                   required
+=======
+>>>>>>> cee5e85 (create menu)
                   value={userName}
                   onChange={(e) => setField('userName', e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -79,7 +131,10 @@ export default function Login() {
                 />
                 <input
                   type="password"
+<<<<<<< HEAD
                   required
+=======
+>>>>>>> cee5e85 (create menu)
                   value={pass}
                   onChange={(e) => setField('pass', e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -96,7 +151,11 @@ export default function Login() {
                   {isLoading ? 'در حال ورود...' : 'ورود'}
                 </button>
               </form>
+<<<<<<< HEAD
               <div className="w-full flex flex-col items-center justify-between border-t-2 mt-2 border-gray-400 py-4">
+=======
+              <div className="w-full h-full flex flex-col items-center justify-between border-t-2 mt-2 border-gray-400 py-4">
+>>>>>>> cee5e85 (create menu)
                 <div className="w-full flex items-center justify-center mt-2 border-gray-400">
                   <input
                     id="remember"
@@ -109,12 +168,32 @@ export default function Login() {
                     اطلاعات ورود را بخاطر بسپار
                   </label>
                 </div>
+<<<<<<< HEAD
+=======
+                {errorCode!=-1 && (
+                  <div
+                    className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded w-full mb-2 text-center text-sm"
+                    role="alert"
+                  >
+                    {message}
+                  </div>
+                )}
+                {errorPage!=='' && (
+                  <div
+                    className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded w-full mb-2 text-center text-sm"
+                    role="alert"
+                  >
+                    {errorPage}
+                  </div>
+                )}
+>>>>>>> cee5e85 (create menu)
                 <label htmlFor="remember" className="text-xs font-bold text-gray-700 cursor-pointer">
                   www.dotis.ir
                 </label>
               </div>
             </div>
           </div>
+<<<<<<< HEAD
           {error && (
             <div
               className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded w-full mb-2 text-center text-sm"
@@ -123,6 +202,9 @@ export default function Login() {
               {error}
             </div>
           )}
+=======
+
+>>>>>>> cee5e85 (create menu)
         </div>
       </div>
       {/* Left: Background image and logo */}
@@ -139,7 +221,11 @@ export default function Login() {
           </label>
         </div>
         <div className="flex flex-col items-center justify-start h-full pt-8 mt-28 w-1/4">
+<<<<<<< HEAD
           <Logo className="opacity-10" />
+=======
+          <img src={LogoBlack} />
+>>>>>>> cee5e85 (create menu)
           <div className="text-gray-500 text-sm pt-4">تحقیق </div>
           <div className="text-gray-500 text-sm">طراحی </div>
           <div className="text-gray-500 text-sm">توسعه </div>

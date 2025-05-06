@@ -4,6 +4,10 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import { useAuthStore } from './store/authStore'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+<<<<<<< HEAD
+=======
+import Layout from './components/layout/Layout'
+>>>>>>> cee5e85 (create menu)
 
 const queryClient = new QueryClient()
 
@@ -16,6 +20,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
+<<<<<<< HEAD
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
@@ -28,6 +33,22 @@ function App() {
           />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
+=======
+        <Layout>  
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+          </Routes>
+        </Layout>  
+>>>>>>> cee5e85 (create menu)
       </Router>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

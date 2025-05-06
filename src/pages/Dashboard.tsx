@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { Squares2X2Icon } from '@heroicons/react/24/outline'
@@ -68,12 +69,32 @@ export default function Dashboard() {
             className="w-64 h-64 object-contain opacity-80"
             style={{ marginTop: '40px' }}
           />
+=======
+export default function Dashboard() {
+  
+  return (
+    <div className="min-h-screen overflow-y-hidden flex flex-col bg-gray-200">
+      {/* Top blue header */}
+      {/* <header className="bg-blue-700 text-white flex items-center justify-between px-4 h-10">
+
+      </header> */}
+      {/* Sub-header */}
+      {/* Main content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Center content */}
+        <main className="flex-1 flex flex-col items-center justify-center">
+          این صفحه فقط برای تست می باشد
+>>>>>>> cee5e85 (create menu)
         </main>
       </div>
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 text-xs text-gray-500 px-4 py-1 flex justify-between">
+<<<<<<< HEAD
         <span>آمارسین</span>
         <span>{new Date().toLocaleString('fa-IR')}</span>
+=======
+
+>>>>>>> cee5e85 (create menu)
       </footer>
     </div>
   )
