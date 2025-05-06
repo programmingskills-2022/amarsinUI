@@ -1,30 +1,22 @@
 import React, { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import SideMenu from "../sideMenu/SideMenu";
-import { AppBar, Toolbar, Box, CssBaseline, Drawer } from "@mui/material";
-import { useAuthStore } from "../../store/authStore";
+import { AppBar, Toolbar, Box, CssBaseline } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { convertToFarsiDigits } from "../../utilities/general";
 import { useGeneralContext } from "../../context/GeneralContext";
 
 interface Props {
   children: ReactNode;
 }
 
-const drawerWidth = 300;
-
 const Layout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
  
   const {treeNodeTitle,setIsMenuOpened,isMenuOpened} = useGeneralContext()
 
-  const { authApiResponse } = useAuthStore();
-
   // Check if the current route is the login page
   const isLoginPage = location.pathname === "/login";
 
-  const appConfig = authApiResponse?.data.result.appConfig;
-  const initData = authApiResponse?.data.result.initData;
  
   const toggleMenu= ()=>{
     setIsMenuOpened(!isMenuOpened)
