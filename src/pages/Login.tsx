@@ -38,7 +38,10 @@ export default function Login() {
       setErrorPage('لطفا نام کاربری و رمز عبور را وارد کنید')
       return
     }
-
+    if (activationCode==='') {
+      setErrorPage('لطفا کد فعال‌ساز را وارد کنید')
+      return
+    }
     login()
   }
 

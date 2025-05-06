@@ -4,8 +4,12 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import { buildTree } from './treeUtils';
 import { TreeView } from './TreeView';
 import { MenuItem } from '../../types/menu';
+import { useGeneralContext } from '../../context/GeneralContext';
+import { useEffect, useState } from 'react';
 
 const SideMenu = () => {  
+  const {isMenuOpened}=useGeneralContext()
+
   const { authApiResponse } = useAuthStore();
   const navigate = useNavigate();
   const { logout } = useAuthStore();
@@ -18,13 +22,27 @@ const SideMenu = () => {
   const userInfo = authApiResponse?.data.result.login;  
   const initData = authApiResponse?.data.result.initData;
   const menu: MenuItem[] | undefined = authApiResponse?.data.result.menu;
-
+  const [visible, setVisible] = useState(isMenuOpened);
   const tree = buildTree(menu ?? []);
 
+  // Delay unmounting inner content for smooth transition
+  useEffect(() => {
+    if (isMenuOpened) {
+      setVisible(true);
+    } else {
+      const timeout = setTimeout(() => setVisible(false), 300); // match animation duration
+      return () => clearTimeout(timeout);
+    }
+  }, [isMenuOpened]);
+
   return (  
-    <aside className="bg-white w-full h-full text-gray-600 text-sm flex flex-col">
+    <aside className={`bg-white h-full text-gray-600 text-sm flex flex-col transition-all duration-300 ${
+      isMenuOpened ? "w-72" : "w-0"
+    }`}>
       {/* Top Section */}
-      <div>
+      <div className={`transition-opacity duration-300 ${
+          isMenuOpened ? 'opacity-100' : 'opacity-0'
+        } ${visible ? 'block' : 'hidden'}`}>
         {/* User Info */}
         <div className="flex items-center justify-center border-y-2 p-2 hover:cursor-pointer">
           {userInfo?.nam || 'کاربر سیستم'}

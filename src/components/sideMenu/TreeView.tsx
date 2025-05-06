@@ -5,6 +5,7 @@ import TurnedInIcon from '@mui/icons-material/TurnedIn';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useGeneralContext } from "../../context/GeneralContext";
 
 interface TreeProps {
   data: MenuItem[];
@@ -29,15 +30,20 @@ interface TreeNodeProps {
 const TreeNode: React.FC<TreeNodeProps> = ({ item, level }) => {
     const [expanded, setExpanded] = useState(false);
     const navigate = useNavigate();
+    const {setTreeNodeTitle} = useGeneralContext()
   
     const hasChildren = item.children && item.children.length > 0;
   
     const handleClick = () => {
       if (hasChildren) {
         setExpanded(!expanded);
-      } else if (item.path) {
+      } 
+      else if (item.path) {
         navigate(item.path);
       }
+      if (!hasChildren)
+        setTreeNodeTitle(item.name)
+
     };
   
     return (

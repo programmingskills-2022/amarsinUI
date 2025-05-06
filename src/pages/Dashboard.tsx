@@ -8,9 +8,9 @@ export default function Dashboard() {
       </header> */}
       {/* Sub-header */}
       {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex overflow-hidden">
         {/* Center content */}
-        <main className="flex-1 flex flex-col items-center justify-center">
+        <main className="flex flex-col items-center justify-center">
           این صفحه فقط برای تست می باشد
         </main>
       </div>
