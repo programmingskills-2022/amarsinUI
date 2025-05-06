@@ -2,13 +2,6 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { useAuthStore } from '../store/authStore'
-<<<<<<< HEAD
-import type { LoginRequest, UserInfo, AppConfig } from '../types/auth'
-
-export function useAuth() {
-  const {
-    userName, pass, playerId, customerTyp, appVer, xCustomerCode, isAppConfig, setToken, setUserInfo, setAppConfig
-=======
 import type { LoginRequest} from '../types/auth'
 
 export function useAuth() {
@@ -25,7 +18,6 @@ export function useAuth() {
     setError,
     menu,
     initData
->>>>>>> cee5e85 (create menu)
   } = useAuthStore()
   const navigate = useNavigate()
 
@@ -38,23 +30,6 @@ export function useAuth() {
         customerTyp,
         appVer,
         xCustomerCode,
-<<<<<<< HEAD
-        isAppConfig
-      }
-      const response = await api.post('/api/User/login', body)
-      //console.log('login info',response.data)
-      return response.data
-    },
-    onSuccess: (data) => {
-      const userInfo: UserInfo = data?.data?.result?.login
-      const appConfig: AppConfig = data?.data?.result?.appConfig
-      setToken(userInfo.token)
-      localStorage.setItem('customerCode', xCustomerCode)
-      setUserInfo(userInfo)
-      setAppConfig(appConfig)
-      navigate('/dashboard')
-    },
-=======
         isAppConfig,
         menu,
         initData
@@ -86,7 +61,6 @@ export function useAuth() {
       console.error('Login error:', error)
       //setError(-1, 'خطا در ورود به سیستم') // Set a default error message
     },
->>>>>>> cee5e85 (create menu)
   })
 
   return {

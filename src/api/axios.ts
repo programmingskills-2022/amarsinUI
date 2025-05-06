@@ -1,8 +1,4 @@
 import axios from 'axios'
-<<<<<<< HEAD
-import { useAuthStore } from '../store/authStore'
-=======
->>>>>>> cee5e85 (create menu)
 
 const api = axios.create({
   baseURL: 'http://apitest.dotis.ir',
