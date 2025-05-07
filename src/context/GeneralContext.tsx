@@ -19,7 +19,7 @@ export const GeneralProvider: React.FC<{ children: ReactNode }> = ({ children })
         isMenuOpened,
         setIsMenuOpened, 
         treeNodeTitle,
-        setTreeNodeTitle
+        setTreeNodeTitle,
       }}
     >
       {children}

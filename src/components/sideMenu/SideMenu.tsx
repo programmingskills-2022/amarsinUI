@@ -1,23 +1,24 @@
-import { useNavigate } from 'react-router-dom';  
+//import { useNavigate } from 'react-router-dom';  
 import { useAuthStore } from '../../store/authStore';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+//import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import { buildTree } from './treeUtils';
 import { TreeView } from './TreeView';
 import { MenuItem } from '../../types/menu';
 import { useGeneralContext } from '../../context/GeneralContext';
 import { useEffect, useState } from 'react';
+import LoginInside from '../login/LoginInside';
 
 const SideMenu = () => {  
   const {isMenuOpened}=useGeneralContext()
 
-  const { authApiResponse } = useAuthStore();
-  const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const { authApiResponse,logout } = useAuthStore();
+  // const navigate = useNavigate();
+  // const { logout } = useAuthStore();
   
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate('/login');
+  // };
 
   const userInfo = authApiResponse?.data.result.login;  
   const initData = authApiResponse?.data.result.initData;
@@ -35,18 +36,27 @@ const SideMenu = () => {
     }
   }, [isMenuOpened]);
 
+  const openLogin = () =>{
+    logout()
+  }
+
   return (  
-    <aside className={`bg-white h-full text-gray-600 text-sm flex flex-col transition-all duration-300 ${
-      isMenuOpened ? "w-72" : "w-0"
-    }`}>
+    <aside
+      className={`bg-white sm:h-[calc(100vh-72px)] sm:overflow-y-auto text-gray-600 text-sm flex flex-col transition-all duration-300 ${
+        isMenuOpened ? "w-full sm:w-72" : "w-0 overflow-hidden h-0"
+      }`}
+    >
       {/* Top Section */}
       <div className={`transition-opacity duration-300 ${
           isMenuOpened ? 'opacity-100' : 'opacity-0'
         } ${visible ? 'block' : 'hidden'}`}>
         {/* User Info */}
-        <div className="flex items-center justify-center border-y-2 p-2 hover:cursor-pointer">
+        <div className="flex items-center justify-center border-y-2 p-2 hover:cursor-pointer"
+         onClick={openLogin}
+        >
           {userInfo?.nam || 'کاربر سیستم'}
         </div>
+        {/* سمت */}
         <div className="flex items-center justify-center p-2 hover:cursor-pointer">
           {initData?.chartTitle || '...'}
         </div>
@@ -61,14 +71,16 @@ const SideMenu = () => {
       </div>
 
       {/* Logout Icon */}
-      <div
+      {/* <div
         className="flex border-y-2 w-full justify-end p-2"
         onClick={handleLogout}
       >
         <PowerSettingsNewIcon className="text-gray-400 hover:cursor-pointer" />
-      </div>
+      </div> */}
     </aside> 
-  );  
+
+    )
+    
 };  
 
 export default SideMenu;

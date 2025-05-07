@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import { useAuthStore } from './store/authStore'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Layout from './components/layout/Layout'
+import User from './pages/User'
 
 const queryClient = new QueryClient()
 
@@ -19,12 +20,20 @@ function App() {
       <Router>
         <Layout>  
           <Routes>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login isHomePage={true}/>} />
             <Route
               path="/dashboard"
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/user/index"
+              element={
+                <PrivateRoute>
+                  <User />
                 </PrivateRoute>
               }
             />
