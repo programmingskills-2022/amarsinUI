@@ -1,5 +1,5 @@
 import SplashLogo from "../../assets/images/Splash-Logo.png";
-import AmarsinSplash from "../../assets/images/AmarsinSplash.png";
+import AmarsinSplash from "../../assets/images/AmarsinSplash.jpg";
 import LogoBlack from "../../assets/images/logo-black.png";
 
 const LoginLeft = () => {
