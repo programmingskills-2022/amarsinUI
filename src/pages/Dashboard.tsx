@@ -2,9 +2,9 @@ import PageTitle from "../components/PageTitle";
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen overflow-y-hidden flex flex-col bg-gray-200 pt-2 px-2">
+    <div className="h-[calc(100vh-72px)] overflow-y-auto flex flex-col bg-gray-200 pt-2">
       {/* Top blue header */}
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between border-b-2 border-gray-300">
         <PageTitle />
       </header>
       {/* Sub-header */}

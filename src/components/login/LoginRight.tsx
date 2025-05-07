@@ -9,18 +9,18 @@ type Props = {
   activationCode: string;
   setActivationCode: React.Dispatch<React.SetStateAction<string>>;
   setShowCodeModal: React.Dispatch<React.SetStateAction<boolean>>;
-  isHomePage:boolean
+  isHomePage: boolean;
 };
 const LoginRight = ({
   activationCode,
   setActivationCode,
   setShowCodeModal,
-  isHomePage
+  isHomePage,
 }: Props) => {
   const [errorPage, setErrorPage] = useState<string>("");
   const [remember, setRemember] = useState(false);
   const { login, isLoading } = useAuth();
-  const { userName, pass, setField, message, errorCode, xCustomerCode, isAuthenticated } =
+  const { userName, pass, setField, message, errorCode, xCustomerCode } =
     useAuthStore();
 
   const submitButtonRef = useRef<HTMLButtonElement>(null); // Create a ref for the button
@@ -49,9 +49,12 @@ const LoginRight = ({
     login();
   };
 
-
   return (
-    <div className={`${isHomePage ? "h-full": "h-3/4"} w-full md:w-[20%] flex items-center justify-center bg-gray-100 rounded-xl`}>
+    <div
+      className={`${
+        isHomePage ? "h-full" : "h-3/4"
+      } w-full md:w-[20%] flex items-center justify-center bg-gray-100 rounded-xl`}
+    >
       <div className={`h-full w-full max-w-sm p-2 flex flex-col items-center`}>
         <div className="w-full flex justify-start mb-2">
           <button
@@ -61,7 +64,11 @@ const LoginRight = ({
             <Cog6ToothIcon className="h-5 w-5" />
           </button>
         </div>
-        <div className={`w-full ${isHomePage ? "h-full": "h-5/6"} flex flex-col items-center`}>
+        <div
+          className={`w-full ${
+            isHomePage ? "h-full" : "h-5/6"
+          } flex flex-col items-center`}
+        >
           {/* avatar here */}
           <img src={logoAvatar} />
           <div className="bg-gray-300 w-full h-full flex flex-col items-center rounded-xl pt-4 -m-5">

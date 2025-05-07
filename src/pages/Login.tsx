@@ -29,6 +29,7 @@ export default function Login({ isHomePage }: Props) {
   };
 
   useEffect(()=>{
+    console.log(errorPage)
     setIsMenuOpened(true)
   },[])
 

@@ -30,8 +30,7 @@ interface TreeNodeProps {
 const TreeNode: React.FC<TreeNodeProps> = ({ item, level }) => {
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
-  const { setTreeNodeTitle, setIsMenuOpened, isMenuOpened } =
-    useGeneralContext();
+  const { setTreeNodeTitle, setIsMenuOpened } = useGeneralContext();
 
   const hasChildren = item.children && item.children.length > 0;
 
