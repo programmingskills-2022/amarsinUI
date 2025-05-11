@@ -25,11 +25,11 @@ const ToolBar = () => {
         <div className="hover:cursor-pointer" onClick={toggleMenu}>
           <MenuIcon />
         </div>
-        <label>سامانه جامع حسابداری داتیس</label>
+        <label className="hidden md:block">سامانه جامع حسابداری داتیس</label>
       </div>
 
       <div className="flex">
-        <span className="text-cyan-800 font-bold">{treeNodeTitle || ""}</span>
+        <span className="text-cyan-800 font-bold text-sm md:text-xl">{treeNodeTitle || ""}</span>
       </div>
 
       {/* Logout Icon */}

@@ -39,7 +39,7 @@ export function useAuth() {
       return response.data
     },
     onSuccess: (data) => {
-      const { meta, data: responseData } = data
+       const { meta, data: responseData } = data
       const { errorCode, message } = meta
 
       console.log('Login response:', data)
@@ -51,10 +51,12 @@ export function useAuth() {
         return
       }
 
-      // Successful login
+      //Successful login
       setToken(responseData?.result?.login.token)
       localStorage.setItem('customerCode', xCustomerCode)
       setAuthApiResponse(data)
+
+      console.log('dshjdhsjdhj')
       navigate('/dashboard')
     },
     onError: (error) => {

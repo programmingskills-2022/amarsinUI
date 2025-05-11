@@ -1,4 +1,5 @@
 import PageTitle from "../components/PageTitle";
+import DashboardForm from '../components/dashboard/DashboardForm'
 
 export default function Dashboard() {
   return (
@@ -11,7 +12,7 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="flex flex-col items-center justify-center">
-        صفحه جهت تست
+        <DashboardForm/>
       </main>
 
       {/* Footer */}
