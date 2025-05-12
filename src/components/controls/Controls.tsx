@@ -4,6 +4,7 @@ import Select from "./Select";
 import Checkbox from "./Checkbox";
 import DatePicker from "./DatePicker";
 import Button from "./Button";
+import FileUpload from "./FileUpload";
 
 const Controls: {
   Input: typeof Input;
@@ -12,6 +13,7 @@ const Controls: {
   Checkbox: typeof Checkbox;
   DatePicker: typeof DatePicker;
   Button: typeof Button;
+  FileUpload: typeof FileUpload;
 } = {
   Input,
   RadioGroup,
@@ -19,6 +21,7 @@ const Controls: {
   Checkbox,
   DatePicker,
   Button,
+  FileUpload,
 };
 
 export default Controls;
