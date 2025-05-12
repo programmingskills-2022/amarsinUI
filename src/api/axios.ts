@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://apitest.dotis.ir',
+  //baseURL: 'http://localhost:5042',
 });
 
 api.interceptors.request.use((config) => {
@@ -14,7 +15,7 @@ api.interceptors.request.use((config) => {
   // Retrieve the token from localStorage
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`; // Add token to Authorization header
+    config.headers['Authorization'] = token; // No 'Bearer '
   }
 
   return config;
