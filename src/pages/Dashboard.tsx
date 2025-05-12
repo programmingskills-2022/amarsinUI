@@ -1,7 +1,22 @@
+import { useEffect } from "react";
+import Employees from "../components/employee/Employees";
 import PageTitle from "../components/PageTitle";
-import DashboardForm from '../components/dashboard/DashboardForm'
+import { useBrandStore } from "../store/brandStore";
+import { useAuthStore } from "../store/authStore";
+import { useBrand } from "../hooks/useBrands";
 
 export default function Dashboard() {
+
+  const {getBrands} = useBrand()
+  const {setField} = useBrandStore()
+  const {authApiResponse}=useAuthStore()
+
+  const accSystem= authApiResponse?.data.result.initData.systemId
+  useEffect(()=>{
+    setField("accSystem",accSystem)
+    getBrands()
+  },[accSystem])
+
   return (
     <div className="h-[calc(100vh-72px)] overflow-y-auto flex flex-col bg-gray-200 pt-2">
       {/* Top blue header */}
@@ -12,7 +27,7 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="flex flex-col items-center justify-center">
-        <DashboardForm/>
+        <Employees />
       </main>
 
       {/* Footer */}

@@ -1,3 +1,4 @@
+import { Employee } from "../types/employee";
 const KEYS = {
   employees: "employees",
   employeeId: "employeeId",
@@ -8,17 +9,6 @@ export interface Department {
   title: string;
 }
 
-export interface Employee {
-  id?: number; // Optional because it will be generated
-  fullName: string;
-  email: string;
-  mobile: string;
-  city: string;
-  gender: string;
-  departmentId: string;
-  hireDate: Date;
-  isPermanent: boolean;
-}
 
 export const getDepartmentCollection = (): Department[] => [
   { id: "1", title: "Development" },

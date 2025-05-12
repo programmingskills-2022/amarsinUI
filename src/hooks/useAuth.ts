@@ -54,6 +54,7 @@ export function useAuth() {
       //Successful login
       setToken(responseData?.result?.login.token)
       localStorage.setItem('customerCode', xCustomerCode)
+      localStorage.setItem('token', responseData?.result?.login.token)
       setAuthApiResponse(data)
 
       console.log('dshjdhsjdhj')
