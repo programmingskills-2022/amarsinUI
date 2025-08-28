@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Vazir";
+  src: url("../assets/fonts/Vazir.woff2") format("woff2"),
+    url("../assets/fonts/Vazir.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Vazir", sans-serif;
+}
+
+.rmdp-container {
+  display: block !important;
+  width: 100% !important;
+}
