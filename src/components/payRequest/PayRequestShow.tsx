@@ -39,15 +39,18 @@ import { v4 as uuidv4 } from "uuid";
 import { useAttachments } from "../../hooks/useAttachments";
 import { useAttachmentStore } from "../../store/attachmentStore";
 import AttachmentShowTableTabs from "../attachment/AttachmentShowTableTabs";
-import { DefinitionDateTime, DefinitionInvironment } from "../../types/definitionInvironment";
+import {
+  DefinitionDateTime,
+  DefinitionInvironment,
+} from "../../types/definitionInvironment";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
   isNew: boolean;
   setIsNew: (isNew: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
-  definitionDateTime:DefinitionDateTime
-  definitionInvironment:DefinitionInvironment
+  definitionDateTime: DefinitionDateTime;
+  definitionInvironment: DefinitionInvironment;
 };
 
 const PayRequestShow = ({
@@ -56,8 +59,7 @@ const PayRequestShow = ({
   setIsNew,
   setIsEdit,
   definitionDateTime,
-  definitionInvironment
-  
+  definitionInvironment,
 }: Props) => {
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
   const {
@@ -123,6 +125,11 @@ const PayRequestShow = ({
   const [chequeBookId, setChequeBookId] = useState(0);
   const [options1, setOptions1] = useState<DefaultOptionType[]>([]);
   const [options2, setOptions2] = useState<DefaultOptionType[]>([]);
+  //const [isPayChanged, setIsPayChanged] = useState(false);
+  const [payRequestDtlIndex, setPayRequestDtlIndex] = useState(0);
+  const [tempData, setTempData] = useState<PayRequestInvoiceIncludeChecks[]>(
+    []
+  );
   // end of tab 2
   const {
     //for tab 2
@@ -149,7 +156,7 @@ const PayRequestShow = ({
     if (isModalRegOpen) {
       timeoutId = setTimeout(() => {
         setIsModalRegOpen(false);
-        if (payRequestSaveResponseStore?.meta.errorCode <=0) {
+        if (payRequestSaveResponseStore?.meta.errorCode <= 0) {
           setIsNew(false);
           setIsEdit(false);
         }
@@ -165,7 +172,12 @@ const PayRequestShow = ({
   useEffect(() => {
     //console.log(workFlowRowSelectResponse?.workTableRow.formId);
     setActiveTab(2);
-    setPayRequestField("id", workFlowRowSelectResponse?.workTableRow.formId);
+    console.log(
+      workFlowRowSelectResponse?.workTableRow.formId,
+      "workFlowRowSelectResponse?.workTableRow.formId in PayRequestShow"
+    );
+    if (!isNew)
+      setPayRequestField("id", workFlowRowSelectResponse?.workTableRow.formId);
     setPayRequestField("yearId", yearId);
     setPayRequestField("systemId", systemId);
   }, [workFlowRowSelectResponse?.workTableRow.formId, yearId, systemId]);
@@ -303,7 +315,7 @@ const PayRequestShow = ({
   //initializing invoices
   useEffect(() => {
     //for invoices with checks
-    const tempDate: PayRequestInvoiceIncludeChecks[] =
+    const tempData: PayRequestInvoiceIncludeChecks[] =
       payRequestInvoicesResponse.data.result.invoices.map((item, index) => {
         return {
           ...item,
@@ -315,53 +327,90 @@ const PayRequestShow = ({
           ),
         };
       });
-    setInvoicesWithChecks(tempDate);
+    setInvoicesWithChecks(tempData);
   }, [payRequestInvoicesResponse.data.result.invoices, payRequestResponse]);
   /////////////////////////////////////////////////////////////////
   useEffect(() => {
-    let newPay = 0;
-    //console.log(payRequestDtlId, "payRequestDtlId");
-    const tempData = invoicesWithChecks.map((item, index) => {
+    let settleSum: number = 0;
+    //console.log(invoicesWithChecks, "invoicesWithChecks in useEffect");
+    const tempInvoicesWithChecks = invoicesWithChecks.map((item, index) => {
+      let checked = item.checked;
       //فاکتوری که در آن از چک کلیک شده پرداخت شده است
-      const invoicePayByClickedCheck = item.invcs.find(
-        (p) => p.payRequestDtlId === payRequestDtlId
-      );
-      const invoicePayByOtherChecks = item.invcs.filter(
-        (p) => p.payRequestDtlId !== payRequestDtlId
-      );
+      //اگر رکورد در حال ویرایش است
+      let invoicePayByClickedCheck;
+      //console.log(item, "item in useEffect");
+      if (isNew) {
+        invoicePayByClickedCheck = item.invcs.find(
+          (p) => p.paymentRow === payRequestDtlIndex
+        );
+      } else {
+        invoicePayByClickedCheck = item.invcs.find(
+          (p) => p.payRequestDtlId === payRequestDtlId
+        );
+      }
+      //console.log(invoicePayByClickedCheck, "invoicePayByClickedCheck in useEffect");
+      //فاکتورهایی که با چکهای دیگری پرداخت شده اند
+      //اگر رکورد در حال ویرایش است
+      let invoicePayByOtherChecks;
+      if (isNew) {
+        invoicePayByOtherChecks = item.invcs.filter(
+          (p) => p.paymentRow !== payRequestDtlIndex
+        );
+      } else {
+        invoicePayByOtherChecks = item.invcs.filter(
+          (p) => p.payRequestDtlId !== payRequestDtlId
+        );
+      }
+      //console.log(invoicePayByOtherChecks, "invoicePayByOtherChecks in useEffect");
       const totalPayByOtherChecks = invoicePayByOtherChecks.reduce(
         (acc, item) => acc + item.settle,
         0
       );
       let pay = 0;
-      if (invoicePayByClickedCheck) {
-        console.log(
-          invoicePayByClickedCheck,
-          "invoicePayByClickedCheck in PayRequestShow"
-        );
-      }
       //اگر فاکتور با چک دیگری پرداخت شده باشد
       if (invoicePayByOtherChecks.length > 0) {
         pay = totalPayByOtherChecks;
+        const tempSettle = invoicePayByClickedCheck
+          ? invoicePayByClickedCheck.settle
+          : 0;
+        checked = tempSettle > 0 ? checked : false;
       }
       return {
         ...item,
         index: index + 1,
         dcrmntPercent: 0,
         dcrmnt: 0,
-        checked: invoicePayByClickedCheck ? true : item.checked,
+        checked: invoicePayByClickedCheck ? true : checked,
         settle: invoicePayByClickedCheck ? invoicePayByClickedCheck.settle : 0,
         rem: item.total - pay, //جمع فاکتور -پرداختی
         pay,
         payRequestDtlId: payRequestDtlId,
       };
     });
-    //console.log(pay, newPay, "pay and newPay");
-    setNewPay(pay - newPay);
-    setInvoices(tempData);
-    //setOriginalInvoices(tempData);
-  }, [payRequestResponse, payRequestDtlId, invoicesWithChecks]);
+    settleSum = tempInvoicesWithChecks.reduce(
+      (acc, item) => acc + item.settle,
+      0
+    );
+    setNewPay(pay - settleSum);
+    setInvoices(tempInvoicesWithChecks);
+  }, [
+    payRequestResponse,
+    payRequestDtlId,
+    invoicesWithChecks,
+    payRequestDtlIndex,
+  ]);
+  //////////////////////////////////////////////////////////////
+  useEffect(() => {
+    const settleSum = invoicesWithChecks.reduce(
+      (acc, item) => acc + item.settle,
+      0
+    );
+    if (settleSum === 0) {
+      setNewPay(pay); // give initial value to newPay
+    }
+  }, [pay]);
   ////////////////////////////////////////////////////////////////////////////
+  //for setting fields in tab 1
   useEffect(() => {
     setField("idRpCustomerBills", id);
     setField("customerIdRpCustomerBills", customer?.id ?? 0);
@@ -424,7 +473,7 @@ const PayRequestShow = ({
         });
         const invc: PayRequestSaveInvoice = {
           payRequestDtlId: p.payRequestDtlId,
-          paymentRow: idx,
+          paymentRow: isNew ? p.paymentRow : idx,
           id: item.id,
           dcrmntPrcnt: item.dcrmntPercent,
           dcrmnt: item.dcrmnt,
@@ -468,6 +517,40 @@ const PayRequestShow = ({
       console.error("Error ثبت :", error);
     }
   };
+  //////////////////////////////////////////////////////////////
+  const handleConfirm = () => {
+    console.log(tempData, "tempData in handleConfirm");
+    const isChecked = tempData.some((p) => p.checked);
+    const newDataInTab2 = dataInTab2.map((item) => {
+      if (isNew && item.index === payRequestDtlIndex) {
+        return { ...item, checked: isChecked };
+      } else if (!isNew && item.id === payRequestDtlId) {
+        return { ...item, checked: isChecked };
+      } else {
+        return { ...item };
+      }
+    });
+    setDataInTab2(newDataInTab2);
+
+    setInvoices(
+      tempData.map((item: any) => {
+        return {
+          ...item,
+          checked: item.settle > 0 ? true : false,
+        };
+      })
+    );
+    setInvoicesWithChecks(
+      tempData.map((item) => {
+        return {
+          ...item,
+          checked: item.settle > 0 ? true : false,
+        };
+      })
+    );
+    setShowInvoices(false);
+  };
+
   return (
     <div>
       <PayRequestShowHeader
@@ -514,7 +597,6 @@ const PayRequestShow = ({
         )}`}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        
       />
       {activeTab === 0 && (
         <PayRequestActiveTab0
@@ -554,6 +636,9 @@ const PayRequestShow = ({
           setChequeBookId={setChequeBookId}
           chequeBookId={chequeBookId}
           workFlowRowSelectResponse={workFlowRowSelectResponse}
+          //setIsPayChanged={setIsPayChanged}
+          setPayRequestDtlIndex={setPayRequestDtlIndex}
+          isNew={isNew}
         />
       )}
       {workFlowRowSelectResponse.workTableForms.canEditForm1 && (
@@ -574,20 +659,20 @@ const PayRequestShow = ({
       )}
       <ModalForm
         isOpen={showInvoices}
-        onClose={() => setShowInvoices(false)}
+        onClose={() => handleConfirm()} //{() => setShowInvoices(false)}
         title="فاکتورهای تسویه نشده"
         width="2/3"
       >
         <PayRequestInvoices
+          tempData={tempData}
+          setTempData={setTempData}
           payRequestDtlId={payRequestDtlId}
           data={invoices}
-          setData={setInvoices}
           setInvoicesWithChecks={setInvoicesWithChecks}
           pay={pay}
-          setShowInvoices={setShowInvoices}
           newPay={newPay}
-          setNewPay={setNewPay}
-          //isConfirmRef={isConfirmRef}
+          payRequestDtlIndex={payRequestDtlIndex}
+          isNew={isNew}
         />
       </ModalForm>
       <ModalForm
@@ -624,7 +709,7 @@ const PayRequestShow = ({
         }
         color="text-white"
         message={
-          payRequestSaveResponseStore?.meta.errorCode >0
+          payRequestSaveResponseStore?.meta.errorCode > 0
             ? payRequestSaveResponseStore?.meta.message || ""
             : "اطلاعات با موفقیت ثبت شد."
         }

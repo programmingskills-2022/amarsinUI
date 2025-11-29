@@ -9,17 +9,17 @@ import {
   convertToFarsiDigits,
   convertToLatinDigits,
 } from "../../utilities/general";
-import { Skeleton } from "@mui/material";
 import ConfirmCard from "../layout/ConfirmCard";
 import Button from "../controls/Button";
 import { useInvoiceReturnRequestStore } from "../../store/invoiceReturnRequestStore";
+import Skeleton from "../layout/Skeleton";
 
 type Props = {
   invoiceReturnRequestInvoiceListResponse: InvoiceReturnRequestInvoiceListResponse;
   isLoadingInvoiceReturnRequestInvoiceList: boolean;
   invoiceReturnRequestRegisterDtl: (
     request: InvoiceReturnRequestRegisterDtlRequest[]
-  ) => void;
+  ) => Promise<any>;
   handleEditClickClose: (editClicked: boolean) => void;
 };
 
@@ -172,16 +172,23 @@ const InvoiceReturnRequestInvoiceList = ({
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    let sumCntFactor = 0;
-    let sumCntReg = 0;
-    let sumOfferFactor = 0;
-    let sumOfferReg = 0;
+    let hasError = false;
+    //let sumCntFactor = 0;
+    //let sumCntReg = 0;
+    //let sumOfferFactor = 0;
+    //let sumOfferReg = 0;
     const request: InvoiceReturnRequestRegisterDtlRequest[] = data.map(
       (item) => {
-        sumCntFactor += Number(convertToLatinDigits(item.cnt));
-        sumCntReg += Number(convertToLatinDigits(item.regedCnt));
-        sumOfferFactor += Number(convertToLatinDigits(item.offer));
-        sumOfferReg += Number(convertToLatinDigits(item.regedOffer));
+        if (
+          Number(convertToLatinDigits(item.regedCnt)) >
+          Number(convertToLatinDigits(item.cnt))
+        ) {
+          hasError = true;
+        }
+        //sumCntFactor += Number(convertToLatinDigits(item.cnt));
+        //sumCntReg += Number(convertToLatinDigits(item.regedCnt));
+        //sumOfferFactor += Number(convertToLatinDigits(item.offer));
+        //sumOfferReg += Number(convertToLatinDigits(item.regedOffer));
         return {
           invoiceDtlId: item.invoiceDtlId,
           iocId: item.iocId,
@@ -192,19 +199,18 @@ const InvoiceReturnRequestInvoiceList = ({
     );
 
     try {
-      console.log(sumCntReg, sumCntFactor, "sumCntReg, sumCntFactor");
-      if (sumCntReg > sumCntFactor) {
+      if (hasError) {
         setError("تعداد ثبت شده از مانده تعداد قلم فاکتور بیشتر است!");
-        //return;
-      } else {
-        /*if (sumOfferReg > sumOfferFactor) {
-        setError("آفر ثبت شده از مانده آفر قلم فاکتور بیشتر است!");
         return;
-      }*/
+      } else {
         console.log(invoiceListId, "invoiceListId");
         setField("invoiceReturnRequestDtlId", invoiceListId);
         const response = await invoiceReturnRequestRegisterDtl(request);
         console.log(response, "response in handleSubmit");
+        if (response.meta.errorCode > 0) {
+          setError(convertToFarsiDigits(response.meta.message ?? ""));
+          return;
+        }
         handleEditClickClose(false);
       }
     } catch (error) {

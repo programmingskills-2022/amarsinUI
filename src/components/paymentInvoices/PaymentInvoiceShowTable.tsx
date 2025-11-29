@@ -292,7 +292,7 @@ const PaymentInvoiceShowTable = ({
       let initialData = invoiceOutStandingResponse.data.invoiceOutstandings.map(
         (dtl) => ({
           ...dtl,
-          check: dtl.checked,
+          check: dtl.settlement>0 ? true : false,//dtl.checked,
           amnt: dtl.settlement,
           index: i++,
         })
@@ -326,6 +326,9 @@ const PaymentInvoiceShowTable = ({
   const changeRowValues = useCallback(
     (value: string, rowIndex: number, columnId: string) => {
       console.log(value, "value");
+      if (value === "") {
+        value = "0";
+      }
       if (columnId === "pdPrcnt") {
         setData((old) => {
           // Calculate current total allocated amount excluding the current row

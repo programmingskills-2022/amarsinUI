@@ -3,7 +3,7 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  padding?: 'sm' | 'md' | 'lg' | 'xl';
+  padding?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' ;
   shadow?: 'sm' | 'md' | 'lg' | 'xl' | 'none';
   rounded?: 'sm' | 'md' | 'lg' | 'xl' | 'none';
   border?: 'default' | 'thin' | 'thick' | 'none';
@@ -26,6 +26,7 @@ const Card: React.FC<CardProps> = ({
   hover = false,
 }) => {
   const paddingClasses = {
+    xs: 'p-1',
     sm: 'p-2',
     md: 'p-4',
     lg: 'p-6',

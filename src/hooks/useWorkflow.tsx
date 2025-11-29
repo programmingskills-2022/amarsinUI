@@ -9,6 +9,7 @@ import api from "../api/axios";
 import { useWorkflowStore } from "../store/workflowStore";
 import {
   WorkFlowDoFlowRequest,
+  WorkFlowFlowMapBeforeAftersResponse,
   WorkFlowFlowMapsResponse,
   WorkFlowFlowNosSearchRequest,
   WorkFlowFlowNosSearchResponse,
@@ -55,6 +56,10 @@ export function useWorkflow() {
     systemIdFlowMaps,
     setWorkFlowFlowMapsResponse,
     workTableIdTrigger, // for doFlow to call queryRowSelect
+    //for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+    flowMapIdBeforeAfters,
+    systemIdBeforeAfters,
+    setWorkFlowFlowMapBeforeAftersResponse,
   } = useWorkflowStore();
 
   //const queryClient = new QueryClient();
@@ -135,7 +140,6 @@ export function useWorkflow() {
         workTableId,
         workTableIdTrigger,
       };
-
       const url: string = `api/WFMS/WorkTableRowSelect?WorkTableId=${params.workTableId}&chartId=${params.chartId}`;
 
       console.log(url, "url");
@@ -252,6 +256,32 @@ export function useWorkflow() {
       setWorkFlowFlowMapsResponse(data);
     },
   } as UseQueryOptions<WorkFlowFlowMapsResponse, Error, WorkFlowFlowMapsResponse, unknown[]>);
+  //for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+  const workFlowFlowMapBeforeAftersQuery = useQuery<
+    WorkFlowFlowMapBeforeAftersResponse,
+    Error,
+    WorkFlowFlowMapBeforeAftersResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowFlowMapBeforeAfters",
+      flowMapIdBeforeAfters,
+      systemIdBeforeAfters,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/flowMapBeforeAfters?FlowMapId=${flowMapIdBeforeAfters}&SystemId=${systemIdBeforeAfters}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    onSuccess: (data: any) => {
+      setWorkFlowFlowMapBeforeAftersResponse(data);
+    },
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    enabled: flowMapIdBeforeAfters !== -1 && systemIdBeforeAfters !== -1,
+  } as UseQueryOptions<WorkFlowFlowMapBeforeAftersResponse, Error, WorkFlowFlowMapBeforeAftersResponse, unknown[]>);
+
   //for doFlow
   const doFlow = useMutation({
     mutationFn: async (request: WorkFlowDoFlowRequest) => {
@@ -262,8 +292,6 @@ export function useWorkflow() {
     onSuccess: async (data: any) => {
       // Refetch only the current query with exact parameters, not all workflow queries
       if (data.meta.errorCode <= 0) {
-        // Refetch "workflow" query - this will trigger automatic refetch of "workflowRowSelect"
-        // when workTableId changes in WorkflowChild useEffect
         await queryClient.refetchQueries({
           queryKey: [
             "workflow",
@@ -280,8 +308,6 @@ export function useWorkflow() {
             dsc,
           ],
         });
-        // workflowRowSelect will automatically refetch when workTableId changes
-        // (workTableId is part of its queryKey: ["workflowRowSelect", chartId, workTableId])
       }
       setWorkFlowDoFlowResponse(data);
     },
@@ -395,5 +421,18 @@ export function useWorkflow() {
       meta: { errorCode: 0, message: "", type: "" },
       data: { result: [] },
     },
+    //for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+    refetchWorkFlowFlowMapBeforeAfters:
+      workFlowFlowMapBeforeAftersQuery.refetch,
+    isRefetchingWorkFlowFlowMapBeforeAfters:
+      workFlowFlowMapBeforeAftersQuery.isRefetching,
+    isLoadingWorkFlowFlowMapBeforeAfters:
+      workFlowFlowMapBeforeAftersQuery.isLoading,
+    errorWorkFlowFlowMapBeforeAfters: workFlowFlowMapBeforeAftersQuery.error,
+    workFlowFlowMapBeforeAftersResponse:
+      workFlowFlowMapBeforeAftersQuery.data ?? {
+        meta: { errorCode: 0, message: "", type: "" },
+        data: { result: { flowMapBefores: [], flowMapAfters: [] } },
+      },
   };
 }

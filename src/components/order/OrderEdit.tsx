@@ -44,7 +44,7 @@ const OrderEdit = ({
       setProductField("productSearchPage", 1);
     }
     // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
+    //setProductField("salesPricesSearchPage", -1);
   }, [productSearch, systemId, yearId]);
 
   ///////////////////////////////////////////////////////

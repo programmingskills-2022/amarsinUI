@@ -4,22 +4,66 @@ import Refresh32 from "../../../assets/images/GrayThem/rfrsh32.png";
 import Del24 from "../../../assets/images/GrayThem/del24.png";
 import Edit24 from "../../../assets/images/GrayThem/edit24.png";
 import { DefinitionInvironment } from "../../../types/definitionInvironment";
+import WorkFlowMapReg from "./WorkFlowMapReg";
+import ModalForm from "../../layout/ModalForm";
+import { useState } from "react";
+import { DefaultOptionType } from "../../../types/general";
 
 type Props = {
-  setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
+  //setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
+  NewEdit: number; // 1 for new, 0 for edit
+  setNewEdit: React.Dispatch<React.SetStateAction<number>>;
+  onCloseNewEdit: () => void;
   handleDelete: () => void;
   handleEdit: () => void;
   refetch: () => void;
   definitionInvironment: DefinitionInvironment;
 };
 
+export type Process = {
+  usrId: number
+  id: number,
+  name: string,
+  flowNo: DefaultOptionType | null,
+  fChart: DefaultOptionType | null,
+  codeId: DefaultOptionType | null,
+  tChart: DefaultOptionType | null,
+  formNo1: DefaultOptionType | null,
+  formNo2: DefaultOptionType | null,
+  scriptBeforeId: DefaultOptionType | null,
+  scriptId: DefaultOptionType | null,
+  webAPIId: DefaultOptionType | null,
+  scriptValidatorId: DefaultOptionType | null,
+  statusId: DefaultOptionType | null,
+  idempotencyKey: string,
+}
 const WorkflowMapHeader = ({
-  setIsNew,
+  //setIsNew,
+  NewEdit,
+  setNewEdit,
+  onCloseNewEdit,
   handleDelete,
   handleEdit,
   refetch,
   definitionInvironment,
 }: Props) => {
+  const [process, setProcess] = useState<Process>({
+    usrId: 0,
+    id: 0,
+    name: "",
+    flowNo: null,
+    fChart: null,
+    codeId: null,
+    tChart: null,
+    formNo1: null,
+    formNo2: null,
+    scriptBeforeId: null,
+    scriptId: null,
+    webAPIId: null,
+    scriptValidatorId: null,
+    statusId: null,
+    idempotencyKey: "",
+  } as Process);
   return (
     <header className="flex flex-col gap-2 md:flex-row items-center justify-between border-gray-300 border-b pb-2">
       <PageTitle definitionInvironment={definitionInvironment} />
@@ -28,7 +72,7 @@ const WorkflowMapHeader = ({
           className="flex flex-col items-center cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
           onClick={() => {
             console.log("new");
-            setIsNew(true);
+            setNewEdit(1); // 1 for new
           }} // for new
         >
           <img src={Add32} alt="Add32" className="w-6 h-6" />
@@ -44,7 +88,7 @@ const WorkflowMapHeader = ({
         </div>
         <div
           className={`flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 cursor-pointer`}
-          onClick={() => handleEdit()} // for edit
+          onClick={() => setNewEdit(0)} // 0 for edit
         >
           <img
             src={
@@ -64,6 +108,14 @@ const WorkflowMapHeader = ({
           <p className="text-xs">بازخوانی</p>
         </div>
       </div>
+      <ModalForm
+        isOpen={NewEdit === 1 || NewEdit === 0} // 1 for new, 0 for edit
+        onClose={() => setNewEdit(-1)} // 0 for close
+        title={NewEdit === 1 ? "جدید" : "ویرایش"}
+        width="1/2"
+      >
+        <WorkFlowMapReg NewEdit={NewEdit} process={process} setProcess={setProcess} />
+      </ModalForm>
     </header>
   );
 };

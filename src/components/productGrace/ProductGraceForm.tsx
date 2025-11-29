@@ -262,7 +262,34 @@ const ProductGraceForm = ({
       };
     });
   }, [products, setSearch]);
-
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد",
+      accessor: "productCode",
+    },
+    {
+      Header: "کالا",
+      accessor: "product",
+    },
+    {
+      Header: "فرجه",
+      accessor: "gd",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   ////////////////////////////////////////////////////////
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
@@ -380,7 +407,7 @@ const ProductGraceForm = ({
       setProductField("productSearchPage", 1);
     }
     // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
+    //setProductField("salesPricesSearchPage", -1);
   }, [search, systemId, yearId]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -442,11 +469,11 @@ const ProductGraceForm = ({
                 bName: product.bName,
                 product: product.product,
                 lastDate: product.lastDate,
-                gd: product.gdo > 0 ? product.gdo : 0,
+                gd: product.gdo > 0 ? product.gdo : 0,//مقادیر جدید
                 sc: product.sco > 0 ? product.sco : 0,
                 cc: product.cco > 0 ? product.cco : 0,
                 ec: product.eco > 0 ? product.eco : 0,
-                gdo: product.gdo > 0 ? product.gdo : 0,
+                gdo: product.gdo > 0 ? product.gdo : 0,//مقادیر قدیمی
                 sco: product.sco > 0 ? product.sco : 0,
                 cco: product.cco > 0 ? product.cco : 0,
                 eco: product.eco > 0 ? product.eco : 0,
@@ -497,11 +524,12 @@ const ProductGraceForm = ({
           dtlDsc: item.dtlDsc,
           deleted: item.isDeleted,
         };
+        
         if (
-          Number(convertToLatinDigits(item.gdo.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.sco.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.cco.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.eco.toString())) !== 0
+          Number(convertToLatinDigits(item.gd.toString())) === 0 ||
+          Number(convertToLatinDigits(item.sc.toString())) !== 0 ||
+          Number(convertToLatinDigits(item.cc.toString())) !== 0 ||
+          Number(convertToLatinDigits(item.ec.toString())) !== 0
         ) {
           return dtl;
         } else {
@@ -583,8 +611,9 @@ const ProductGraceForm = ({
             handleExport({
               data: originalData,
               setIsModalOpen,
-              headCells: columns,
+              headCells: excelHeadCells,
               fileName,
+              hasPersianTitle: true,
             })
           }
         />

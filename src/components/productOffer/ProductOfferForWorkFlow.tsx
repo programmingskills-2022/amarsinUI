@@ -38,11 +38,6 @@ const ProductOfferForWorkFlow = ({
 
   const { yearId, systemId } = useGeneralContext();
   if (id !== workFlowRowSelectResponse.workTableRow.formId) {
-    console.log(
-      id,
-      workFlowRowSelectResponse.workTableRow.formId,
-      "workFlowRowSelectResponse.workTableRow.formId"
-    );
     setField("acc_YearDtl", yearId);
     setField("acc_SystemDtl", systemId);
     setField("id", workFlowRowSelectResponse.workTableRow.formId);

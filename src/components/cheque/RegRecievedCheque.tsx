@@ -45,7 +45,7 @@ const RegRecievedCheque = ({
       "loadPaymentFormId",
       workFlowRowSelectResponse.workTableRow.formId
     );
-    setField("payKind", -1);
+    //setField("payKind", -1);
     setField("sayadiPaymentId", -1);
     //form cheque image attachment
     setField(
@@ -58,6 +58,7 @@ const RegRecievedCheque = ({
     loadPaymentResponse,
     isLoading: isLoadingLoadPayment,
     updateFields,
+    updateFieldsResponse,
     isLoadingUpdateFields,
     //cashPosSystemSearch,
     paymentAttachmentResponse,
@@ -76,7 +77,7 @@ const RegRecievedCheque = ({
         workFlowRowSelectResponse.workTableRow.formId ?? -1
       );
       setField("sayadiPaymentId", -1);
-      setField("payKind", -1);
+      //setField("payKind", -1);
       getPayment();
       getPaymentAttachment();
       setRefetchSwitch(false);
@@ -107,6 +108,7 @@ const RegRecievedCheque = ({
         loadPaymentResponse={loadPaymentResponse}
         isLoadingLoadPayment={isLoadingLoadPayment}
         updateFields={updateFields}
+        updateFieldsResponse={updateFieldsResponse}
         isLoadingUpdateFields={isLoadingUpdateFields}
         cashPosSystemSearch={cashPosSystemSearch}
         sayadChequeInquiryByPaymentIdResponse={

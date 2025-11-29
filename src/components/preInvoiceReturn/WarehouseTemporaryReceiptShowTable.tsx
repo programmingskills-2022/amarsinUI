@@ -192,6 +192,7 @@ const WarehouseTemporaryReceiptShowTable = ({
     setData(
       warehouseTemporaryReceiptShowResponse.preInvoiceReturnDtls.map(
         (item, idx) => { 
+          console.log(item, "item in WarehouseTemporaryReceiptShowTable useEffect");
           const dtl: WarehouseTemporaryReceiptIndentDtl = {
             id: 0,
             iocId: 0,
@@ -303,6 +304,13 @@ const WarehouseTemporaryReceiptShowTable = ({
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex && value && value.id !== 0) {
+          let wtrdId = 0;
+          if(columnId === "wtrdText") {
+            if (value!==null) {
+              wtrdId = value.id;
+              updateToSave({...old[rowIndex], wtrdId: wtrdId});
+            }
+          }
           return {
             ...old[rowIndex],
             [columnId as string]:
@@ -319,7 +327,7 @@ const WarehouseTemporaryReceiptShowTable = ({
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  updateToSave(old[rowIndex]);
+                  updateToSave({...old[rowIndex], wtrdId: wtrdId});
                 }}
               >
                 {<FaCheck color="green" size={16} />}
@@ -330,7 +338,7 @@ const WarehouseTemporaryReceiptShowTable = ({
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  updateToSave(old[rowIndex]);
+                  updateToSave({...old[rowIndex], wtrdId: wtrdId});
                 }}
               >
                 {<FaSave color="purple" size={16} />}

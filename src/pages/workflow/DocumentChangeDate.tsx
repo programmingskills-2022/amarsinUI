@@ -36,7 +36,7 @@ const DocumentChangeDate = ({
   dsc,
   setIsModalOpen,
 }: Props) => {
-  const { setField: setWorkFlowField, workTableId } = useWorkflowStore();
+  const { setField: setWorkFlowField } = useWorkflowStore();
   const { chartId, systemId, yearId } = useGeneralContext();
   const [isModalOpenMessage, setIsModalOpenMessage] = useState(false);
   const [date, setDate] = useState<Date | null>(new Date());
@@ -102,14 +102,7 @@ const DocumentChangeDate = ({
     try {
       const response = await doFlow(request);
       setIsModalOpenMessage(true); // to show message
-      if (
-        workFlowDoFlowResponse?.data?.result?.workTableRowSelect?.workTableRow
-          ?.id === workTableId
-      ) {
-        console.log("force to fetch the same workTableId", workTableId);
-        setWorkFlowField("workTableIdTrigger", Date.now());
-        //setWorkFlowField("workTableId", workFlowDoFlowResponse.data.result.workTable.id);
-      }
+      setWorkFlowField("workTableIdTrigger", Date.now());
       //refetchWorkTableRowSelect();
       console.log(response, "response");
     } catch (error) {

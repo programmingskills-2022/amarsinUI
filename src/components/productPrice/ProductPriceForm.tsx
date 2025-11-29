@@ -301,6 +301,50 @@ const ProductPriceForm = ({
   }, [products, setSearch]);
 
   ////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد کالا",
+      accessor: "productCode",
+    },
+    {
+      Header: "نام کالا",
+      accessor: "product",
+    },
+    {
+      Header: "پخش",
+      accessor: "p1",
+    },
+    {
+      Header: "داروخانه",
+      accessor: "p2",
+    },
+    {
+      Header: "مصرف کننده",
+      accessor: "p3",
+    },
+    {
+      Header: "مشتری",
+      accessor: "p4",
+    },
+    {
+      Header: "مشتری ",
+      accessor: "p5",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];  
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
@@ -420,7 +464,7 @@ const ProductPriceForm = ({
       setProductField("productSearchPage", 1);
     }
     // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
+    //setProductField("salesPricesSearchPage", -1);
   }, [search, systemId, yearId]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -681,8 +725,9 @@ const ProductPriceForm = ({
             handleExport({
               data: originalData,
               setIsModalOpen,
-              headCells: columns,
+              headCells: excelHeadCells,
               fileName,
+              hasPersianTitle: true,
             })
           }
         />

@@ -14,6 +14,7 @@ import {
 } from "../../types/definitionInvironment";
 import { useBanks } from "../../hooks/useBanks";
 import { useCheques } from "../../hooks/useCheques";
+import { useWorkflowStore } from "../../store/workflowStore";
 
 type Props = {
   workFlowResponse: WorkflowResponse;
@@ -57,8 +58,15 @@ const WorkflowForm = ({
   const [selectedId, setSelectedId] = useState<number>(-1);
   const { banks, isLoading: isLoadingBanks } = useBanks();
   const { cashPosSystemSearch } = useCheques();
+  const [data, setData] = useState<any[]>([]); // data for WorkflowParent
+  const { setField } = useWorkflowStore();
+  
   const handleSelectedIdChange = (id: number) => {
     console.log(id, "id in WorkflowForm");
+    if (id!==0 && id!==-1) {
+      setField("workTableId", id);
+      setField("workTableIdTrigger", Date.now());
+    }
     setSelectedId(id);
   };
 
@@ -67,6 +75,8 @@ const WorkflowForm = ({
       <WorkflowParent
         selectedId={selectedId}
         setSelectedId={handleSelectedIdChange}
+        data={data}
+        setData={setData}
         workFlowResponse={workFlowResponse}
         error={error}
         isLoading={isLoading}

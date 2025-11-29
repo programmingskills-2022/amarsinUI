@@ -96,6 +96,7 @@ interface ProductOfferProduct {
   ordr: number;
   pId: number;
   bName: string;
+  productCode: string;
   product: string;
   lastDate: string;
   s1NO: number;
@@ -127,6 +128,7 @@ export interface ProductOfferProductTable {
   id: number;
   bName: string;
   pId: number;
+  productCode: string;
   product: string;
   lastDate: string;
   s1O: string;

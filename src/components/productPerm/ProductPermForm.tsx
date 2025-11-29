@@ -217,7 +217,34 @@ const ProductPermForm = ({
       };
     });
   }, [products, setSearch]);
-
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد",
+      accessor: "productCode",
+    },
+    {
+      Header: "کالا",
+      accessor: "product",
+    },
+    {
+      Header: "نیاز به مجوز",
+      accessor: "np",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   ////////////////////////////////////////////////////////
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
@@ -325,7 +352,7 @@ const ProductPermForm = ({
       setProductField("productSearchPage", 1);
     }
     // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
+    //setProductField("salesPricesSearchPage", -1);
   }, [search, systemId, yearId]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -514,8 +541,9 @@ const ProductPermForm = ({
             handleExport({
               data: originalData,
               setIsModalOpen,
-              headCells: columns,
+              headCells: excelHeadCells,
               fileName,
+              hasPersianTitle: true,
             })
           }
         />

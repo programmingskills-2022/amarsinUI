@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { useInView } from 'react-intersection-observer';
+import { convertToFarsiDigits } from "../../utilities/general";
 
 type Props<T extends { id: string | number; title: string }> = {
   options: T[];
@@ -128,7 +129,7 @@ const AutoComplet = forwardRef(
 
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
+      const newValue = convertToFarsiDigits(e.target.value);
       
       // User is actively editing
       setIsEditing(true);

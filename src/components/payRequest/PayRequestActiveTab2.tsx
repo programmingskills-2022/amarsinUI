@@ -49,6 +49,9 @@ type Props = {
   setChequeBookId: React.Dispatch<React.SetStateAction<number>>;
   chequeBookId: number;
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
+  //setIsPayChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  setPayRequestDtlIndex: React.Dispatch<React.SetStateAction<number>>;
+  isNew: boolean;
 };
 
 const PayRequestActiveTab2 = ({
@@ -73,6 +76,9 @@ const PayRequestActiveTab2 = ({
   setChequeBookId,
   chequeBookId,
   workFlowRowSelectResponse,
+  //setIsPayChanged,
+  setPayRequestDtlIndex,
+  isNew,
 }: Props) => {
   const CanEditForm1Dtl1 =
     workFlowRowSelectResponse.workTableForms.canEditForm1Dtl1;
@@ -232,7 +238,6 @@ const PayRequestActiveTab2 = ({
   ////////////////////////////////////////////////////////////////
   //initializing data
   useEffect(() => {
-    //console.log(originalData, "originalData in useEffect");
     if (isChecked) {
       setData(originalData);
     } else {
@@ -278,12 +283,15 @@ const PayRequestActiveTab2 = ({
   ////////////////////////////////////////////////////////////////
   const showInvoices = (row: any) => {
     setPayRequestDtlId(row.original.id);
+    setPayRequestDtlIndex(row.original.index);
     setOriginalData((old: PayRequestDtlTable[]) => {
       return old.map((origRow) => {
-        // console.log(origRow);
-        if (origRow.id === row.original.id) {
-          return { ...origRow, amount: row.original.amount, checked: true };
-        }
+        console.log(origRow, row.original, "origRow in showInvoices");
+        if (isNew && origRow.index === row.original.index) {
+          return { ...origRow, amount: row.original.amount, checked: row.original.checked ?? false };
+        } else if (!isNew && origRow.id === row.original.id) {
+          return { ...origRow, amount: row.original.amount, checked: row.original.checked ?? false };
+        } 
         return origRow;
       });
     });
@@ -291,7 +299,9 @@ const PayRequestActiveTab2 = ({
       currencyStringToNumber(convertToLatinDigits(row.original.amount)) !== 0
     ) {
       setShowInvoices(true);
+      console.log(currencyStringToNumber(convertToLatinDigits(row.original.amount)), "amount in showInvoices");
       setPay(currencyStringToNumber(convertToLatinDigits(row.original.amount)));
+      //setIsPayChanged(true);
     } else {
       setIsModalOpen(true);
     }
@@ -306,6 +316,7 @@ const PayRequestActiveTab2 = ({
     //setData((old) =>
     setOriginalData((old) =>
       old.map((row, index) => {
+        console.log(row, "row in updateMyRow");
         if (index === rowIndex && value && value.id !== 0) {
           return {
             ...old[rowIndex],
@@ -338,7 +349,6 @@ const PayRequestActiveTab2 = ({
   };
   ////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    //console.log(data, "data in useEffect");
     setAmountTab2(
       data.reduce(
         (acc, curr) =>

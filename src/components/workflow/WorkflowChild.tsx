@@ -10,7 +10,10 @@ import {
   WorkflowRowSelectResponse,
 } from "../../types/workflow";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
-import { DefinitionDateTime, DefinitionInvironment } from "../../types/definitionInvironment";
+import {
+  DefinitionDateTime,
+  DefinitionInvironment,
+} from "../../types/definitionInvironment";
 import { SearchItem } from "../../types/general";
 
 type Props = {
@@ -28,10 +31,10 @@ type Props = {
   //refetchWorkTableRowSelect: () => void;
   refetchSwitch: boolean;
   setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
-  definitionInvironment:DefinitionInvironment;
-  definitionDateTime: DefinitionDateTime ;
-  isLoadingBanks:boolean;
-  banks: SearchItem[]
+  definitionInvironment: DefinitionInvironment;
+  definitionDateTime: DefinitionDateTime;
+  isLoadingBanks: boolean;
+  banks: SearchItem[];
   cashPosSystemSearch: SearchItem[];
 };
 
@@ -54,7 +57,7 @@ export const WorkflowChild = ({
   definitionDateTime,
   isLoadingBanks,
   banks,
-  cashPosSystemSearch
+  cashPosSystemSearch,
 }: Props) => {
   //const [currentSelectedId, setCurrentSelectedId] = useState(selectedId);
   const { chartId, systemId } = useGeneralContext();
@@ -70,11 +73,11 @@ export const WorkflowChild = ({
     dsc,
     workTableId,
   } = useWorkflowStore();
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     setField("workTableId", -1);
-    console.log(isLoading,"isLoading in child");
-  },[])
+    console.log(isLoading, "isLoading in child");
+  }, []);
 
   useEffect(() => {
     setField("chartId", chartId);
@@ -96,13 +99,13 @@ export const WorkflowChild = ({
     }
     if (selectedId !== 0) {
       setField("workTableId", selectedId);
-      console.log("enter 1","workTableId", selectedId);
+      console.log("enter 1", "workTableId", selectedId);
     } else if (workFlowResponse.workTables.length > 0) {
       setField("workTableId", workFlowResponse.workTables[0].id);
-      console.log("enter 2","workTableId", workFlowResponse.workTables[0].id);
+      console.log("enter 2", "workTableId", workFlowResponse.workTables[0].id);
     } else if (workFlowResponse.workTables.length === 0) {
       setField("workTableId", -1);
-      console.log("enter 3","workTableId", -1);
+      console.log("enter 3", "workTableId", -1);
     }
   }, [
     selectedId,
@@ -134,7 +137,7 @@ export const WorkflowChild = ({
           //selectedId={selectedId}
           //setSelectedId={setSelectedId}
           definitionInvironment={definitionInvironment}
-          definitionDateTime ={definitionDateTime}         
+          definitionDateTime={definitionDateTime}
           isLoadingBanks={isLoadingBanks}
           banks={banks}
           cashPosSystemSearch={cashPosSystemSearch}
@@ -149,7 +152,7 @@ export const WorkflowChild = ({
         //refetchWorkTable={refetchWorkTable}
         //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
         definitionInvironment={definitionInvironment}
-        definitionDateTime ={definitionDateTime}
+        definitionDateTime={definitionDateTime}
         isLoadingBanks={isLoadingBanks}
         banks={banks}
         cashPosSystemSearch={cashPosSystemSearch}

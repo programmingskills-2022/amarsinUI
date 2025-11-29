@@ -4,39 +4,44 @@ import {
   formatNumberWithCommas,
 } from "../../utilities/general";
 import TTable from "../controls/TTable";
-import Button from "../controls/Button";
 import Input from "../controls/Input";
 import {
   PayRequestInvoiceIncludeChecks,
   PayRequestInvoicesTable,
 } from "../../types/payRequest";
 import PayRequestInvoiceSumRow from "./PayRequestInvoiceSumRow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   setInvoicesWithChecks: (data: PayRequestInvoiceIncludeChecks[]) => void;
-  payRequestDtlId: number;
+  payRequestDtlId: number; //which payRequestDtlId is checked
   data: PayRequestInvoiceIncludeChecks[];
-  setData: (data: PayRequestInvoiceIncludeChecks[]) => void;
   pay: number;
-  setShowInvoices: (show: boolean) => void;
   newPay: number;
-  setNewPay: React.Dispatch<React.SetStateAction<number>>;
-  //isConfirmRef: React.MutableRefObject<boolean>
+  payRequestDtlIndex: number;
+  isNew: boolean;
+  tempData: PayRequestInvoiceIncludeChecks[];
+  setTempData: (data: PayRequestInvoiceIncludeChecks[]) => void;
 };
 
 const PayRequestInvoices = ({
   setInvoicesWithChecks,
   payRequestDtlId,
   data,
-  setData,
   pay,
-  setShowInvoices,
   newPay,
-  setNewPay,
-}: //isConfirmRef,
+  payRequestDtlIndex,
+  isNew,
+  tempData,
+  setTempData,
+}:
 Props) => {
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in payRequestInvoices table
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index
+  /*const [tempData, setTempData] = useState<PayRequestInvoiceIncludeChecks[]>(
+    []
+  );*/
+  const [payValue, setPayValue] = useState(0);
+  // in payRequestInvoices table
   const columns: TableColumns = [
     {
       Header: "ردیف",
@@ -107,11 +112,14 @@ Props) => {
       accessor: "checked",
       width: "2%",
       Cell: ({ value, row }: any) => (
-        <button className="flex justify-evenly items-center w-full" onMouseDown={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          handleCheckClick(value, row.original);
-        }}>
+        <button
+          className="flex justify-evenly items-center w-full"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handleCheckClick(value, row.original);
+          }}
+        >
           <input
             className="cursor-pointer"
             type="checkbox"
@@ -123,67 +131,116 @@ Props) => {
     },
   ];
 
+  ///////////////////////////////////////////////////////////////
+  //keep data in tempData
+  useEffect(() => {
+    setTempData(data);
+  }, [data]);
+
+  useEffect(() => {
+    let paySum = 0;
+    tempData.map((item) => {
+      item.invcs.map((invc) => {
+        if (isNew) {
+          if (invc.paymentRow === payRequestDtlIndex) {
+            paySum = paySum + invc.settle;
+          }
+        } else {
+          if (invc.payRequestDtlId === payRequestDtlId) {
+            paySum = paySum + invc.settle;
+          }
+        }
+      });
+    });
+    if (paySum === pay) {
+      setPayValue(0); // give initial value to newPay
+    } else {
+      setPayValue(newPay);
+    }
+  }, [newPay]);
+
   const handleCheckClick = (value: boolean, row: PayRequestInvoicesTable) => {
     // Handle checkbox click logic here
     console.log("Checkbox clicked:", value, row);
-    const newData = [...data];
-    console.log(newPay, "newPay in handleCheckClick");
+    const newData = [...tempData]; //[...data];
+    let payValueTemp = payValue;
     newData.map((item) => {
       if (item.id === row.id) {
         item.checked = !item.checked;
         if (item.checked) {
-          if (newPay > item.rem) {
-            setNewPay(newPay - item.rem);
-            console.log(item.rem, "item.rem in handleCheckClick");
+          if (payValueTemp > item.rem) {
+            payValueTemp = payValueTemp - item.rem;
             item.settle = item.rem;
           } else {
-            setNewPay(0);
-            item.settle = newPay;
+            item.settle = payValueTemp;
+            payValueTemp = 0;
           }
-          //item.payRequestDtlId = payRequestDtlId;
         } else {
-          //item.payRequestDtlId = 0;
-          setNewPay(newPay + item.settle);
+          payValueTemp = payValueTemp + item.settle;
           item.settle = 0;
         }
       }
       //remove invc from item.invcs if item.checked is false
       if (!item.checked) {
-        const index = item.invcs.findIndex(
-          (p) => p.payRequestDtlId === payRequestDtlId
-        );
+        let index = 0;
+        if (isNew) {
+          index = item.invcs.findIndex(
+            (p) => p.paymentRow === payRequestDtlIndex
+          );
+        } else {
+          index = item.invcs.findIndex(
+            (p) => p.payRequestDtlId === payRequestDtlId
+          );
+        }
+
         if (index !== -1) {
           item.invcs.splice(index, 1);
         }
       } else {
         //add invc to item.invcs if item.checked is true
-        const invc = item.invcs.find(
-          (p) => p.payRequestDtlId === payRequestDtlId
-        );
-        if (invc) {
-          invc.settle = item.settle;
-        } else {
-          item.settle>0 && item.invcs.push({
-            payRequestDtlId: payRequestDtlId,
-            settle: item.settle,
-            paymentRow: item.invcs.length + 1,
-            id: item.id,
-            dcrmntPrcnt: 0,
-            dcrmnt: 0,
-          });
+        if (isNew) {
+          //if new payRequestDtl
+          const invc = item.invcs.find(
+            (p) => p.paymentRow === payRequestDtlIndex
+          );
+          if (invc) {
+            invc.settle = item.settle;
+          } else {
+            item.settle > 0 &&
+              item.invcs.push({
+                payRequestDtlId: payRequestDtlId,
+                settle: item.settle,
+                paymentRow: payRequestDtlIndex,
+                id: item.id,
+                dcrmntPrcnt: 0,
+                dcrmnt: 0,
+              });
+          }
+        }
+        //is not new
+        else {
+          const invc = item.invcs.find(
+            (p) => p.payRequestDtlId === payRequestDtlId
+          );
+          if (invc) {
+            invc.settle = item.settle;
+          } else {
+            item.settle > 0 &&
+              item.invcs.push({
+                payRequestDtlId: payRequestDtlId,
+                settle: item.settle,
+                paymentRow: item.invcs.length + 1,
+                id: item.id,
+                dcrmntPrcnt: 0,
+                dcrmnt: 0,
+              });
+          }
         }
       }
     });
-    console.log(newData, "newData in handleCheckClick");
-    //console.log(newData, "newData in handleCheckClick");
-    //setOriginalInvoices(newData);
-    setData(newData);
+    setTempData(newData); //setData(newData);
     setInvoicesWithChecks(newData);
-  };
-
-  const handleConfirm = () => {
-    //isConfirmRef.current = true;
-    setShowInvoices(false);
+    setPayValue(payValueTemp);
   };
 
   return (
@@ -192,12 +249,12 @@ Props) => {
         columns={columns}
         selectedRowIndex={selectedRowIndex}
         setSelectedRowIndex={setSelectedRowIndex}
-        data={data}
+        data={tempData} //data
         fontSize="14px"
         changeRowSelectColor={true}
-        //changeRowValues={changeRowValues}
       />
-      <PayRequestInvoiceSumRow data={data} columns={columns} />
+      <PayRequestInvoiceSumRow data={tempData} columns={columns} />
+      {/*data*/}
       <div className="flex items-center justify-end gap-2 mt-2">
         <Input
           label="مبلغ پرداختی:"
@@ -205,7 +262,7 @@ Props) => {
           variant="outlined"
           disabled={true}
         />
-        <Button text="تایید" onClick={handleConfirm} />
+        {/*<Button text="تایید" onClick={handleConfirm} />*/}
       </div>
     </div>
   );

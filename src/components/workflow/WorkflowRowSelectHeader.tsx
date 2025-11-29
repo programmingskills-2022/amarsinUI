@@ -67,8 +67,6 @@ const WorkflowRowSelectHeader = ({
     name,
     dsc: dscStore,
   } = useWorkflowStore();
-  const { workTableId } = useWorkflowStore();
-
   const { setField: setWorkFlowField } = useWorkflowStore();
   const [flowButtons, setFlowButtons] = useState<FlowButton[]>([]);
 
@@ -160,12 +158,7 @@ const WorkflowRowSelectHeader = ({
     console.log(request, "request");
     try {
       await doFlow(request);
-      if (
-        workFlowDoFlowResponse?.data?.result?.workTableRowSelect?.workTableRow?.id === workTableId
-      ) {
-        console.log("force to fetch the same workTableId", workTableId);
-        setWorkFlowField("workTableIdTrigger", Date.now());
-      }
+      setWorkFlowField("workTableIdTrigger", Date.now());
     } catch (error) {
     } finally {
       console.log("finally");

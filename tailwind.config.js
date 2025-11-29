@@ -14,9 +14,11 @@ export default {
       },
       width: {
         'full-minus-40': 'calc(100% - 40px)',
+        'full-minus-32': 'calc(100% - 32px)',
         'full-minus-24': 'calc(100% - 24px)',
         'full-minus-12': 'calc(100% - 12px)',
         '50-minus-24': 'calc(50% - 24px)',
+        '50-minus-32': 'calc(50% - 32px)',
         '25-minus-24': 'calc(25% - 24px)',
       },
       height: {

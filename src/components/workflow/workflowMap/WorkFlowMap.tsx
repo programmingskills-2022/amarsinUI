@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { DefaultOptionType, TableColumns } from "../../../types/general";
 import { WorkFlowFlowMapsResponse } from "../../../types/workflow";
 import { convertToFarsiDigits } from "../../../utilities/general";
@@ -6,14 +6,21 @@ import Skeleton from "../../layout/Skeleton";
 import TTable from "../../controls/TTable";
 import { useWorkflowStore } from "../../../store/workflowStore";
 import { useGeneralContext } from "../../../context/GeneralContext";
+import Card from "../../controls/Card";
 
 type Props = {
   workFlowMapResponse: WorkFlowFlowMapsResponse;
   isLoading: boolean;
   processTitle: DefaultOptionType;
+  setSelectedId: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const WorkFlowMap = ({ workFlowMapResponse, isLoading, processTitle }: Props) => {
+const WorkFlowMap = ({
+  workFlowMapResponse,
+  isLoading,
+  processTitle,
+  setSelectedId,
+}: Props) => {
   const { setField } = useWorkflowStore();
   const { systemId } = useGeneralContext();
   const [data, setData] = useState<any[]>([]);
@@ -94,7 +101,7 @@ const WorkFlowMap = ({ workFlowMapResponse, isLoading, processTitle }: Props) =>
     setData(tempData);
   }, [workFlowMapResponse.data.result]);
 
- //for api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
+  //for api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
   useEffect(() => {
     if (processTitle) {
       setField("flowNoIdFlowMaps", processTitle?.id);
@@ -104,21 +111,22 @@ const WorkFlowMap = ({ workFlowMapResponse, isLoading, processTitle }: Props) =>
     }
   }, [processTitle, systemId]);
   return (
-    <div className="flex flex-col gap-2 h-full px-2">
+    <Card className="flex flex-col gap-2 px-2 mx-2 h-screen-minus-500" borderColor="gray-300">
       {isLoading ? (
         <div className="text-center">{<Skeleton />}</div>
       ) : (
-        <div className="mt-2 h-1/2 overflow-y-auto">
+        <div className="overflow-y-auto h-screen-minus-500">
           <TTable
             columns={columns}
             data={data}
             setSelectedRowIndex={setSelectedRowIndex}
             selectedRowIndex={selectedRowIndex}
             changeRowSelectColor={true}
+            setSelectedId={setSelectedId}
           />
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

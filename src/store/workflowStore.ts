@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   WorkFlowDoFlowResponse,
+  WorkFlowFlowMapBeforeAftersResponse,
   WorkFlowFlowMapsResponse,
   WorkFlowFlowNosSearchResponse,
   WorkFlowFlowsResponse,
@@ -144,6 +145,15 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: [] },
   },
+
+  //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+  flowMapIdBeforeAfters: -1,
+  systemIdBeforeAfters: -1,
+  workFlowFlowMapBeforeAftersResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: { flowMapBefores: [], flowMapAfters: [] } },
+  },
+
   setField: (field: string | number | symbol, value: any) =>
     set((state) => ({
       ...state,
@@ -167,4 +177,7 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
   setWorkFlowFlowMapsResponse: (
     workFlowFlowMapsResponse: WorkFlowFlowMapsResponse
   ) => set({ workFlowFlowMapsResponse }), //api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
+  setWorkFlowFlowMapBeforeAftersResponse: (
+    workFlowFlowMapBeforeAftersResponse: WorkFlowFlowMapBeforeAftersResponse
+  ) => set({ workFlowFlowMapBeforeAftersResponse }), //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
 }));

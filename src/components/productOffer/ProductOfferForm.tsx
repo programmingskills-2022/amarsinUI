@@ -268,6 +268,8 @@ const ProductOfferForm = ({
   const [tim, setTim] = useState<string>("");
   const [dsc, setDsc] = useState<string>("");
   const [isModalRegOpen, setIsModalRegOpen] = useState(false);
+  const [excelData, setExcelData] = useState<any[]>([]);
+
   const columns: TableColumns = useMemo(() => {
     return headCells.map((item) => {
       return {
@@ -316,6 +318,49 @@ const ProductOfferForm = ({
   }, [products, setSearch]);
 
   ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد کالا",
+      accessor: "productCode",
+    },
+    {
+      Header: "نام کالا",
+      accessor: "product",
+    },
+    {
+      Header: "پ 1",
+      accessor: "s1",
+    },
+    {
+      Header: "پ 2",
+      accessor: "s2",
+    },
+    {
+      Header: "پ 3",
+      accessor: "s3",
+    },
+    {
+      Header: "پ 4",
+      accessor: "s4",
+    },
+    {
+      Header: "بدون آفر",
+      accessor: "no",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       console.log(row.original, "row in product offer form");
@@ -347,6 +392,7 @@ const ProductOfferForm = ({
     id: 0,
     pId: 0,
     bName: "",
+    productCode: "",
     product: "",
     lastDate: "",
     s1O: "",
@@ -453,7 +499,8 @@ const ProductOfferForm = ({
       // The query automatically resets when search term changes (it's in the queryKey)
     }
     // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
+    //console.log("salesPricesSearchPage", -1);
+    //setProductField("salesPricesSearchPage", -1);
   }, [search, systemId, yearId]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -514,6 +561,7 @@ const ProductOfferForm = ({
               id: product.id,
               pId: product.pId,
               bName: product.bName,
+              productCode: product.productCode,
               product: product.product,
               lastDate: product.lastDate,
               s1O:
@@ -641,6 +689,35 @@ const ProductOfferForm = ({
     }
   };
   ///////////////////////////////////////////////////////
+  useEffect(() => {
+    const tempData = originalData.map((dtl, index) => {
+      return {
+        index: index + 1,
+        bName: convertToFarsiDigits(dtl.bName),
+        productCode: convertToFarsiDigits(dtl.productCode),
+        product: convertToFarsiDigits(dtl.product),
+        s1:
+          Number(dtl.s1N) + Number(dtl.s1D) > 0
+            ? dtl.s1D.toString() + "+" + dtl.s1N.toString()
+            : "",
+        s2:
+          Number(dtl.s2N) + Number(dtl.s2D) > 0
+            ? dtl.s2D.toString() + "+" + dtl.s2N.toString()
+            : "",
+        s3:
+          Number(dtl.s3N) + Number(dtl.s3D) > 0
+            ? dtl.s3D.toString() + "+" + dtl.s3N.toString()
+            : "",
+        s4:
+          Number(dtl.s4N) + Number(dtl.s4D) > 0
+            ? dtl.s4D.toString() + "+" + dtl.s4N.toString()
+            : "",
+        no: dtl.no ? "TRUE" : "FALSE",
+        dtlDsc: dtl.dtlDsc,
+      };
+    });
+    setExcelData(tempData);
+  }, [originalData]);
   return (
     <div className="flex flex-col gap-2">
       <ProductOfferFormParams
@@ -682,10 +759,11 @@ const ProductOfferForm = ({
           variant="shadow-lg"
           onClick={() =>
             handleExport({
-              data: originalData,
+              data: excelData,
               setIsModalOpen,
-              headCells: columns,
+              headCells: excelHeadCells,
               fileName,
+              hasPersianTitle: true,
             })
           }
         />

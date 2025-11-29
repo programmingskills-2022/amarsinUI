@@ -24,6 +24,8 @@ type Props = {
   isLoading: boolean;
   isRefetchingWorkTable: boolean;
   isRefetchingWorkTableRowSelect: boolean;
+  data: any[];
+  setData: (value: any[]) => void;
 };
 
 export default function WorkflowParent({
@@ -34,6 +36,8 @@ export default function WorkflowParent({
   isLoading,
   isRefetchingWorkTable,
   //isRefetchingWorkTableRowSelect,
+  data,
+  setData,
 }: Props) {
   const { flowMapId: flowMapIdStore, setField } = useWorkflowStore();
   const { systemId, chartId, defaultRowsPerPage } = useGeneralContext();
@@ -220,7 +224,6 @@ export default function WorkflowParent({
   }, [workFlowResponse]);
 
   if (error) return <div>Error: {error.message} </div>;
-  const [data, setData] = useState<any[]>([]);
 
   //console.log(data, "data");
   const [skipPageReset, setSkipPageReset] = useState(false);

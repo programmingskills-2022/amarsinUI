@@ -13,6 +13,7 @@ import {
   UpdateFieldsRequest,
 } from "../types/cheque";
 import { useChequeStore } from "../store/chequeStore";
+import { useWorkflowStore } from "../store/workflowStore";
 
 export function useCheques() {
   const {
@@ -38,6 +39,20 @@ export function useCheques() {
     paymentIdTrigger, //for Payment/sayadChequeInquiryByPaymentId
   } = useChequeStore();
 
+  const {
+    chartId,
+    systemId: systemIdWorkFlow,
+    page: pageWorkFlow,
+    pageSize,
+    flowMapId,
+    title,
+    dateTime,
+    code,
+    cost,
+    name,
+    dsc,
+  } = useWorkflowStore();
+
   const queryClient = useQueryClient();
   //for Payment/updateFields
   const updateFields = useMutation({
@@ -62,9 +77,22 @@ export function useCheques() {
       return response.data;
     },
     onSuccess: (data: any, request: UpdateFieldsRequest) => {
-      if (data.meta.errorCode <= 0) {
+      if (data.meta.errorCode <= 0 && (request.fieldName === "Dsc" || request.fieldName === "Prsn" || request.fieldName === "AmountT")) {
         queryClient.refetchQueries({
-          queryKey: ["workflow"],
+          queryKey: [
+            "workflow",
+            chartId,
+            systemIdWorkFlow,
+            pageWorkFlow,
+            pageSize,
+            flowMapId,
+            title,
+            dateTime,
+            code,
+            cost,
+            name,
+            dsc,
+          ],
         });
       }
       setUpdateFieldsResponse(data);
@@ -196,6 +224,17 @@ export function useCheques() {
     isLoadingUpdateFields: updateFields.isPending,
     errorUpdateFields: updateFields.error,
     updateFields: updateFields.mutateAsync,
+    updateFieldsResponse: updateFields.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: {
+        result: {
+          id: 0,
+          errorCode: 0,
+          message: "",
+          details: [],
+        },
+      },
+    },
     //for Payment/load
     getPayment: () => query.refetch(),
     isLoading: query.isLoading,

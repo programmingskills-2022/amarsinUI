@@ -84,8 +84,8 @@ interface ResultWarehouseTemporaryReceiptSave {
   id: number;
   cupboardId: number;
   statusCode: number;
-  err: number;
-  msg: string;
+  //err: number;
+  //msg: string;
 }
 
 interface DataWarehouseTemporaryReceiptSave {

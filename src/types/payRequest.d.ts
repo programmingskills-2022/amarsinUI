@@ -120,6 +120,7 @@ interface PayRequestInvoices {
   total: number;
   rem: number;
   checked: boolean;
+  payRequestDtlId: number;
 }
 
 interface PayRequestInvoicesTable extends PayRequestInvoices {

@@ -21,6 +21,7 @@ import {
   LoadPaymentResponse,
   SayadChequeInquiryByPaymentIdResponse,
   UpdateFieldsRequest,
+  UpdateFieldsResponse,
 } from "../../types/cheque";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import RegRecievedChequeInfoSanad from "./RegRecievedChequeInfoSanad";
@@ -38,6 +39,7 @@ type Props = {
     UpdateFieldsRequest,
     unknown
   >;
+  updateFieldsResponse: UpdateFieldsResponse;
   isLoadingUpdateFields: boolean;
   cashPosSystemSearch: SearchItem[];
   sayadChequeInquiryByPaymentIdResponse: SayadChequeInquiryByPaymentIdResponse;
@@ -52,12 +54,14 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   loadPaymentResponse,
   isLoadingLoadPayment,
   updateFields,
+  updateFieldsResponse,
   isLoadingUpdateFields,
   cashPosSystemSearch,
   sayadChequeInquiryByPaymentIdResponse,
   definitionInvironment,
   banks,
   isLoadingBanks,
+
 }: Props) => {
   const [bankSearch, setBankSearch] = useState("");
   //const { banks, isLoading: isLoadingBanks } = useBanks();
@@ -84,7 +88,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   const {
     //id,
     setField: setChequeField,
-    updateFieldsResponse,
+    //updateFieldsResponse,
     setUpdateFieldsResponse,
     updateStatus,
     setUpdateStatus,
@@ -183,10 +187,12 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
     setChequeField("search", cashPosSystemSerch);
     setChequeField("page", 1);
     setChequeField("lastId", 0);
-  }, [cashPosSystemSerch, initData?.systemId]);
+    setChequeField("systemId", initData?.systemId ?? -1);
+    if (payKind !== 2) setChequeField("payKind", payKind);
+  }, [cashPosSystemSerch, initData?.systemId, payKind]);
 
   // Initialize systemId and payKind only once per record for /api/cheque/cashPosSystemSearch
-  useEffect(() => {
+  /*useEffect(() => {
     const newSystemId = initData?.systemId ?? -1;
     const newPayKind = payKind;
 
@@ -201,7 +207,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
       setChequeField("payKind", newPayKind);
       hasInitializedPayKind.current = true;
     }
-  }, [payKind, initData?.systemId]);
+  }, [payKind, initData?.systemId]);*/
 
   ///////////////////////////////////////////////////////////////////
   useEffect(() => {
@@ -505,7 +511,31 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
         }
         setIsModalOpen(true);
       }
-
+      // for updating parent table row in changing dsc , prsn , amountT
+      /*const workTableRow = data.find(
+        (item: any) =>
+          Number(convertToLatinDigits(item.id)) ===
+          workFlowRowSelectResponse.workTableRow.id
+      );
+      console.log(
+        updateFieldsResponse,
+        "updateFieldsResponse.meta.errorCode in reg recieved cheque info"
+      );
+      if (
+        workTableRow &&
+        updateFieldsResponse.meta.errorCode <= 0 &&
+        (fieldName === "amountT" || fieldName === "dsc" || fieldName === "prsn")
+      ) {
+        workTableRow.dsc = `${convertToFarsiDigits(
+          cheque.prsn
+        )} : ${convertToFarsiDigits(cheque.dsc)}`;
+        workTableRow.formCost = convertToFarsiDigits(
+          formatNumberWithCommas(
+            currencyStringToNumber(convertToLatinDigits(cheque.amountT))
+          )
+        );
+        setData(data);
+      }*/
       if (
         fieldName !== "bank" &&
         fieldName !== "year" &&

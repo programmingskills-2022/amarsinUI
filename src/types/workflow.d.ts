@@ -1,4 +1,4 @@
-import {  Meta } from "./general";
+import { Meta } from "./general";
 import { WorkTable } from "./workflow.d";
 export type FlowMapTitle = {
   id: number;
@@ -233,13 +233,50 @@ interface FlowMapResult {
   waTitle: string;
   svTitle: string;
 }
+// for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+export interface WorkFlowFlowMapBeforeAftersRequest {
+  flowMapIdBeforeAfters: number;
+  systemIdBeforeAfters: number;
+}
+export interface WorkFlowFlowMapBeforeAftersResponse {
+  meta: Meta;
+  data: WorkFlowFlowMapBeforeAftersData;
+}
 
+interface WorkFlowFlowMapBeforeAftersData {
+  result: FlowMapBeforeAftersResult;
+}
+
+interface FlowMapBeforeAftersResult {
+  flowMapBefores: FlowMapResult[];
+  flowMapAfters: FlowMapResult[];
+}
+
+// api/WFMS/flowMapSave
+export interface WorkFlowMapSaveRequest {
+  usrId: number;
+  id: number;
+  name: string;
+  flowNo: number;
+  fChart: number;
+  codeId: number;
+  tChart: number;
+  formNo1: number;
+  formNo2: number;
+  scriptBeforeId: number;
+  scriptId: number;
+  webAPIId: number;
+  scriptValidatorId: number;
+  statusId: number;
+  idempotencyKey: string;
+}
 export interface WorkFlowState
   extends WorkFlowRequest,
     WorkFlowRowSelectRequest,
     WorkFlowFlowsRequest,
     WorkFlowFlowNosSearchRequest,
-    WorkFlowFlowMapsRequest {
+    WorkFlowFlowMapsRequest,
+    WorkFlowFlowMapBeforeAftersRequest {
   workFlowResponse: WorkflowResponse;
   setField: (field: string | number | symbol, value: any) => void;
   setWorkFlowResponse: (workFlowResponse: WorkflowResponse) => void;
@@ -248,6 +285,7 @@ export interface WorkFlowState
   workFlowFlowsResponse: WorkFlowFlowsResponse; //api/WFMS/flows?WorkTableId=
   workFlowFlowNosSearchResponse: WorkFlowFlowNosSearchResponse; //api/WFMS/flowNosSearch?systemId=4&page=1&lastId=0
   workFlowFlowMapsResponse: WorkFlowFlowMapsResponse; //api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
+  workFlowFlowMapBeforeAftersResponse: WorkFlowFlowMapBeforeAftersResponse; //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
   setWorkFlowRowSelectResponse: (
     workFlowRowSelectResponse: WorkflowRowSelectResponse
   ) => void;
@@ -263,6 +301,9 @@ export interface WorkFlowState
   setWorkFlowFlowMapsResponse: (
     workFlowFlowMapsResponse: WorkFlowFlowMapsResponse
   ) => void; //api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
+  setWorkFlowFlowMapBeforeAftersResponse: (
+    workFlowFlowMapBeforeAftersResponse: WorkFlowFlowMapBeforeAftersResponse
+  ) => void; //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
   updatedWorkFlowRowSelectResponse: WorkflowRowSelectResponse | null;
   setUpdatedWorkFlowRowSelectResponse: (
     updatedWorkFlowRowSelectResponse: WorkflowRowSelectResponse | null
