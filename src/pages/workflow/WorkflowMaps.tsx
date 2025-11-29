@@ -9,8 +9,6 @@ import { DefaultOptionType, TableColumns } from "../../types/general";
 import WorkFlowMap from "../../components/workflow/workflowMap/WorkFlowMap";
 import { debounce } from "lodash";
 import { convertToFarsiDigits } from "../../utilities/general";
-import RestoreIcon from "../../assets/images/GrayThem/restore_gray_16.png";
-import TrashIcon from "../../assets/images/GrayThem/delete_gray_16.png";
 import WorkflowMapBeforeAfters from "../../components/workflow/workflowMap/WorkflowMapBeforeAfters";
 import { colors } from "../../utilities/color";
 import { FaTrash } from "react-icons/fa";
@@ -32,7 +30,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
   const { systemId } = useGeneralContext();
   const { setField } = useWorkflowStore();
   //const [isNew, setIsNew] = useState(false);
-  const [NewEdit, setNewEdit] = useState(-1); // 1 for new, 0 for edit
+  const [newEdit, setNewEdit] = useState(-1); // 1 for new, 0 for edit
   const [isEdit, setIsEdit] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [isDeletedProcess, setIsDeletedProcess] = useState(false);
@@ -148,7 +146,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
       {/* Top header */}
       <WorkflowMapHeader
         setNewEdit={setNewEdit}
-        NewEdit={NewEdit}
+        newEdit={newEdit}
         onCloseNewEdit={() => setNewEdit(-1)} // 0 for close
         handleDelete={handleDelete}
         handleEdit={handleEdit}

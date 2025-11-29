@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DefaultOptionType, TableColumns } from "../../../types/general";
 import { WorkFlowFlowMapsResponse } from "../../../types/workflow";
 import { convertToFarsiDigits } from "../../../utilities/general";

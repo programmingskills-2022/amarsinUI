@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDefinition } from "../../../hooks/useDefinition";
-import { WorkFlowMapSaveRequest } from "../../../types/workflow";
 import AutoComplet from "../../controls/AutoComplet";
-import AutoComplete from "../../controls/AutoComplete";
 import Input from "../../controls/Input";
 import { DefaultOptionType } from "../../../types/general";
 import { Process } from "./WorkflowMapHeader";
@@ -13,16 +11,20 @@ import { debounce } from "lodash";
 import ConfirmCancel from "./ConfirmCancel";
 
 type Props = {
-  NewEdit: number; // 1 for new, 0 for edit
+  newEdit: number; // 1 for new, 0 for edit
   process: Process;
   setProcess: React.Dispatch<React.SetStateAction<Process>>;
 };
-const WorkFlowMapReg = ({ NewEdit, process, setProcess }: Props) => {
+const WorkFlowMapReg = ({ newEdit, process, setProcess }: Props) => {
   const { chartSearchResponse } = useDefinition();
   const { setField } = useDefinitionStore();
   const { systemId } = useGeneralContext();
   const [chartSearch, setChartSearch] = useState("");
   const [isChartChecked, setIsChartChecked] = useState(false);
+
+  useEffect(() => {
+    console.log(newEdit);
+  }, [newEdit]);
 
   useEffect(() => {
     setField("systemIdChartSearch", systemId ?? 0);
