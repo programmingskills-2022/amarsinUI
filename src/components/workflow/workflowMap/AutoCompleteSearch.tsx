@@ -1,6 +1,5 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { DefaultOptionType } from "../../../types/general";
-import { useGeneralContext } from "../../../context/GeneralContext";
 import { debounce } from "lodash";
 import AutoComplet from "../../controls/AutoComplet";
 import { convertToFarsiDigits } from "../../../utilities/general";
