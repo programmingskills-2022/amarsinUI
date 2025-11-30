@@ -4,10 +4,10 @@ import Refresh32 from "../../../assets/images/GrayThem/rfrsh32.png";
 import Del24 from "../../../assets/images/GrayThem/del24.png";
 import Edit24 from "../../../assets/images/GrayThem/edit24.png";
 import { DefinitionInvironment } from "../../../types/definitionInvironment";
-import WorkFlowMapReg from "./WorkFlowMapReg";
+import WorkFlowMapReg from "./workflowMapReg/WorkFlowMapReg";
 import ModalForm from "../../layout/ModalForm";
 import { useEffect, useState } from "react";
-import { DefaultOptionType } from "../../../types/general";
+import { DefaultOptionType, SearchItem } from "../../../types/general";
 
 type Props = {
   //setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,6 +18,14 @@ type Props = {
   handleEdit: () => void;
   refetch: () => void;
   definitionInvironment: DefinitionInvironment;
+  processTitle: DefaultOptionType | null;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  workFlowFlowMapCodeSearchResponse: SearchItem[]; //for نوع مقصد search
+  workFlowFormSearchResponse: SearchItem[]; //for فرم 1/ فرم 2 search
+  workFlowScriptSearchResponse: SearchItem[]; //for اسکریپت قبل اجرا search
+  workFlowWebAPISearchResponse: SearchItem[]; //for ای پی آی search
+  workFlowStatusSearchResponse: SearchItem[]; //for وضعیت search
 };
 
 export type Process = {
@@ -25,13 +33,13 @@ export type Process = {
   id: number;
   name: string;
   flowNo: DefaultOptionType | null;
-  fChart: DefaultOptionType | null;
-  codeId: DefaultOptionType | null;
-  tChart: DefaultOptionType | null;
-  formNo1: DefaultOptionType | null;
-  formNo2: DefaultOptionType | null;
-  scriptBeforeId: DefaultOptionType | null;
-  scriptId: DefaultOptionType | null;
+  fChart: DefaultOptionType | null; //شرط سمت
+  codeId: DefaultOptionType | null; //نوع مقصد
+  tChart: DefaultOptionType | null; //واحد مقصد
+  formNo1: DefaultOptionType | null; //فرم 1
+  formNo2: DefaultOptionType | null; //فرم 2
+  scriptBeforeId: DefaultOptionType | null; //اسکریپت قبلی
+  scriptId: DefaultOptionType | null; //اسکریپت
   webAPIId: DefaultOptionType | null;
   scriptValidatorId: DefaultOptionType | null;
   statusId: DefaultOptionType | null;
@@ -46,6 +54,14 @@ const WorkflowMapHeader = ({
   handleEdit,
   refetch,
   definitionInvironment,
+  processTitle,
+  isModalOpen,
+  setIsModalOpen,
+  workFlowFlowMapCodeSearchResponse,
+  workFlowFormSearchResponse,
+  workFlowScriptSearchResponse,
+  workFlowWebAPISearchResponse,
+  workFlowStatusSearchResponse,
 }: Props) => {
   const [process, setProcess] = useState<Process>({
     usrId: 0,
@@ -67,16 +83,23 @@ const WorkflowMapHeader = ({
   useEffect(() => {
     console.log(onCloseNewEdit, handleEdit, handleDelete, refetch);
   }, []);
+
+  const handleNew = () => {
+    console.log(processTitle);
+    if (processTitle !== null) {
+      setIsModalOpen(false);
+      setNewEdit(1); // 1 for new
+    } else {
+      setIsModalOpen(true);
+    } // 1 for new}
+  };
   return (
     <header className="flex flex-col gap-2 md:flex-row items-center justify-between border-gray-300 border-b pb-2">
       <PageTitle definitionInvironment={definitionInvironment} />
       <div className="flex px-4 items-center gap-4">
         <div
           className="flex flex-col items-center cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
-          onClick={() => {
-            console.log("new");
-            setNewEdit(1); // 1 for new
-          }} // for new
+          onClick={handleNew} // for new
         >
           <img src={Add32} alt="Add32" className="w-6 h-6" />
           <p className="text-xs">جدید</p>
@@ -113,9 +136,33 @@ const WorkflowMapHeader = ({
       >
         <WorkFlowMapReg
           newEdit={newEdit}
+          processTitle={processTitle} // to pass to formNo1 and formNo2 search in AutoCompleteSearch
           process={process}
           setProcess={setProcess}
+          workFlowFlowMapCodeSearchResponse={workFlowFlowMapCodeSearchResponse}//just search items for codeId
+          workFlowFormSearchResponse={workFlowFormSearchResponse}//just search items for formNo1 and formNo2
+          workFlowScriptSearchResponse={workFlowScriptSearchResponse}//just search items for scriptBeforeId
+          workFlowWebAPISearchResponse={workFlowWebAPISearchResponse}//just search items for webAPIId
+          workFlowStatusSearchResponse={workFlowStatusSearchResponse}//just search items for statusId
         />
+      </ModalForm>
+      <ModalForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="پیام"
+        width="1/4"
+      >
+        <div className="w-full flex flex-col items-center justify-center gap-2">
+          <p className="w-full text-right">عنوان فرایند انتخاب نشده!</p>
+          <div className="w-full flex justify-end">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="w-20 hover:bg-green-600 border-green-600 border-2  text-green-600 hover:text-white px-2 py-1 rounded-md"
+            >
+              تایید
+            </button>
+          </div>
+        </div>
       </ModalForm>
     </header>
   );

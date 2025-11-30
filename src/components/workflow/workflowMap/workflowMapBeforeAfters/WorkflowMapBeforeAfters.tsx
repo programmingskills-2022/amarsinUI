@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { TableColumns } from "../../../types/general";
-import Card from "../../controls/Card";
-import TTable from "../../controls/TTable";
-import { convertToFarsiDigits } from "../../../utilities/general";
-import { FlowMapResult } from "../../../types/workflow";
-import PlusIcon from "../../../assets/images/GrayThem/plus24.png";
+import { DefaultOptionType, TableColumns } from "../../../../types/general";
+import Card from "../../../controls/Card";
+import TTable from "../../../controls/TTable";
+import { convertToFarsiDigits } from "../../../../utilities/general";
+import { FlowMapResult, WorkFlowFlowMapsSearchResponse, WorkFlowIfOperationFlowMapAddRequest } from "../../../../types/workflow";
+import PlusIcon from "../../../../assets/images/GrayThem/plus24.png";
+import ModalForm from "../../../layout/ModalForm";
+import WorkflowMapBeforeAfterAdd from "./WorkflowMapBeforeAfterAdd";
 
 type Props = {
   columns: TableColumns;
@@ -13,6 +15,13 @@ type Props = {
   borderColor: string;
   hoverBackgroundColor: string;
   backgroundColor: string;
+  setIsOpenAdd: (isOpen: boolean) => void;
+  isOpenAdd: boolean;
+  workFlowFlowMapsSearchResponse: WorkFlowFlowMapsSearchResponse; //for عنوان فرایند search IN ADD MODAL
+  flowMapId: number;
+  processTitle: DefaultOptionType | null;
+  workFlowIfOperationFlowMapAdd: (request: WorkFlowIfOperationFlowMapAddRequest) => void; //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  isPrev: boolean;
 };
 
 const WorkflowMapBeforeAfters = ({
@@ -22,6 +31,13 @@ const WorkflowMapBeforeAfters = ({
   borderColor,
   hoverBackgroundColor,
   backgroundColor,
+  setIsOpenAdd,
+  isOpenAdd,
+  workFlowFlowMapsSearchResponse,
+  flowMapId,
+  processTitle,
+  workFlowIfOperationFlowMapAdd,
+  isPrev,
 }: Props) => {
   const [data, setData] = useState<any[]>([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
@@ -55,19 +71,20 @@ const WorkflowMapBeforeAfters = ({
         <p className="text-white text-center w-full">{title}</p>
         <div
           className="flex items-center justify-start border rounded-lg p-1 shadow-lg w-8 text-sm transition-colors duration-200"
-          style={{ backgroundColor: backgroundColor, borderColor: borderColor}}
+          style={{ backgroundColor: backgroundColor, borderColor: borderColor }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = hoverBackgroundColor;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = backgroundColor;
           }}
+          onClick={() => setIsOpenAdd(true)}
         >
           <img
             src={PlusIcon}
             alt="PlusIcon"
             className="cursor-pointer"
-            onClick={() => console.log("add row")}
+            //onClick={() => console.log("add row")}
           />
         </div>
       </Card>
@@ -80,6 +97,21 @@ const WorkflowMapBeforeAfters = ({
           changeRowSelectColor={true}
         />
       </div>
+      <ModalForm
+        isOpen={isOpenAdd}
+        onClose={() => setIsOpenAdd(false)}
+        title="پیام"
+        width="1/2"
+      >
+        <WorkflowMapBeforeAfterAdd
+          workFlowFlowMapsSearchResponse={workFlowFlowMapsSearchResponse}
+          setIsOpenAdd={setIsOpenAdd}
+          flowMapId={flowMapId}
+          processTitle={processTitle}
+          workFlowIfOperationFlowMapAdd={workFlowIfOperationFlowMapAdd}
+          isPrev={isPrev}
+        />
+      </ModalForm>
     </Card>
   );
 };

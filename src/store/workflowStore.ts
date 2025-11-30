@@ -2,11 +2,18 @@ import { create } from "zustand";
 import {
   WorkFlowDoFlowResponse,
   WorkFlowFlowMapBeforeAftersResponse,
+  WorkFlowFlowMapCodeSearchResponse,
   WorkFlowFlowMapsResponse,
+  WorkFlowFlowMapsSearchResponse,
   WorkFlowFlowNosSearchResponse,
   WorkFlowFlowsResponse,
+  WorkFlowFormSearchResponse,
+  WorkFlowIfOperationFlowMapAddResponse,
   WorkflowRowSelectResponse,
+  WorkFlowScriptSearchResponse,
   WorkFlowState,
+  WorkFlowStatusSearchResponse,
+  WorkFlowWebAPISearchResponse,
 } from "../types/workflow";
 import { WorkTable } from "../types/workflow";
 
@@ -153,7 +160,71 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: { flowMapBefores: [], flowMapAfters: [] } },
   },
-
+  //api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+  systemIdFlowMapCodeSearch: -1,
+  pageFlowMapCodeSearch: 1,
+  lastIdFlowMapCodeSearch: 0,
+  searchFlowMapCodeSearch: "",
+  workFlowFlowMapCodeSearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  systemIdFormSearch: -1,
+  flowNoIdFormSearch: -1,
+  pageFormSearch: 1,
+  lastIdFormSearch: 0,
+  searchFormSearch: "",
+  workFlowFormSearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+  systemIdScriptSearch: -1,
+  flowNoIdScriptSearch: -1,
+  kindScriptSearch: -1,
+  pageScriptSearch: 1,
+  lastIdScriptSearch: 0,
+  searchScriptSearch: "",
+  workFlowScriptSearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  systemIdWebAPISearch: -1,
+  flowNoIdWebAPISearch: -1,
+  pageWebAPISearch: 1,
+  lastIdWebAPISearch: 0,
+  searchWebAPISearch: "",
+  workFlowWebAPISearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  systemIdStatusSearch: -1,
+  flowNoIdStatusSearch: -1,
+  pageStatusSearch: 1,
+  lastIdStatusSearch: 0,
+  searchStatusSearch: "",
+  workFlowStatusSearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  systemIdFlowMapsSearch: -1,
+  flowNoIdFlowMapsSearch: -1,
+  pageFlowMapsSearch: 1,
+  lastIdFlowMapsSearch: 0,
+  searchFlowMapsSearch: "",
+  workFlowFlowMapsSearchResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [], total_count: 0 },
+  },
+  //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  workFlowIfOperationFlowMapAddResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [] },
+  },
   setField: (field: string | number | symbol, value: any) =>
     set((state) => ({
       ...state,
@@ -180,4 +251,25 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
   setWorkFlowFlowMapBeforeAftersResponse: (
     workFlowFlowMapBeforeAftersResponse: WorkFlowFlowMapBeforeAftersResponse
   ) => set({ workFlowFlowMapBeforeAftersResponse }), //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+  setWorkFlowFlowMapCodeSearchResponse: (
+    workFlowFlowMapCodeSearchResponse: WorkFlowFlowMapCodeSearchResponse
+  ) => set({ workFlowFlowMapCodeSearchResponse }), //api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+  setWorkFlowFormSearchResponse: (
+    workFlowFormSearchResponse: WorkFlowFormSearchResponse
+  ) => set({ workFlowFormSearchResponse }), //api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowScriptSearchResponse: (
+    workFlowScriptSearchResponse: WorkFlowScriptSearchResponse
+  ) => set({ workFlowScriptSearchResponse }), //api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+  setWorkFlowWebAPISearchResponse: (
+    workFlowWebAPISearchResponse: WorkFlowWebAPISearchResponse
+  ) => set({ workFlowWebAPISearchResponse }), //api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowStatusSearchResponse: (
+    workFlowStatusSearchResponse: WorkFlowStatusSearchResponse
+  ) => set({ workFlowStatusSearchResponse }), //api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowFlowMapsSearchResponse: (
+    workFlowFlowMapsSearchResponse: WorkFlowFlowMapsSearchResponse
+  ) => set({ workFlowFlowMapsSearchResponse }), //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowIfOperationFlowMapAddResponse: (
+    workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse
+  ) => set({ workFlowIfOperationFlowMapAddResponse }), //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
 }));

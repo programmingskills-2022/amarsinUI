@@ -35,7 +35,7 @@ export function useDefinition() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: true, // Only run query if authenticated AND not on login page
+    enabled: systemIdChartSearch !== -1, // Only run query if authenticated AND not on login page
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: ChartSearchResponse) => {

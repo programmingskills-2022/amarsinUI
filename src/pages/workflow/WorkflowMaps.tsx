@@ -1,19 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import WorkflowMapHeader from "../../components/workflow/workflowMap/WorkflowMapHeader";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import { useWorkflowStore } from "../../store/workflowStore";
 import { useWorkflow } from "../../hooks/useWorkflow";
-import AutoComplet from "../../components/controls/AutoComplet";
 import { DefaultOptionType, TableColumns } from "../../types/general";
 import WorkFlowMap from "../../components/workflow/workflowMap/WorkFlowMap";
-import { debounce } from "lodash";
-import { convertToFarsiDigits } from "../../utilities/general";
-import WorkflowMapBeforeAfters from "../../components/workflow/workflowMap/WorkflowMapBeforeAfters";
+import WorkflowMapBeforeAfters from "../../components/workflow/workflowMap/workflowMapBeforeAfters/WorkflowMapBeforeAfters";
 import { colors } from "../../utilities/color";
 import { FaTrash } from "react-icons/fa";
 import ModalForm from "../../components/layout/ModalForm";
-import WorkflowMapBeforeAftersDel from "../../components/workflow/workflowMap/WorkflowMapBeforeAftersDel";
+import WorkflowMapBeforeAftersDel from "../../components/workflow/workflowMap/workflowMapBeforeAfters/WorkflowMapBeforeAftersDel";
+import AutoCompleteSearch from "../../components/workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -26,6 +24,13 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
     isLoadingWorkFlowFlowMaps,
     isRefetchingWorkFlowFlowMaps,
     workFlowFlowMapBeforeAftersResponse,
+    workFlowFlowMapCodeSearchResponse, //for نوع مقصد search
+    workFlowFormSearchResponse, //for فرم 1/ فرم 2 search
+    workFlowScriptSearchResponse, //for اسکریپت قبل اجرا search
+    workFlowWebAPISearchResponse, //for ای پی آی search
+    workFlowStatusSearchResponse, //for وضعیت search
+    workFlowFlowMapsSearchResponse, //for عنوان فرایند search
+    workFlowIfOperationFlowMapAdd, //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
   } = useWorkflow();
   const { systemId } = useGeneralContext();
   const { setField } = useWorkflowStore();
@@ -34,13 +39,17 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
   const [isEdit, setIsEdit] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [isDeletedProcess, setIsDeletedProcess] = useState(false);
-  const [search, setSearch] = useState("");
+  //to show message if no process title is selected
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [processTitle, setProcessTitle] = useState<DefaultOptionType | null>(
     null
   );
+  //for isEntered
+  const [isProcessTitleEntered, setIsProcessTitleEntered] = useState(false);
   // this is the id of the selected row in the workFlowMap
   const [selectedId, setSelectedId] = useState<number>(-1);
   //for before and after
+  const [isOpenAdd, setIsOpenAdd] = useState(false);
   const columnsBeforeAfter: TableColumns = [
     {
       Header: "ردیف",
@@ -94,36 +103,11 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
     },
   ];
 
-  //for api/WFMS/flowNosSearch?SystemId=4&Search=
-  useEffect(() => {
-    setField("systemIdFlowNosSearch", systemId);
-    setField("pageFlowNosSearch", 1);
-    setField("lastIdFlowNosSearch", 0);
-    handleDebounceFilterChange("searchFlowNosSearch", search);
-  }, [systemId, search]);
-
   //for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
   useEffect(() => {
     setField("flowMapIdBeforeAfters", selectedId);
     setField("systemIdBeforeAfters", systemId);
   }, [selectedId, systemId]);
-
-  ///////////////////////////////////////////////////////
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const handleDebounceFilterChange = useCallback(
-    debounce((field: string, value: string | number) => {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      // Create a new AbortController for this request
-      abortControllerRef.current = new AbortController();
-
-      setField(field, value);
-    }, 500),
-    [setField]
-  );
-  ////////////////////////////////////////////////////////
 
   const handleDelete = () => {
     setIsDelete(true);
@@ -141,7 +125,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
 
   return (
     <div
-      className={`sm:h-full overflow-y-scroll flex flex-col bg-gray-200 pt-2 gap-2`}
+      className={`sm:h-full overflow-y-scroll flex flex-col bg-gray-200 pt-2 gap-2 text-gray-800`}
     >
       {/* Top header */}
       <WorkflowMapHeader
@@ -152,36 +136,35 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
         handleEdit={handleEdit}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
+        processTitle={processTitle as DefaultOptionType}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        workFlowFlowMapCodeSearchResponse={
+          workFlowFlowMapCodeSearchResponse.data.result
+        }//just search items for نوع مقصد search
+        workFlowFormSearchResponse={workFlowFormSearchResponse.data.result}//just search items for فرم 1/ فرم 2 search
+        workFlowScriptSearchResponse={workFlowScriptSearchResponse.data.result} //just search items for اسکریپت قبل اجرا search
+        workFlowWebAPISearchResponse={workFlowWebAPISearchResponse.data.result} //just search items for ای پی آی search
+        workFlowStatusSearchResponse={workFlowStatusSearchResponse.data.result} //just search items for وضعیت search
       />
-      {/* search */}
-      <div className="flex w-full justify-center items-center gap-2 text-sm px-2">
-        <label htmlFor="processTitle" className="w-24 text-left">
-          عنوان فرایند:
-        </label>
-        <AutoComplet
-          options={workFlowFlowNosSearchResponse.data.result.map((b) => ({
-            id: b.id,
-            title: convertToFarsiDigits(b.text),
-          }))}
-          value={{
-            id: processTitle?.id ?? "",
-            title: convertToFarsiDigits(processTitle?.title ?? ""),
-          }}
-          handleChange={(_event, newValue) => {
-            return setProcessTitle({
-              id: (newValue as DefaultOptionType)?.id ?? "",
-              title: convertToFarsiDigits(
-                (newValue as DefaultOptionType)?.title ?? ""
-              ),
-            });
-          }}
-          setSearch={setSearch}
-          showLabel={false}
-          inputPadding="4px !important"
-          backgroundColor="white"
-          showClearIcon={false}
-        />
-      </div>
+      {/* search process title*/}
+      <AutoCompleteSearch
+        label="عنوان فرایند"
+        setField={setField}
+        fieldValues={[
+          { field: "systemIdFlowNosSearch", value: systemId },
+          { field: "pageFlowNosSearch", value: 1 },
+          { field: "lastIdFlowNosSearch", value: 0 },
+        ]}
+        fieldSearch="searchFlowNosSearch"
+        selectedOption={processTitle as DefaultOptionType}
+        setSelectedOption={(processTitle) =>
+          setProcessTitle(processTitle as DefaultOptionType)
+        }
+        options={workFlowFlowNosSearchResponse.data.result} //just search items for process title
+        isEntered={isProcessTitleEntered}
+        setIsEntered={setIsProcessTitleEntered}
+      />
       <WorkFlowMap
         processTitle={processTitle as DefaultOptionType}
         workFlowMapResponse={workFlowFlowMapsResponse}
@@ -190,6 +173,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
       />
       <div className="flex justify-between items-start h-full w-full gap-2 px-2">
         <WorkflowMapBeforeAfters
+          workFlowFlowMapsSearchResponse={workFlowFlowMapsSearchResponse}
           columns={columnsBeforeAfter}
           flowMapBeforesAfters={
             workFlowFlowMapBeforeAftersResponse.data.result.flowMapBefores
@@ -198,8 +182,15 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           borderColor={colors.green100}
           hoverBackgroundColor={colors.green300}
           backgroundColor={colors.green200}
+          setIsOpenAdd={setIsOpenAdd}
+          isOpenAdd={isOpenAdd}
+          flowMapId={selectedId}
+          processTitle={processTitle as DefaultOptionType}
+          workFlowIfOperationFlowMapAdd={workFlowIfOperationFlowMapAdd}
+          isPrev={true}
         />
         <WorkflowMapBeforeAfters
+          workFlowFlowMapsSearchResponse={workFlowFlowMapsSearchResponse}
           columns={columnsBeforeAfter}
           flowMapBeforesAfters={
             workFlowFlowMapBeforeAftersResponse.data.result.flowMapAfters
@@ -208,6 +199,12 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           borderColor={colors.blue200}
           hoverBackgroundColor={colors.blue200}
           backgroundColor={colors.blue300}
+          setIsOpenAdd={setIsOpenAdd}
+          isOpenAdd={isOpenAdd}
+          flowMapId={selectedId}
+          processTitle={processTitle as DefaultOptionType}
+          workFlowIfOperationFlowMapAdd={workFlowIfOperationFlowMapAdd}
+          isPrev={false}
         />
         <ModalForm
           isOpen={isDeletedProcess}

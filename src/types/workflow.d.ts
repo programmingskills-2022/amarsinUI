@@ -1,4 +1,4 @@
-import { Meta } from "./general";
+import { Meta, SearchItem } from "./general";
 import { WorkTable } from "./workflow.d";
 export type FlowMapTitle = {
   id: number;
@@ -252,6 +252,111 @@ interface FlowMapBeforeAftersResult {
   flowMapAfters: FlowMapResult[];
 }
 
+///api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+export interface WorkFlowFlowMapCodeSearchRequest {
+  systemIdFlowMapCodeSearch: number;
+  pageFlowMapCodeSearch: number;
+  lastIdFlowMapCodeSearch: number;
+  searchFlowMapCodeSearch: string;
+}
+
+interface WorkFlowFlowMapCodeSearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+///api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+export interface WorkFlowFormSearchRequest {
+  systemIdFormSearch: number;
+  flowNoIdFormSearch: number;
+  pageFormSearch: number;
+  lastIdFormSearch: number;
+  searchFormSearch: string;
+}
+interface WorkFlowFormSearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+///api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+export interface WorkFlowScriptSearchRequest {
+  systemIdScriptSearch: number;
+  flowNoIdScriptSearch: number;
+  kindScriptSearch: number;
+  pageScriptSearch: number;
+  lastIdScriptSearch: number;
+  searchScriptSearch: string;
+}
+
+interface WorkFlowScriptSearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+
+//api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+export interface WorkFlowWebAPISearchRequest {
+  systemIdWebAPISearch: number;
+  flowNoIdWebAPISearch: number;
+  pageWebAPISearch: number;
+  lastIdWebAPISearch: number;
+  searchWebAPISearch: string;
+}
+interface WorkFlowWebAPISearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+///api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+export interface WorkFlowStatusSearchRequest {
+  systemIdStatusSearch: number;
+  flowNoIdStatusSearch: number;
+  pageStatusSearch: number;
+  lastIdStatusSearch: number;
+  searchStatusSearch: string;
+}
+interface WorkFlowStatusSearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+///api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+export interface WorkFlowFlowMapsSearchRequest {
+  systemIdFlowMapsSearch: number;
+  flowNoIdFlowMapsSearch: number;
+  pageFlowMapsSearch: number;
+  lastIdFlowMapsSearch: number;
+  searchFlowMapsSearch: string;
+}
+interface WorkFlowFlowMapsSearchResponse {
+  meta: Meta;
+  data: {
+    result: SearchItem[];
+    total_count: number;
+  };
+}
+//api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+export interface WorkFlowIfOperationFlowMapAddRequest {
+  flowMapIdIfOperationFlowMapAdd: number;
+  ifOperationFlowMapIdIfOperationFlowMapAdd: number;
+}
+
+interface WorkFlowIfOperationFlowMapAddResponse {
+  meta: Meta;
+  data: {
+    result: UpdateResult;
+  };
+}
 // api/WFMS/flowMapSave
 export interface WorkFlowMapSaveRequest {
   usrId: number;
@@ -276,7 +381,19 @@ export interface WorkFlowState
     WorkFlowFlowsRequest,
     WorkFlowFlowNosSearchRequest,
     WorkFlowFlowMapsRequest,
-    WorkFlowFlowMapBeforeAftersRequest {
+    WorkFlowFlowMapBeforeAftersRequest,
+    // for api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+    WorkFlowFlowMapCodeSearchRequest,
+    // for api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    WorkFlowFormSearchRequest,
+    // for api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+    WorkFlowScriptSearchRequest,
+    // for api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    WorkFlowWebAPISearchRequest,
+    // for api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    WorkFlowStatusSearchRequest,
+    // for api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    WorkFlowFlowMapsSearchRequest {
   workFlowResponse: WorkflowResponse;
   setField: (field: string | number | symbol, value: any) => void;
   setWorkFlowResponse: (workFlowResponse: WorkflowResponse) => void;
@@ -286,6 +403,22 @@ export interface WorkFlowState
   workFlowFlowNosSearchResponse: WorkFlowFlowNosSearchResponse; //api/WFMS/flowNosSearch?systemId=4&page=1&lastId=0
   workFlowFlowMapsResponse: WorkFlowFlowMapsResponse; //api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
   workFlowFlowMapBeforeAftersResponse: WorkFlowFlowMapBeforeAftersResponse; //api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
+  workFlowFlowMapCodeSearchResponse: WorkFlowFlowMapCodeSearchResponse; //api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+  workFlowFormSearchResponse: WorkFlowFormSearchResponse; //api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  workFlowScriptSearchResponse: WorkFlowScriptSearchResponse; //api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+  workFlowWebAPISearchResponse: WorkFlowWebAPISearchResponse; //api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  workFlowStatusSearchResponse: WorkFlowStatusSearchResponse; //api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  workFlowFlowMapsSearchResponse: WorkFlowFlowMapsSearchResponse; //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse; //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  setWorkFlowScriptSearchResponse: (
+    workFlowScriptSearchResponse: WorkFlowScriptSearchResponse
+  ) => void; //api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+  setWorkFlowFormSearchResponse: (
+    workFlowFormSearchResponse: WorkFlowFormSearchResponse
+  ) => void; //api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowFlowMapCodeSearchResponse: (
+    workFlowFlowMapCodeSearchResponse: WorkFlowFlowMapCodeSearchResponse
+  ) => void; //api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
   setWorkFlowRowSelectResponse: (
     workFlowRowSelectResponse: WorkflowRowSelectResponse
   ) => void;
@@ -308,6 +441,18 @@ export interface WorkFlowState
   setUpdatedWorkFlowRowSelectResponse: (
     updatedWorkFlowRowSelectResponse: WorkflowRowSelectResponse | null
   ) => void;
+  setWorkFlowWebAPISearchResponse: (
+    workFlowWebAPISearchResponse: WorkFlowWebAPISearchResponse
+  ) => void; //api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowStatusSearchResponse: (
+    workFlowStatusSearchResponse: WorkFlowStatusSearchResponse
+  ) => void; //api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowFlowMapsSearchResponse: (
+    workFlowFlowMapsSearchResponse: WorkFlowFlowMapsSearchResponse
+  ) => void; //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  setWorkFlowIfOperationFlowMapAddResponse: (
+    workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse
+  ) => void; //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
 }
 
 export interface WorkFlowRowSelectState extends WorkFlowRowSelectRequest {

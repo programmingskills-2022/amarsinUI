@@ -34,6 +34,7 @@ type Props<T extends { id: string | number; title: string }> = {
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  setIsEntered?: (isEntered: boolean) => void;
 };
 
 const AutoComplet = forwardRef(
@@ -70,6 +71,7 @@ const AutoComplet = forwardRef(
       fetchNextPage,
       hasNextPage,
       isFetchingNextPage,
+      setIsEntered,
     }: Props<T>,
     ref: React.Ref<any>
   ) => {
@@ -171,7 +173,6 @@ const AutoComplet = forwardRef(
         if (onInputChange) {
           onInputChange(null, "");
         } else if (setSearch) {
-          console.log("setSearch in handleOptionSelect");
           setSearch("");
         } else {
           setInternalInputValue("");
@@ -398,6 +399,10 @@ const AutoComplet = forwardRef(
             className={inputClasses}
             style={dynamicInputStyle}
             autoComplete="off"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              setIsEntered?.(true);
+            }}
           />
           {showClear && (
             <button

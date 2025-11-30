@@ -1,4 +1,4 @@
-import ConfirmCancel from "./ConfirmCancel";
+import ConfirmCancel from "../ConfirmCancel";
 
 type Props = {
   label: string;

@@ -10,15 +10,22 @@ import { useWorkflowStore } from "../store/workflowStore";
 import {
   WorkFlowDoFlowRequest,
   WorkFlowFlowMapBeforeAftersResponse,
+  WorkFlowFlowMapCodeSearchResponse,
   WorkFlowFlowMapsResponse,
+  WorkFlowFlowMapsSearchResponse,
   WorkFlowFlowNosSearchRequest,
   WorkFlowFlowNosSearchResponse,
   WorkFlowFlowsRequest,
   WorkFlowFlowsResponse,
+  WorkFlowFormSearchResponse,
+  WorkFlowIfOperationFlowMapAddRequest,
   WorkFlowRequest,
   WorkflowResponse,
   WorkFlowRowSelectRequest,
   WorkflowRowSelectResponse,
+  WorkFlowScriptSearchResponse,
+  WorkFlowStatusSearchResponse,
+  WorkFlowWebAPISearchResponse,
 } from "../types/workflow";
 
 export function useWorkflow() {
@@ -60,6 +67,50 @@ export function useWorkflow() {
     flowMapIdBeforeAfters,
     systemIdBeforeAfters,
     setWorkFlowFlowMapBeforeAftersResponse,
+    //for api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+    systemIdFlowMapCodeSearch,
+    pageFlowMapCodeSearch,
+    lastIdFlowMapCodeSearch,
+    searchFlowMapCodeSearch,
+    setWorkFlowFlowMapCodeSearchResponse,
+    //for api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    systemIdFormSearch,
+    flowNoIdFormSearch,
+    pageFormSearch,
+    lastIdFormSearch,
+    searchFormSearch,
+    setWorkFlowFormSearchResponse,
+    //for api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+    systemIdScriptSearch,
+    flowNoIdScriptSearch,
+    kindScriptSearch,
+    pageScriptSearch,
+    lastIdScriptSearch,
+    searchScriptSearch,
+    setWorkFlowScriptSearchResponse,
+    //for api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    systemIdWebAPISearch,
+    flowNoIdWebAPISearch,
+    pageWebAPISearch,
+    lastIdWebAPISearch,
+    searchWebAPISearch,
+    setWorkFlowWebAPISearchResponse,
+    //for api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    systemIdStatusSearch,
+    flowNoIdStatusSearch,
+    pageStatusSearch,
+    lastIdStatusSearch,
+    searchStatusSearch,
+    setWorkFlowStatusSearchResponse,
+    //for api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    systemIdFlowMapsSearch,
+    flowNoIdFlowMapsSearch,
+    pageFlowMapsSearch,
+    lastIdFlowMapsSearch,
+    searchFlowMapsSearch,
+    setWorkFlowFlowMapsSearchResponse,
+    //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+    setWorkFlowIfOperationFlowMapAddResponse,
   } = useWorkflowStore();
 
   //const queryClient = new QueryClient();
@@ -282,6 +333,205 @@ export function useWorkflow() {
     enabled: flowMapIdBeforeAfters !== -1 && systemIdBeforeAfters !== -1,
   } as UseQueryOptions<WorkFlowFlowMapBeforeAftersResponse, Error, WorkFlowFlowMapBeforeAftersResponse, unknown[]>);
 
+  //for api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+  const workFlowFlowMapCodeSearchQuery = useQuery<
+    WorkFlowFlowMapCodeSearchResponse,
+    Error,
+    WorkFlowFlowMapCodeSearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowFlowMapCodeSearch",
+      systemIdFlowMapCodeSearch,
+      pageFlowMapCodeSearch,
+      lastIdFlowMapCodeSearch,
+      searchFlowMapCodeSearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/flowMapCodeSearch?systemId=${systemIdFlowMapCodeSearch}&page=${pageFlowMapCodeSearch}&lastId=${lastIdFlowMapCodeSearch}&search=${encodeURIComponent(
+        searchFlowMapCodeSearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdFlowMapCodeSearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowFlowMapCodeSearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowFlowMapCodeSearchResponse, Error, WorkFlowFlowMapCodeSearchResponse, unknown[]>);
+  //for api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  const workFlowFormSearchQuery = useQuery<
+    WorkFlowFormSearchResponse,
+    Error,
+    WorkFlowFormSearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowFormSearch",
+      systemIdFormSearch,
+      flowNoIdFormSearch,
+      pageFormSearch,
+      lastIdFormSearch,
+      searchFormSearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/formSearch?systemId=${systemIdFormSearch}&flowNoId=${flowNoIdFormSearch}&page=${pageFormSearch}&lastId=${lastIdFormSearch}&search=${encodeURIComponent(
+        searchFormSearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdFormSearch !== -1 && flowNoIdFormSearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowFormSearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowFormSearchResponse, Error, WorkFlowFormSearchResponse, unknown[]>);
+
+  //for api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+  const workFlowScriptSearchQuery = useQuery<
+    WorkFlowScriptSearchResponse,
+    Error,
+    WorkFlowScriptSearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowScriptSearch",
+      systemIdScriptSearch,
+      flowNoIdScriptSearch,
+      kindScriptSearch,
+      pageScriptSearch,
+      lastIdScriptSearch,
+      searchScriptSearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/scriptSearch?systemId=${systemIdScriptSearch}&flowNoId=${flowNoIdScriptSearch}&kind=${kindScriptSearch}&page=${pageScriptSearch}&lastId=${lastIdScriptSearch}&search=${encodeURIComponent(
+        searchScriptSearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdScriptSearch !== -1 && flowNoIdScriptSearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowScriptSearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowScriptSearchResponse, Error, WorkFlowScriptSearchResponse, unknown[]>);
+  // for api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  const workFlowWebAPISearchQuery = useQuery<
+    WorkFlowWebAPISearchResponse,
+    Error,
+    WorkFlowWebAPISearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowWebAPISearch",
+      systemIdWebAPISearch,
+      flowNoIdWebAPISearch,
+      pageWebAPISearch,
+      lastIdWebAPISearch,
+      searchWebAPISearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/webAPISearch?systemId=${systemIdWebAPISearch}&flowNoId=${flowNoIdWebAPISearch}&page=${pageWebAPISearch}&lastId=${lastIdWebAPISearch}&search=${encodeURIComponent(
+        searchWebAPISearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdWebAPISearch !== -1 && flowNoIdWebAPISearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowWebAPISearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowWebAPISearchResponse, Error, WorkFlowWebAPISearchResponse, unknown[]>);
+  //for api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  const workFlowStatusSearchQuery = useQuery<
+    WorkFlowStatusSearchResponse,
+    Error,
+    WorkFlowStatusSearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowStatusSearch",
+      systemIdStatusSearch,
+      flowNoIdStatusSearch,
+      pageStatusSearch,
+      lastIdStatusSearch,
+      searchStatusSearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/statusSearch?systemId=${systemIdStatusSearch}&flowNoId=${flowNoIdStatusSearch}&page=${pageStatusSearch}&lastId=${lastIdStatusSearch}&search=${encodeURIComponent(
+        searchStatusSearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdStatusSearch !== -1 && flowNoIdStatusSearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowStatusSearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowStatusSearchResponse, Error, WorkFlowStatusSearchResponse, unknown[]>);
+  //for api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+  const workFlowFlowMapsSearchQuery = useQuery<
+    WorkFlowFlowMapsSearchResponse,
+    Error,
+    WorkFlowFlowMapsSearchResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "workFlowFlowMapsSearch",
+      systemIdFlowMapsSearch,
+      flowNoIdFlowMapsSearch,
+      pageFlowMapsSearch,
+      lastIdFlowMapsSearch,
+      searchFlowMapsSearch,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WFMS/flowMapsSearch?systemId=${systemIdFlowMapsSearch}&flowNoId=${flowNoIdFlowMapsSearch}&page=${pageFlowMapsSearch}&lastId=${lastIdFlowMapsSearch}&search=${encodeURIComponent(
+        searchFlowMapsSearch
+      )}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: systemIdFlowMapsSearch !== -1 && flowNoIdFlowMapsSearch !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowFlowMapsSearchResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowFlowMapsSearchResponse, Error, WorkFlowFlowMapsSearchResponse, unknown[]>);
+  //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  const workFlowIfOperationFlowMapAdd = useMutation({
+    mutationFn: async (request: WorkFlowIfOperationFlowMapAddRequest) => {
+      const url: string = `api/WFMS/ifOperationFlowMapAdd?flowMapId=${request.flowMapIdIfOperationFlowMapAdd}&ifOperationFlowMapId=${request.ifOperationFlowMapIdIfOperationFlowMapAdd}`;
+      const response = await api.post(url, request);
+      return response.data;
+    },
+    onSuccess: async (data: any) => {
+      setWorkFlowIfOperationFlowMapAddResponse(data);
+      queryClient.refetchQueries({
+        queryKey: [
+          "workFlowFlowMapBeforeAfters",
+          flowMapIdBeforeAfters,
+          systemIdBeforeAfters,
+        ],
+      });
+    },
+  });
   //for doFlow
   const doFlow = useMutation({
     mutationFn: async (request: WorkFlowDoFlowRequest) => {
@@ -433,6 +683,75 @@ export function useWorkflow() {
       workFlowFlowMapBeforeAftersQuery.data ?? {
         meta: { errorCode: 0, message: "", type: "" },
         data: { result: { flowMapBefores: [], flowMapAfters: [] } },
+      },
+    //for api/WFMS/flowMapCodeSearch?systemId=4&page=1&lastId=0
+    refetchWorkFlowFlowMapCodeSearch: workFlowFlowMapCodeSearchQuery.refetch,
+    isRefetchingWorkFlowFlowMapCodeSearch:
+      workFlowFlowMapCodeSearchQuery.isRefetching,
+    isLoadingWorkFlowFlowMapCodeSearch:
+      workFlowFlowMapCodeSearchQuery.isLoading,
+    errorWorkFlowFlowMapCodeSearch: workFlowFlowMapCodeSearchQuery.error,
+    workFlowFlowMapCodeSearchResponse: workFlowFlowMapCodeSearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/formSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    refetchWorkFlowFormSearch: workFlowFormSearchQuery.refetch,
+    isRefetchingWorkFlowFormSearch: workFlowFormSearchQuery.isRefetching,
+    isLoadingWorkFlowFormSearch: workFlowFormSearchQuery.isLoading,
+    errorWorkFlowFormSearch: workFlowFormSearchQuery.error,
+    workFlowFormSearchResponse: workFlowFormSearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
+    refetchWorkFlowScriptSearch: workFlowScriptSearchQuery.refetch,
+    isRefetchingWorkFlowScriptSearch: workFlowScriptSearchQuery.isRefetching,
+    isLoadingWorkFlowScriptSearch: workFlowScriptSearchQuery.isLoading,
+    errorWorkFlowScriptSearch: workFlowScriptSearchQuery.error,
+    workFlowScriptSearchResponse: workFlowScriptSearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/webAPISearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    refetchWorkFlowWebAPISearch: workFlowWebAPISearchQuery.refetch,
+    isRefetchingWorkFlowWebAPISearch: workFlowWebAPISearchQuery.isRefetching,
+    isLoadingWorkFlowWebAPISearch: workFlowWebAPISearchQuery.isLoading,
+    errorWorkFlowWebAPISearch: workFlowWebAPISearchQuery.error,
+    workFlowWebAPISearchResponse: workFlowWebAPISearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    refetchWorkFlowStatusSearch: workFlowStatusSearchQuery.refetch,
+    isRefetchingWorkFlowStatusSearch: workFlowStatusSearchQuery.isRefetching,
+    isLoadingWorkFlowStatusSearch: workFlowStatusSearchQuery.isLoading,
+    errorWorkFlowStatusSearch: workFlowStatusSearchQuery.error,
+    workFlowStatusSearchResponse: workFlowStatusSearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
+    refetchWorkFlowFlowMapsSearch: workFlowFlowMapsSearchQuery.refetch,
+    isRefetchingWorkFlowFlowMapsSearch:
+      workFlowFlowMapsSearchQuery.isRefetching,
+    isLoadingWorkFlowFlowMapsSearch: workFlowFlowMapsSearchQuery.isLoading,
+    errorWorkFlowFlowMapsSearch: workFlowFlowMapsSearchQuery.error,
+    workFlowFlowMapsSearchResponse: workFlowFlowMapsSearchQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [], total_count: 0 },
+    },
+    //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+    isLoadingWorkFlowIfOperationFlowMapAdd:
+      workFlowIfOperationFlowMapAdd.isPending,
+    errorWorkFlowIfOperationFlowMapAdd: workFlowIfOperationFlowMapAdd.error,
+    workFlowIfOperationFlowMapAdd: workFlowIfOperationFlowMapAdd.mutateAsync,
+    workFlowIfOperationFlowMapAddResponse:
+      workFlowIfOperationFlowMapAdd.data ?? {
+        meta: { errorCode: 0, message: "", type: "" },
+        data: {
+          result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false },
+        },
       },
   };
 }
