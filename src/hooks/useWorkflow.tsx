@@ -9,8 +9,11 @@ import api from "../api/axios";
 import { useWorkflowStore } from "../store/workflowStore";
 import {
   WorkFlowDoFlowRequest,
+  WorkFlowFlowMapBeforeAfterDeleteRequest,
   WorkFlowFlowMapBeforeAftersResponse,
   WorkFlowFlowMapCodeSearchResponse,
+  WorkFlowFlowMapDeleteRequest,
+  WorkFlowFlowMapLoadResponse,
   WorkFlowFlowMapsResponse,
   WorkFlowFlowMapsSearchResponse,
   WorkFlowFlowNosSearchRequest,
@@ -19,6 +22,7 @@ import {
   WorkFlowFlowsResponse,
   WorkFlowFormSearchResponse,
   WorkFlowIfOperationFlowMapAddRequest,
+  WorkFlowMapSaveRequest,
   WorkFlowRequest,
   WorkflowResponse,
   WorkFlowRowSelectRequest,
@@ -105,12 +109,22 @@ export function useWorkflow() {
     //for api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
     systemIdFlowMapsSearch,
     flowNoIdFlowMapsSearch,
+    flowNoIdTrigger,
     pageFlowMapsSearch,
     lastIdFlowMapsSearch,
     searchFlowMapsSearch,
     setWorkFlowFlowMapsSearchResponse,
     //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
     setWorkFlowIfOperationFlowMapAddResponse,
+    //for api/WFMS/flowMapBeforeAfter/734
+    setWorkFlowFlowMapBeforeAfterDeleteResponse,
+    //for api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+    setWorkFlowFlowMapDeleteResponse,
+    //for api/WFMS/flowMapLoad/205000020
+    idFlowMapLoad,
+    setWorkFlowFlowMapLoadResponse,
+    //for api/WFMS/flowMapSave
+    setWorkFlowMapSaveResponse,
   } = useWorkflowStore();
 
   //const queryClient = new QueryClient();
@@ -495,6 +509,7 @@ export function useWorkflow() {
       "workFlowFlowMapsSearch",
       systemIdFlowMapsSearch,
       flowNoIdFlowMapsSearch,
+      flowNoIdTrigger,
       pageFlowMapsSearch,
       lastIdFlowMapsSearch,
       searchFlowMapsSearch,
@@ -518,6 +533,7 @@ export function useWorkflow() {
   const workFlowIfOperationFlowMapAdd = useMutation({
     mutationFn: async (request: WorkFlowIfOperationFlowMapAddRequest) => {
       const url: string = `api/WFMS/ifOperationFlowMapAdd?flowMapId=${request.flowMapIdIfOperationFlowMapAdd}&ifOperationFlowMapId=${request.ifOperationFlowMapIdIfOperationFlowMapAdd}`;
+      console.log(url, "url");
       const response = await api.post(url, request);
       return response.data;
     },
@@ -532,6 +548,68 @@ export function useWorkflow() {
       });
     },
   });
+  //for delete api/WFMS/flowMapBeforeAfter/734
+  const workFlowFlowMapBeforeAfterDelete = useMutation({
+    mutationFn: async (request: WorkFlowFlowMapBeforeAfterDeleteRequest) => {
+      const url: string = `api/WFMS/flowMapBeforeAfter/${request.flowMapIdBeforeAfterDelete}?IdempotencyKey=${request.idempotencyKey}`;
+      console.log(url, "url");
+      const response = await api.delete(url);
+      return response.data;
+    },
+    onSuccess: async (data: any) => {
+      setWorkFlowFlowMapBeforeAfterDeleteResponse(data);
+      queryClient.refetchQueries({
+        queryKey: [
+          "workFlowFlowMapBeforeAfters",
+          flowMapIdBeforeAfters,
+          systemIdBeforeAfters,
+        ],
+      });
+    },
+  });
+  // for delete api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+  const workFlowFlowMapDelete = useMutation({
+    mutationFn: async (request: WorkFlowFlowMapDeleteRequest) => {
+      const url: string = `api/WFMS/flowMap/${request.flowMapIdDelete}?SystemId=${request.systemIdDelete}&IdempotencyKey=${request.idempotencyKeyDelete}`;
+      const response = await api.delete(url);
+      return response.data;
+    },
+    onSuccess: async (data: any) => {
+      setWorkFlowFlowMapDeleteResponse(data);
+    },
+  });
+  //for api/WFMS/flowMapSave
+  const workFlowFlowMapSave = useMutation({
+    mutationFn: async (request: WorkFlowMapSaveRequest) => {
+      const url: string = `api/WFMS/flowMapSave`;
+      const response = await api.post(url, request);
+      return response.data;
+    },
+    onSuccess: async (data: any) => {
+      setWorkFlowMapSaveResponse(data);
+    },
+  });
+  //for api/WFMS/flowMapLoad/205000020
+  const workFlowFlowMapLoadQuery = useQuery<
+    WorkFlowFlowMapLoadResponse,
+    Error,
+    WorkFlowFlowMapLoadResponse,
+    unknown[]
+  >({
+    queryKey: ["workFlowFlowMapLoad", idFlowMapLoad],
+    queryFn: async () => {
+      const url: string = `api/WFMS/flowMapLoad/${idFlowMapLoad}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: idFlowMapLoad !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setWorkFlowFlowMapLoadResponse(data);
+    },
+  } as UseQueryOptions<WorkFlowFlowMapLoadResponse, Error, WorkFlowFlowMapLoadResponse, unknown[]>);
   //for doFlow
   const doFlow = useMutation({
     mutationFn: async (request: WorkFlowDoFlowRequest) => {
@@ -753,5 +831,80 @@ export function useWorkflow() {
           result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false },
         },
       },
+    //for api/WFMS/flowMapBeforeAfter/734
+    isLoadingWorkFlowFlowMapBeforeAfterDelete:
+      workFlowFlowMapBeforeAfterDelete.isPending,
+    errorWorkFlowFlowMapBeforeAfterDelete:
+      workFlowFlowMapBeforeAfterDelete.error,
+    workFlowFlowMapBeforeAfterDelete:
+      workFlowFlowMapBeforeAfterDelete.mutateAsync,
+    workFlowFlowMapBeforeAfterDeleteResponse:
+      workFlowFlowMapBeforeAfterDelete.data ?? {
+        meta: { errorCode: 0, message: "", type: "" },
+        data: {
+          result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false },
+        },
+      },
+    //for api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+    isLoadingWorkFlowFlowMapDelete: workFlowFlowMapDelete.isPending,
+    errorWorkFlowFlowMapDelete: workFlowFlowMapDelete.error,
+    workFlowFlowMapDelete: workFlowFlowMapDelete.mutateAsync,
+    workFlowFlowMapDeleteResponse: workFlowFlowMapDelete.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false } },
+    },
+    //for api/WFMS/flowMapSave
+    isLoadingWorkFlowMapSave: workFlowFlowMapSave.isPending,
+    errorWorkFlowMapSave: workFlowFlowMapSave.error,
+    workFlowFlowMapSave: workFlowFlowMapSave.mutateAsync,
+    workFlowFlowMapSaveResponse: workFlowFlowMapSave.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false } },
+    },
+    //for api/WFMS/flowMapLoad/205000020
+    isLoadingWorkFlowFlowMapLoad: workFlowFlowMapLoadQuery.isLoading,
+    errorWorkFlowFlowMapLoad: workFlowFlowMapLoadQuery.error,
+    workFlowFlowMapLoadResponse: workFlowFlowMapLoadQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: {
+        result: {
+          id: 0,
+          name: "",
+          fChart: 0,
+          fChartName: "",
+          tChart: 0,
+          tChartName: "",
+          codeId: 0,
+          codeTitle: "",
+          code: "",
+          formNo1: 0,
+          form1Title: "",
+          formNo2: 0,
+          form2Title: "",
+          scriptId: 0,
+          scriptTitle: "",
+          webAPIId: 0,
+          webAPITitle: "",
+          scriptBeforeId: 0,
+          scriptBeforeTitle: "",
+          scriptValidatorId: 0,
+          scriptValidatorTitle: "",
+          statusId: 0,
+          statusTitle: "",
+          canEditForm: false,
+          canEditForm1: false,
+          canEditForm1Dtl1: false,
+          canEditForm1Dtl2: false,
+          canEditForm1Dtl3: false,
+          canEditForm1DtlDel: false,
+          canEditForm1Mst1: false,
+          canEditForm1Mst2: false,
+          canEditForm1Mst3: false,
+          formAfterClick: 0,
+          formAfterClickTitle: "",
+          idempotencyKey: "",
+        },
+      },
+    },
   };
 }

@@ -8,14 +8,20 @@ import WorkFlowMapReg from "./workflowMapReg/WorkFlowMapReg";
 import ModalForm from "../../layout/ModalForm";
 import { useEffect, useState } from "react";
 import { DefaultOptionType, SearchItem } from "../../../types/general";
+import {
+  WorkFlowFlowMapLoadResponse,
+  WorkFlowMapSaveRequest,
+  WorkFlowMapSaveResponse,
+} from "../../../types/workflow";
+import { useWorkflowStore } from "../../../store/workflowStore";
+import ModalMessage from "../../layout/ModalMessage";
 
 type Props = {
   //setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
   newEdit: number; // 1 for new, 0 for edit
   setNewEdit: React.Dispatch<React.SetStateAction<number>>;
-  onCloseNewEdit: () => void;
   handleDelete: () => void;
-  handleEdit: () => void;
+  //handleEdit: () => void;
   refetch: () => void;
   definitionInvironment: DefinitionInvironment;
   processTitle: DefaultOptionType | null;
@@ -26,6 +32,11 @@ type Props = {
   workFlowScriptSearchResponse: SearchItem[]; //for اسکریپت قبل اجرا search
   workFlowWebAPISearchResponse: SearchItem[]; //for ای پی آی search
   workFlowStatusSearchResponse: SearchItem[]; //for وضعیت search
+  workFlowFlowMapLoadResponse: WorkFlowFlowMapLoadResponse; //for load edit data : /api/WFMS/flowMapLoad/205000020
+  selectedId: number;
+  workFlowFlowMapSave: (request: WorkFlowMapSaveRequest) => void; //for api/WFMS/flowMapSave
+  isLoadingWorkFlowMapSave: boolean;
+  workFlowMapSaveResponse: WorkFlowMapSaveResponse;
 };
 
 export type Process = {
@@ -46,12 +57,9 @@ export type Process = {
   idempotencyKey: string;
 };
 const WorkflowMapHeader = ({
-  //setIsNew,
   newEdit,
   setNewEdit,
-  onCloseNewEdit,
   handleDelete,
-  handleEdit,
   refetch,
   definitionInvironment,
   processTitle,
@@ -62,7 +70,13 @@ const WorkflowMapHeader = ({
   workFlowScriptSearchResponse,
   workFlowWebAPISearchResponse,
   workFlowStatusSearchResponse,
+  workFlowFlowMapLoadResponse,
+  selectedId,
+  workFlowFlowMapSave,
+  isLoadingWorkFlowMapSave,
+  workFlowMapSaveResponse,
 }: Props) => {
+  const { setField } = useWorkflowStore();
   const [process, setProcess] = useState<Process>({
     usrId: 0,
     id: 0,
@@ -80,19 +94,40 @@ const WorkflowMapHeader = ({
     statusId: null,
     idempotencyKey: "",
   } as Process);
+  //for show modal message after save api/WFMS/flowMapSave
+  const [isModalOpenSave, setIsModalOpenSave] = useState(false);
+  /////////////////////////////////////////////////////////////////
   useEffect(() => {
-    console.log(onCloseNewEdit, handleEdit, handleDelete, refetch);
-  }, []);
-
+    let timeoutId: NodeJS.Timeout;
+    if (isModalOpenSave) {
+      timeoutId = setTimeout(() => {
+        setIsModalOpenSave(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isModalOpenSave]);
+  /////////////////////////////////////////////////////////////////
   const handleNew = () => {
     console.log(processTitle);
     if (processTitle !== null) {
       setIsModalOpen(false);
+      //setField("idFlowMapLoad", -1);
       setNewEdit(1); // 1 for new
     } else {
       setIsModalOpen(true);
     } // 1 for new}
   };
+  //for load edit data : /api/WFMS/flowMapLoad/205000020
+  const handleEdit = () => {
+    console.log(selectedId,"selectedId");
+    setField("idFlowMapLoad", selectedId);
+    setNewEdit(0); // 0 for edit
+  };
+
   return (
     <header className="flex flex-col gap-2 md:flex-row items-center justify-between border-gray-300 border-b pb-2">
       <PageTitle definitionInvironment={definitionInvironment} />
@@ -114,7 +149,7 @@ const WorkflowMapHeader = ({
         </div>
         <div
           className={`flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 cursor-pointer`}
-          onClick={() => setNewEdit(0)} // 0 for edit
+          onClick={handleEdit} // 0 for edit
         >
           <img src={Edit24} alt="Edit24" className="w-6 h-6" />
           <p className="text-xs">ویرایش</p>
@@ -136,14 +171,18 @@ const WorkflowMapHeader = ({
       >
         <WorkFlowMapReg
           newEdit={newEdit}
+          setNewEdit={setNewEdit}
           processTitle={processTitle} // to pass to formNo1 and formNo2 search in AutoCompleteSearch
           process={process}
           setProcess={setProcess}
-          workFlowFlowMapCodeSearchResponse={workFlowFlowMapCodeSearchResponse}//just search items for codeId
-          workFlowFormSearchResponse={workFlowFormSearchResponse}//just search items for formNo1 and formNo2
-          workFlowScriptSearchResponse={workFlowScriptSearchResponse}//just search items for scriptBeforeId
-          workFlowWebAPISearchResponse={workFlowWebAPISearchResponse}//just search items for webAPIId
-          workFlowStatusSearchResponse={workFlowStatusSearchResponse}//just search items for statusId
+          workFlowFlowMapCodeSearchResponse={workFlowFlowMapCodeSearchResponse} //just search items for codeId
+          workFlowFormSearchResponse={workFlowFormSearchResponse} //just search items for formNo1 and formNo2
+          workFlowScriptSearchResponse={workFlowScriptSearchResponse} //just search items for scriptBeforeId
+          workFlowWebAPISearchResponse={workFlowWebAPISearchResponse} //just search items for webAPIId
+          workFlowStatusSearchResponse={workFlowStatusSearchResponse} //just search items for statusId
+          workFlowFlowMapLoadResponse={workFlowFlowMapLoadResponse} //for load edit data : /api/WFMS/flowMapLoad/205000020
+          workFlowFlowMapSave={workFlowFlowMapSave} //for api/WFMS/flowMapSave
+          setIsModalOpenSave={setIsModalOpenSave} //for show modal message after save api/WFMS/flowMapSave
         />
       </ModalForm>
       <ModalForm
@@ -164,6 +203,30 @@ const WorkflowMapHeader = ({
           </div>
         </div>
       </ModalForm>
+      {!isLoadingWorkFlowMapSave && (
+        <ModalMessage
+          isOpen={isModalOpenSave}
+          backgroundColor={
+            workFlowMapSaveResponse.meta.errorCode <= 0
+              ? "bg-green-200"
+              : "bg-red-200"
+          }
+          bgColorButton={
+            workFlowMapSaveResponse.meta.errorCode <= 0
+              ? "bg-green-500"
+              : "bg-red-500"
+          }
+          bgColorButtonHover={
+            workFlowMapSaveResponse.meta.errorCode <= 0
+              ? "bg-green-600"
+              : "bg-red-600"
+          }
+          color="text-white"
+          onClose={() => setIsModalOpenSave(false)}
+          message={workFlowMapSaveResponse.meta.message ?? ""}
+          visibleButton={false}
+        />
+      )}
     </header>
   );
 };

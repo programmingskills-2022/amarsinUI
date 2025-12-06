@@ -44,7 +44,6 @@ export function useAttachments() {
       const url = `/api/Attachment/list?formId=${params.formId}&prefix=${params.prefix}&GUID=${params.GUID}&yearId=${params.yearId}&systemId=${params.systemId}`;
       console.log(url, "url");
       const response = await api.get(url);
-      console.log(url, response.data, "url,response.data in attachments");
       return response.data;
     },
     enabled:  yearId !== -1 && systemId !== -1 && (formId !== 0 || GUID !== ""),

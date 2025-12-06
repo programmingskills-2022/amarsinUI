@@ -18,7 +18,7 @@ export type BankSearchRequest = {
 
   export interface BankState extends BankSearchRequest{
     banks:BankSearchResponse
-    setField: (field: keyof BankSearchRequest, value: any) => void;
+    setField: (field: string | number | symbol, value: any) => void;
     setBanks:(banks:BankSearchResponse) =>void
     
 }

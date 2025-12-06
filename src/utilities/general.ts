@@ -278,6 +278,6 @@ export function normalizeInputForSearch(input: string): string {
       return c;
     })
     .normalize('NFKC')
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, ' ') 
     .trim();
 }

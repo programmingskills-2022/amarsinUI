@@ -5,6 +5,9 @@ import { useCustomers } from "../../hooks/useCustomers";
 import { DefaultOptionType } from "../../types/general";
 import { WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
 import { useWarehouse } from "../../hooks/useWarehouse";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { useGeneralContext } from "../../context/GeneralContext";
+import { useCustomerStore } from "../../store/customerStore";
 
 type Props = {
   warehouseTemporaryReceiptPurchaseShowResponse: WarehouseTemporaryReceiptPurchaseShowResponse;
@@ -19,7 +22,10 @@ const ReceiptPurchaseShowHeader = ({
   const [datTim, setDatTim] = useState<string>("");
   const [exp, setExp] = useState<string>("");
   const { customers } = useCustomers();
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
+  const { systemId, yearId } = useGeneralContext();
+  const { setField: setCustomerField } = useCustomerStore();
+  const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
   const { warehouseSearchResponse } = useWarehouse();
   const [warehouseSearch, setWarehouseSearch] = useState<string>("");
@@ -62,13 +68,40 @@ const ReceiptPurchaseShowHeader = ({
 
 
   useEffect(() => {
-    console.log(warehouseSearch,search);
+    console.log(warehouseSearch);
   }, []);
   
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <div className="w-full md:w-3/4 flex justify-center items-center">
+        <AutoCompleteSearch
+          label="خریدار"
+          labelWidth="w-16"
+          setField={setCustomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "yearIdCustomerSearch", value: yearId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+            { field: "centerType", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
+          setSelectedOption={(newValue: DefaultOptionType) => {
+            setCustomer({
+              id: newValue.id,
+              title: newValue.title,
+            });
+          }}
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+          disabled={!canEditForm1Mst2}
+        />
+        {/*<div className="w-full md:w-3/4 flex justify-center items-center">
           <label className="p-1 w-20 text-left">خریدار:</label>
           <div className="flex w-full rounded-md">
             <AutoComplete
@@ -88,7 +121,7 @@ const ReceiptPurchaseShowHeader = ({
               inputPadding="0 !important"
             />
           </div>
-        </div>
+        </div>*/}
         <div className="w-full md:w-1/4 flex">
           <label className="p-1 w-20 md:w-12 text-left">تاریخ:</label>
           <input

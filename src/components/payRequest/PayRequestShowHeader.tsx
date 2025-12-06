@@ -20,6 +20,7 @@ import { useGeneralContext } from "../../context/GeneralContext";
 import PersianDatePicker from "../controls/PersianDatePicker";
 import { InputElement } from "../controls/InputElement";
 import { DefinitionDateTime, DefinitionInvironment } from "../../types/definitionInvironment";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   cnt: number; //attachment count
@@ -95,11 +96,19 @@ const PayRequestShowHeader = ({
   const { customers } = useCustomers();
   const { setField: setCustomerField } = useCustomerStore();
   const { systemId, yearId } = useGeneralContext();
-  const [customerSearch, setCustomerSearch] = useState<string>("");
+  const [isCustomerEntered, setIsCustomerEntered] = useState(false);
   const [systemSearch, setSystemSearch] = useState<string>("");
   const [yearSearch, setYearSearch] = useState<string>("");
 
+
   useEffect(() => {
+    console.log(
+      systemSearch,
+      yearSearch,
+    );
+  }, []);
+  //for api/Customer/search?search=search&page=1&lastId=0
+  /*useEffect(() => {
     setCustomerField("systemId", systemId);
     setCustomerField("yearId", yearId);
     setCustomerField("search", customerSearch);
@@ -114,7 +123,7 @@ const PayRequestShowHeader = ({
       canEditForm1Mst2,
       "canEditForm1Mst1"
     );
-  }, [systemId, yearId, customerSearch]);
+  }, [systemId, yearId, customerSearch]);*/
 
   useEffect(() => {
     setCustomer(
@@ -320,28 +329,31 @@ const PayRequestShowHeader = ({
           </div>
         </div>
       </div>
-      <div className="flex w-full">
-        <label className="p-1 w-24 text-left">طرف حساب:</label>
-        <div className="bg-slate-50 flex w-full rounded-md">
-          <AutoComplete
-            options={customers.map((b) => ({
-              id: b.id,
-              title: b.text,
-            }))}
-            value={customer}
-            handleChange={(_event, newValue) => {
-              return setCustomer(newValue as DefaultOptionType | null);
-            }}
-            setSearch={setCustomerSearch}
-            showLabel={false}
-            inputPadding="0 !important"
-            showClearIcon={false}
-            changeColorOnFocus={true}
-            disabled={!canEditForm1Mst2}
-            backgroundColor={canEditForm1Mst2 ? colors.gray100 : "inherit"}
-          />
-        </div>
-      </div>
+      {/*  طرف حساب */}
+      <AutoCompleteSearch
+        label="طرف حساب"
+        labelWidth="w-20"
+        setField={setCustomerField}
+        fieldValues={[
+          { field: "systemIdCustomerSearch", value: systemId },
+          { field: "page", value: 1 },
+          { field: "lastId", value: 0 },
+          { field: "yearIdCustomerSearch", value: yearId },
+          { field: "centerType", value: 0 },
+        ]}
+        fieldSearch="search"
+        selectedOption={customer as DefaultOptionType}
+        setSelectedOption={(customer: any) =>
+          setCustomer(customer as DefaultOptionType)
+        }
+        options={customers.map((b) => ({
+          id: b.id,
+          text: b.text,
+        }))}
+        disabled={!canEditForm1Mst2}
+        isEntered={isCustomerEntered}
+        setIsEntered={setIsCustomerEntered}
+      />
       <div className="flex w-full items-center gap-2">
         <label className="p-1 w-24 text-left">توضیحات:</label>
         {InputElement(dsc, !canEditForm1Mst2, (e) => {

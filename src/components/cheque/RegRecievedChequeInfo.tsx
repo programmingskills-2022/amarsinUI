@@ -622,7 +622,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
       loadPaymentResponse.data.result?.id ?? -1
     );
     // Increment trigger to force refetch even with same values
-    setChequeField("paymentIdTrigger", Date.now());
+    setChequeField("flowNoIdTrigger", Date.now());
   };
   return (
     <div className="flex md:w-1/2 w-full flex-col gap-1">

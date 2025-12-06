@@ -56,6 +56,7 @@ interface ChequeBookGetByIdResponse {
 export interface PaymentState extends PaymentKindSearchRequest {
   posListResponse: PosListResponse; // api/Payment/posList
   checkBookId:number
+  posSystemId:number
   chequeBookGetByIdResponse:ChequeBookGetByIdResponse; //api/Payment/chequeBookGetById?id=190
   paymentKindSearchResponse: PaymentKindSearchResponse;
   setField: (field: string, value: any) => void;

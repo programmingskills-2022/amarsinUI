@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { useInView } from 'react-intersection-observer';
-import { convertToFarsiDigits } from "../../utilities/general";
+import { convertToFarsiDigits, normalizeInputForSearch } from "../../utilities/general";
 
 type Props<T extends { id: string | number; title: string }> = {
   options: T[];
@@ -132,6 +132,7 @@ const AutoComplet = forwardRef(
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = convertToFarsiDigits(e.target.value);
+      const normalizedValue = normalizeInputForSearch(newValue);
       
       // User is actively editing
       setIsEditing(true);
@@ -145,12 +146,12 @@ const AutoComplet = forwardRef(
       // This ensures the input shows what the user is typing right away
       setInternalInputValue(newValue);
       
-      // Also notify parent if callbacks are provided
+      // Also notify parent if callbacks are provided (send normalized value for search)
       if (onInputChange) {
-        onInputChange(e, newValue);
+        onInputChange(e, normalizedValue);
       } else if (setSearch) {
-        console.log(newValue, "newValue in handleInputChange");
-        setSearch(newValue);
+        console.log(normalizedValue, "normalizedValue in handleInputChange");
+        setSearch(normalizedValue);
       }
 
       setIsOpen(true);

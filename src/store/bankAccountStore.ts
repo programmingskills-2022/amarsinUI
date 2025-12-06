@@ -22,7 +22,7 @@ export const useBankAccountStore = create<BankAccountState>()((set) => ({
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: 0 },
   },
-  setField: (field: string, value: any) =>
+  setField: (field: string | number | symbol, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setBankAccountSearchResponse: (bankAccountSearchResponse) =>
     set({ bankAccountSearchResponse }),

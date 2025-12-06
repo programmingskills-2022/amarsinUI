@@ -47,12 +47,7 @@ export interface BankAccountState
   bankAccountSearchResponse: BankAccountSearchResponse;
   getChequeAssignBankAccountResponse: GetChequeAssignBankAccountResponse;
   chequeAssignBankAccountResponse: ChequeAssignBankAccountResponse;
-  setField: (
-    field:
-      | keyof BankAccountSearchRequest
-      | keyof GetChequeAssignBankAccountRequest,
-    value: any
-  ) => void;
+  setField: (field: string | number | symbol, value: any) => void;
   setBankAccountSearchResponse: (
     bankAccountSearchResponse: BankAccountSearchResponse
   ) => void;

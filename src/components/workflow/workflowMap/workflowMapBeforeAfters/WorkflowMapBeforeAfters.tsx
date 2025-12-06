@@ -22,6 +22,7 @@ type Props = {
   processTitle: DefaultOptionType | null;
   workFlowIfOperationFlowMapAdd: (request: WorkFlowIfOperationFlowMapAddRequest) => void; //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
   isPrev: boolean;
+  setIsPrev: (isPrev: boolean) => void;
 };
 
 const WorkflowMapBeforeAfters = ({
@@ -38,6 +39,7 @@ const WorkflowMapBeforeAfters = ({
   processTitle,
   workFlowIfOperationFlowMapAdd,
   isPrev,
+  setIsPrev,
 }: Props) => {
   const [data, setData] = useState<any[]>([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
@@ -45,6 +47,7 @@ const WorkflowMapBeforeAfters = ({
   useEffect(() => {
     const tempData = flowMapBeforesAfters.map((item, index) => ({
       index: convertToFarsiDigits(index + 1),
+      ifId: item.ifId,
       id: convertToFarsiDigits(item.id),
       name: convertToFarsiDigits(item.name),
       fChartName: convertToFarsiDigits(item.fChartName),
@@ -58,6 +61,15 @@ const WorkflowMapBeforeAfters = ({
     }));
     setData(tempData);
   }, [flowMapBeforesAfters]);
+
+  const handleAdd = () => {
+    if (title === "مراحل قبل") {
+      setIsPrev(true);
+    } else {
+      setIsPrev(false);
+    }
+    setIsOpenAdd(true);
+  };
   return (
     <Card className="flex flex-col px-2 w-1/2 h-56" borderColor="gray-300">
       <Card
@@ -78,7 +90,7 @@ const WorkflowMapBeforeAfters = ({
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = backgroundColor;
           }}
-          onClick={() => setIsOpenAdd(true)}
+          onClick={handleAdd}
         >
           <img
             src={PlusIcon}
@@ -88,7 +100,7 @@ const WorkflowMapBeforeAfters = ({
           />
         </div>
       </Card>
-      <div className="h-56 overflow-y-auto">
+      { (<div className="h-56 overflow-y-auto">
         <TTable
           columns={columns}
           data={data}
@@ -96,7 +108,7 @@ const WorkflowMapBeforeAfters = ({
           selectedRowIndex={selectedRowIndex}
           changeRowSelectColor={true}
         />
-      </div>
+      </div >)}
       <ModalForm
         isOpen={isOpenAdd}
         onClose={() => setIsOpenAdd(false)}

@@ -125,7 +125,6 @@ const PayRequestShow = ({
   const [chequeBookId, setChequeBookId] = useState(0);
   const [options1, setOptions1] = useState<DefaultOptionType[]>([]);
   const [options2, setOptions2] = useState<DefaultOptionType[]>([]);
-  //const [isPayChanged, setIsPayChanged] = useState(false);
   const [payRequestDtlIndex, setPayRequestDtlIndex] = useState(0);
   const [tempData, setTempData] = useState<PayRequestInvoiceIncludeChecks[]>(
     []
@@ -169,13 +168,9 @@ const PayRequestShow = ({
     };
   }, [isModalRegOpen]);
   ////////////////////////////////////////////////////////
+  //for /api/PayRequest?Id=..
   useEffect(() => {
-    //console.log(workFlowRowSelectResponse?.workTableRow.formId);
     setActiveTab(2);
-    console.log(
-      workFlowRowSelectResponse?.workTableRow.formId,
-      "workFlowRowSelectResponse?.workTableRow.formId in PayRequestShow"
-    );
     if (!isNew)
       setPayRequestField("id", workFlowRowSelectResponse?.workTableRow.formId);
     setPayRequestField("yearId", yearId);
@@ -288,7 +283,7 @@ const PayRequestShow = ({
   ]);
   /////////////////////////////////////////////////////////////
   useEffect(() => {
-    const invcs = payRequestResponse.data.result.invcs; // keep factors include settles in tempPayRequestResponse
+    const invcs = payRequestResponse.data.result.invcs; 
     setDataInTab2(
       isNew
         ? []
@@ -301,7 +296,6 @@ const PayRequestShow = ({
               ),
               index: index + 1,
               checked: tempItem ? true : false,
-              //chqBkNo: chequeBookDtlByIdResponse.data.result.checkBookDtl.chqBkNo ?? item.chqBkNo
             };
           })
     );
@@ -332,13 +326,11 @@ const PayRequestShow = ({
   /////////////////////////////////////////////////////////////////
   useEffect(() => {
     let settleSum: number = 0;
-    //console.log(invoicesWithChecks, "invoicesWithChecks in useEffect");
     const tempInvoicesWithChecks = invoicesWithChecks.map((item, index) => {
       let checked = item.checked;
       //فاکتوری که در آن از چک کلیک شده پرداخت شده است
       //اگر رکورد در حال ویرایش است
       let invoicePayByClickedCheck;
-      //console.log(item, "item in useEffect");
       if (isNew) {
         invoicePayByClickedCheck = item.invcs.find(
           (p) => p.paymentRow === payRequestDtlIndex
@@ -348,7 +340,6 @@ const PayRequestShow = ({
           (p) => p.payRequestDtlId === payRequestDtlId
         );
       }
-      //console.log(invoicePayByClickedCheck, "invoicePayByClickedCheck in useEffect");
       //فاکتورهایی که با چکهای دیگری پرداخت شده اند
       //اگر رکورد در حال ویرایش است
       let invoicePayByOtherChecks;
@@ -361,7 +352,6 @@ const PayRequestShow = ({
           (p) => p.payRequestDtlId !== payRequestDtlId
         );
       }
-      //console.log(invoicePayByOtherChecks, "invoicePayByOtherChecks in useEffect");
       const totalPayByOtherChecks = invoicePayByOtherChecks.reduce(
         (acc, item) => acc + item.settle,
         0
@@ -406,7 +396,7 @@ const PayRequestShow = ({
       0
     );
     if (settleSum === 0) {
-      setNewPay(pay); // give initial value to newPay
+      setNewPay(pay); 
     }
   }, [pay]);
   ////////////////////////////////////////////////////////////////////////////
@@ -418,12 +408,10 @@ const PayRequestShow = ({
     setField("yearIdRpCustomerBills", yearId);
     setField(
       "fDateRpCustomerBills",
-      //payRequestResponse.data.result.payRequest.payRequests?.[0]?.fDate ?? ""
       fDate ? convertToPersianDate(fDate) : ""
     );
     setField(
       "tDateRpCustomerBills",
-      //payRequestResponse.data.result.payRequest.payRequests?.[0]?.tDate ?? ""
       tDate ? convertToPersianDate(tDate) : ""
     );
   }, [
@@ -433,10 +421,7 @@ const PayRequestShow = ({
     customer?.id,
     fDate,
     tDate,
-    //payRequestResponse.data.result.payRequest.payRequests?.[0]?.fDate ?? "",
-    //payRequestResponse.data.result.payRequest.payRequests?.[0]?.tDate ?? "",
   ]);
-  //console.log(guid, "guid in handleSubmitSave");
   ////////////////////////////////////////////////////////////////////////////
   const handleSubmitSave = async (
     e?: React.MouseEvent<HTMLButtonElement>
@@ -492,17 +477,14 @@ const PayRequestShow = ({
       systemId: system?.id ?? 0,
       yearId: year?.id ?? 0,
       customerId: customer?.id ?? 0,
-      dat: convertToLatinDigits(dat), //payRequestResponse.data.result.payRequest.payRequests?.[0]?.dat ?? "",
-      tim: convertToLatinDigits(tim), // payRequestResponse.data.result.payRequest.payRequests?.[0]?.tim ?? "",
-      fDate: fDate ? convertToPersianDate(fDate) : "", // payRequestResponse.data.result.payRequest.payRequests?.[0]?.fDate ?? "",
-      tDate: tDate ? convertToPersianDate(tDate) : "", // payRequestResponse.data.result.payRequest.payRequests?.[0]?.tDate ?? "",
-      dueDate: dueDate ? convertToPersianDate(dueDate) : "", // payRequestResponse.data.result.payRequest.payRequests?.[0]?.dueDate ?? "",
+      dat: convertToLatinDigits(dat),
+      tim: convertToLatinDigits(tim),
+      fDate: fDate ? convertToPersianDate(fDate) : "", 
+      tDate: tDate ? convertToPersianDate(tDate) : "", 
+      dueDate: dueDate ? convertToPersianDate(dueDate) : "", 
       settleAmnt: convertToLatinDigits(settleAmnt),
-      //(payRequestResponse.data.result.payRequest.payRequests?.[0]?.settleAmnt ?? "0").toString(),
       providerAmnt: convertToLatinDigits(providerAmnt),
-      //(payRequestResponse.data.result.payRequest.payRequests?.[0]?.providerAmnt ?? "0").toString(),
       dsc,
-      //payRequestResponse.data.result.payRequest.payRequests?.[0]?.dsc ?? "",
       dtls: dtls,
       invcs: invcs,
     };
@@ -510,9 +492,7 @@ const PayRequestShow = ({
     try {
       await payRequestSave(request);
       setIsModalRegOpen(true);
-      //setIsModalOpen(true);
       return "اطلاعات با موفقیت ثبت شد.";
-      //console.log("response in handleSubmitSave");
     } catch (error) {
       console.error("Error ثبت :", error);
     }
@@ -604,7 +584,7 @@ const PayRequestShow = ({
           data={dataInTab0}
           setData={setDataInTab0}
           setRemSum={setSumRem}
-          customerId={customer?.id ?? 0}
+          customerId={customer?.id ?? -1}
         />
       )}
       {activeTab === 1 && (
@@ -631,12 +611,11 @@ const PayRequestShow = ({
           options2={options2}
           originalData={dataInTab2}
           setOriginalData={setDataInTab2}
-          customerId={customer?.id ?? 0}
+          customerId={customer?.id ?? -1}
           setAmountTab2={setAmountTab2}
           setChequeBookId={setChequeBookId}
           chequeBookId={chequeBookId}
           workFlowRowSelectResponse={workFlowRowSelectResponse}
-          //setIsPayChanged={setIsPayChanged}
           setPayRequestDtlIndex={setPayRequestDtlIndex}
           isNew={isNew}
         />
@@ -659,7 +638,7 @@ const PayRequestShow = ({
       )}
       <ModalForm
         isOpen={showInvoices}
-        onClose={() => handleConfirm()} //{() => setShowInvoices(false)}
+        onClose={() => handleConfirm()} 
         title="فاکتورهای تسویه نشده"
         width="2/3"
       >
@@ -684,7 +663,7 @@ const PayRequestShow = ({
       >
         <PayRequestAttachment
           formId={
-            isNew || workFlowRowSelectResponse.msg === "PayRequestOperationForm" //is not in workflow menu
+            isNew || workFlowRowSelectResponse.msg === "PayRequestOperationForm" 
               ? 0
               : workFlowRowSelectResponse.workTableRow.formId
           }

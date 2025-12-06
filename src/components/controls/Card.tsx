@@ -3,7 +3,7 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  padding?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' ;
+  padding?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none';
   shadow?: 'sm' | 'md' | 'lg' | 'xl' | 'none';
   rounded?: 'sm' | 'md' | 'lg' | 'xl' | 'none';
   border?: 'default' | 'thin' | 'thick' | 'none';
@@ -25,15 +25,16 @@ const Card: React.FC<CardProps> = ({
   textSize = 'text-sm',
   hover = false,
 }) => {
-  const paddingClasses = {
+  const paddingClasses: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none', string> = {
     xs: 'p-1',
     sm: 'p-2',
     md: 'p-4',
     lg: 'p-6',
     xl: 'p-8',
+    none: '',
   };
 
-  const shadowClasses = {
+  const shadowClasses: Record<'sm' | 'md' | 'lg' | 'xl' | 'none', string> = {
     sm: 'shadow-sm',
     md: 'shadow-md',
     lg: 'shadow-lg',
@@ -41,7 +42,7 @@ const Card: React.FC<CardProps> = ({
     none: '',
   };
 
-  const roundedClasses = {
+  const roundedClasses: Record<'sm' | 'md' | 'lg' | 'xl' | 'none', string> = {
     sm: 'rounded-sm',
     md: 'rounded-md',
     lg: 'rounded-lg',

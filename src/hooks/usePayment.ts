@@ -17,6 +17,7 @@ export function usePayment() {
     setPosListResponse,
     setChequeBookGetByIdResponse,
     checkBookId,
+    posSystemId,
   } = usePaymentStore();
 
   const paymentKindSearchQuery = useQuery<
@@ -49,6 +50,7 @@ export function usePayment() {
       const response = await api.get(url);
       return response.data;
     },
+    enabled: paymentKindSearchPage !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
@@ -63,13 +65,14 @@ export function usePayment() {
     PosListResponse,
     unknown[]
   >({
-    queryKey: ["posList"],
+    queryKey: ["posList",posSystemId],
     queryFn: async () => {
       const url: string = `api/Payment/posList`;
       console.log(url, "url");
       const response = await api.get(url);
       return response.data;
     },
+    enabled: posSystemId !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

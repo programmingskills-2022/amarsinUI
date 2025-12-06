@@ -334,6 +334,7 @@ interface WorkFlowStatusSearchResponse {
 export interface WorkFlowFlowMapsSearchRequest {
   systemIdFlowMapsSearch: number;
   flowNoIdFlowMapsSearch: number;
+  flowNoIdTrigger: number;
   pageFlowMapsSearch: number;
   lastIdFlowMapsSearch: number;
   searchFlowMapsSearch: string;
@@ -357,6 +358,74 @@ interface WorkFlowIfOperationFlowMapAddResponse {
     result: UpdateResult;
   };
 }
+//for deleteapi/WFMS/flowMapBeforeAfter/734
+export interface WorkFlowFlowMapBeforeAfterDeleteRequest {
+  flowMapIdBeforeAfterDelete: number;
+  idempotencyKey: string;
+}
+interface WorkFlowFlowMapBeforeAfterDeleteResponse {
+  meta: Meta;
+  data: {
+    result: UpdateResult;
+  };
+}
+// for delete api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+export interface WorkFlowFlowMapDeleteRequest {
+  flowMapIdDelete: number;
+  systemIdDelete: number;
+  idempotencyKeyDelete: string;
+}
+interface WorkFlowFlowMapDeleteResponse {
+  meta: Meta;
+  data: {
+    result: UpdateResult;
+  };
+}
+//for load edit data : /api/WFMS/flowMapLoad/205000020
+export interface WorkFlowFlowMapLoadResponse {
+  meta: Meta;
+  data: DataWorkFlowFlowMapLoad;
+}
+interface DataWorkFlowFlowMapLoad {
+  result: FlowMapLoadResult;
+}
+interface FlowMapLoadResult {
+  id: number;
+  name: string;
+  fChart: number;
+  fChartName: string;
+  tChart: number;
+  tChartName: string;
+  codeId: number;
+  codeTitle: string;
+  code: string;
+  formNo1: number;
+  form1Title: string;
+  formNo2: number;
+  form2Title: string;
+  scriptId: number;
+  scriptTitle: string;
+  webAPIId: number;
+  webAPITitle: string;
+  scriptBeforeId: number;
+  scriptBeforeTitle: string;
+  scriptValidatorId: number;
+  scriptValidatorTitle: string;
+  statusId: number;
+  statusTitle: string;
+  canEditForm: boolean;
+  canEditForm1: boolean;
+  canEditForm1Dtl1: boolean;
+  canEditForm1Dtl2: boolean;
+  canEditForm1Dtl3: boolean;
+  canEditForm1DtlDel: boolean;
+  canEditForm1Mst1: boolean;
+  canEditForm1Mst2: boolean;
+  canEditForm1Mst3: boolean;
+  formAfterClick: number;
+  formAfterClickTitle: string;
+  idempotencyKey: string;
+}
 // api/WFMS/flowMapSave
 export interface WorkFlowMapSaveRequest {
   usrId: number;
@@ -374,6 +443,13 @@ export interface WorkFlowMapSaveRequest {
   scriptValidatorId: number;
   statusId: number;
   idempotencyKey: string;
+}
+// api/WFMS/flowMapSave
+export interface WorkFlowMapSaveResponse {
+  meta: Meta;
+  data: {
+    result: UpdateResult;
+  };
 }
 export interface WorkFlowState
   extends WorkFlowRequest,
@@ -410,6 +486,11 @@ export interface WorkFlowState
   workFlowStatusSearchResponse: WorkFlowStatusSearchResponse; //api/WFMS/statusSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
   workFlowFlowMapsSearchResponse: WorkFlowFlowMapsSearchResponse; //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
   workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse; //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  workFlowFlowMapBeforeAfterDeleteResponse: WorkFlowFlowMapBeforeAfterDeleteResponse; //api/WFMS/flowMapBeforeAfter/734
+  workFlowFlowMapDeleteResponse: WorkFlowFlowMapDeleteResponse; //api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+  idFlowMapLoad: number; // for load edit data : /api/WFMS/flowMapLoad/205000020
+  workFlowFlowMapLoadResponse: WorkFlowFlowMapLoadResponse; //for load edit data : /api/WFMS/flowMapLoad/205000020
+  workFlowMapSaveResponse: WorkFlowMapSaveResponse; //api/WFMS/flowMapSave
   setWorkFlowScriptSearchResponse: (
     workFlowScriptSearchResponse: WorkFlowScriptSearchResponse
   ) => void; //api/WFMS/scriptSearch?systemId=4&flowNoId=220200300&kind=-1&page=1&lastId=0
@@ -453,6 +534,18 @@ export interface WorkFlowState
   setWorkFlowIfOperationFlowMapAddResponse: (
     workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse
   ) => void; //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  setWorkFlowFlowMapBeforeAfterDeleteResponse: (
+    workFlowFlowMapBeforeAfterDeleteResponse: WorkFlowFlowMapBeforeAfterDeleteResponse
+  ) => void; //api/WFMS/flowMapBeforeAfter/734
+  setWorkFlowFlowMapDeleteResponse: (
+    workFlowFlowMapDeleteResponse: WorkFlowFlowMapDeleteResponse
+  ) => void; //api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+  setWorkFlowFlowMapLoadResponse: (
+    workFlowFlowMapLoadResponse: WorkFlowFlowMapLoadResponse
+  ) => void; //for load edit data : /api/WFMS/flowMapLoad/205000020
+  setWorkFlowMapSaveResponse: (
+    workFlowMapSaveResponse: WorkFlowMapSaveResponse
+  ) => void; //api/WFMS/flowMapSave
 }
 
 export interface WorkFlowRowSelectState extends WorkFlowRowSelectRequest {

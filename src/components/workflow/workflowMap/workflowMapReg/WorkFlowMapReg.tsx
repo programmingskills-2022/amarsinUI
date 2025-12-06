@@ -1,4 +1,4 @@
-import {  useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { useDefinition } from "../../../../hooks/useDefinition";
 import Input from "../../../controls/Input";
 import { DefaultOptionType, SearchItem } from "../../../../types/general";
@@ -9,9 +9,15 @@ import ConfirmCancel from "../ConfirmCancel";
 import AutoCompleteSearch from "../AutoCompleteSearch";
 import { useWorkflowStore } from "../../../../store/workflowStore";
 import { convertToFarsiDigits } from "../../../../utilities/general";
+import {
+  WorkFlowFlowMapLoadResponse,
+  WorkFlowMapSaveRequest,
+} from "../../../../types/workflow";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
   newEdit: number; // 1 for new, 0 for edit
+  setNewEdit: React.Dispatch<React.SetStateAction<number>>;
   processTitle: DefaultOptionType | null;
   process: Process;
   setProcess: React.Dispatch<React.SetStateAction<Process>>;
@@ -20,9 +26,13 @@ type Props = {
   workFlowScriptSearchResponse: SearchItem[];
   workFlowWebAPISearchResponse: SearchItem[];
   workFlowStatusSearchResponse: SearchItem[];
+  workFlowFlowMapLoadResponse: WorkFlowFlowMapLoadResponse; //for load edit data : /api/WFMS/flowMapLoad/205000020
+  workFlowFlowMapSave: (request: WorkFlowMapSaveRequest) => void; //for api/WFMS/flowMapSave
+  setIsModalOpenSave: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const WorkFlowMapReg = ({
   newEdit,
+  setNewEdit,
   processTitle,
   process,
   setProcess,
@@ -31,6 +41,9 @@ const WorkFlowMapReg = ({
   workFlowScriptSearchResponse,
   workFlowWebAPISearchResponse,
   workFlowStatusSearchResponse,
+  workFlowFlowMapLoadResponse,
+  workFlowFlowMapSave,
+  setIsModalOpenSave,
 }: Props) => {
   const { chartSearchResponse } = useDefinition();
   const { setField } = useDefinitionStore();
@@ -50,10 +63,119 @@ const WorkFlowMapReg = ({
   const [isScriptValidatorIdEntered, setIsScriptValidatorIdEntered] =
     useState(false); //for اسکریپت کنترل search
   const [isStatusIdEntered, setIsStatusIdEntered] = useState(false); //for وضعیت search
-
+  const [errorMessage, setErrorMessage] = useState(""); //for error message
+  /////////////////////////////////////////////////////////////
+  const newProcessData = {
+    usrId: 0,
+    id: 0,
+    name: "",
+    flowNo: null,
+    fChart: null,
+    codeId: null,
+    tChart: null,
+    formNo1: null,
+    formNo2: null,
+    scriptBeforeId: null,
+    scriptId: null,
+    webAPIId: null,
+    scriptValidatorId: null,
+    statusId: null,
+    idempotencyKey: "",
+  };
   useEffect(() => {
-    console.log(newEdit);
-  }, [newEdit]);
+    //console.log(newEdit,"newEdit");
+    //console.log(workFlowFlowMapLoadResponse,"workFlowFlowMapLoadResponse");
+    if (newEdit === 1) {
+      setProcess(newProcessData);
+    } else if (newEdit === 0) {
+      // for edit
+      console.log(workFlowFlowMapLoadResponse);
+      const workFlowFlowMapLoadResponseData =
+        workFlowFlowMapLoadResponse.data.result;
+      if (workFlowFlowMapLoadResponseData) {
+        setProcess({
+          ...process,
+          name: workFlowFlowMapLoadResponseData.name,
+          id: workFlowFlowMapLoadResponseData.id,
+          flowNo: {
+            id: processTitle?.id ?? 0,
+            title: processTitle?.title ?? "",
+          },
+          fChart: {
+            id: workFlowFlowMapLoadResponseData.fChart,
+            title: workFlowFlowMapLoadResponseData.fChartName,
+          },
+          codeId: {
+            id: workFlowFlowMapLoadResponseData.codeId,
+            title: workFlowFlowMapLoadResponseData.codeTitle,
+          },
+          tChart: {
+            id: workFlowFlowMapLoadResponseData.tChart,
+            title: workFlowFlowMapLoadResponseData.tChartName,
+          },
+          formNo1: {
+            id: workFlowFlowMapLoadResponseData.formNo1,
+            title: workFlowFlowMapLoadResponseData.form1Title,
+          },
+          formNo2: {
+            id: workFlowFlowMapLoadResponseData.formNo2,
+            title: workFlowFlowMapLoadResponseData.form2Title,
+          },
+          scriptBeforeId: {
+            id: workFlowFlowMapLoadResponseData.scriptBeforeId,
+            title: workFlowFlowMapLoadResponseData.scriptBeforeTitle,
+          },
+          scriptId: {
+            id: workFlowFlowMapLoadResponseData.scriptId,
+            title: workFlowFlowMapLoadResponseData.scriptTitle,
+          },
+          webAPIId: {
+            id: workFlowFlowMapLoadResponseData.webAPIId,
+            title: workFlowFlowMapLoadResponseData.webAPITitle,
+          },
+          scriptValidatorId: {
+            id: workFlowFlowMapLoadResponseData.scriptValidatorId,
+            title: workFlowFlowMapLoadResponseData.scriptValidatorTitle,
+          },
+          statusId: {
+            id: workFlowFlowMapLoadResponseData.statusId,
+            title: workFlowFlowMapLoadResponseData.statusTitle,
+          },
+          idempotencyKey: workFlowFlowMapLoadResponseData.idempotencyKey,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newEdit, workFlowFlowMapLoadResponse.data.result.id]);
+
+  const handleConfirm = () => {
+    const request: WorkFlowMapSaveRequest = {
+      usrId: process.usrId,
+      id: process.id,
+      name: process.name,
+      flowNo: processTitle?.id ?? 0,
+      fChart: process.fChart?.id ?? 0,
+      codeId: process.codeId?.id ?? 0,
+      tChart: process.tChart?.id ?? 0,
+      formNo1: process.formNo1?.id ?? 0,
+      formNo2: process.formNo2?.id ?? 0,
+      scriptBeforeId: process.scriptBeforeId?.id ?? 0,
+      scriptId: process.scriptId?.id ?? 0,
+      webAPIId: process.webAPIId?.id ?? 0,
+      scriptValidatorId: process.scriptValidatorId?.id ?? 0,
+      statusId: process.statusId?.id ?? 0,
+      idempotencyKey: uuidv4(),
+    };
+    console.log(request);
+    console.log(process.formNo1,"process.formNo1");
+    if (!process.formNo1) {
+      setErrorMessage("فرمی جهت نمایش انتخاب نشده!");
+      return;
+    }
+    workFlowFlowMapSave(request);
+    setIsModalOpenSave(true);
+    setNewEdit(-1);
+  };
 
   return (
     <div className="w-full flex flex-col text-sm gap-2">
@@ -71,7 +193,7 @@ const WorkFlowMapReg = ({
         <Input
           label="شناسه:"
           name="id"
-          value={process.id}
+          value={convertToFarsiDigits(process.id)}
           onChange={(e) =>
             setProcess({ ...process, id: parseInt(e.target.value) })
           }
@@ -165,7 +287,7 @@ const WorkFlowMapReg = ({
       <div className="w-full flex flex-row items-center justify-between">
         <div className="w-1/2">
           <AutoCompleteSearch
-            label={convertToFarsiDigits("فرم 1") }
+            label={convertToFarsiDigits("فرم 1")}
             labelWidth="w-32"
             setField={setFieldWorkflow}
             fieldValues={[
@@ -221,7 +343,10 @@ const WorkFlowMapReg = ({
         fieldSearch="searchScriptSearch"
         selectedOption={process.scriptBeforeId as DefaultOptionType}
         setSelectedOption={(scriptBeforeId: any) =>
-          setProcess({ ...process, scriptBeforeId: scriptBeforeId as DefaultOptionType })
+          setProcess({
+            ...process,
+            scriptBeforeId: scriptBeforeId as DefaultOptionType,
+          })
         }
         options={workFlowScriptSearchResponse}
         isEntered={isScriptBeforeIdEntered}
@@ -283,7 +408,10 @@ const WorkFlowMapReg = ({
         fieldSearch="searchScriptSearch"
         selectedOption={process.scriptValidatorId as DefaultOptionType}
         setSelectedOption={(scriptValidatorId: any) =>
-          setProcess({ ...process, scriptValidatorId: scriptValidatorId as DefaultOptionType })
+          setProcess({
+            ...process,
+            scriptValidatorId: scriptValidatorId as DefaultOptionType,
+          })
         }
         options={workFlowScriptSearchResponse}
         isEntered={isScriptValidatorIdEntered}
@@ -310,11 +438,10 @@ const WorkFlowMapReg = ({
         setIsEntered={setIsStatusIdEntered}
       />
       <ConfirmCancel
-        onConfirm={() => {
-          console.log("confirm");
-        }}
+        errorMessage={errorMessage}
+        onConfirm={handleConfirm}
         onCancel={() => {
-          console.log("cancel");
+          setNewEdit(-1);
         }}
       />
     </div>

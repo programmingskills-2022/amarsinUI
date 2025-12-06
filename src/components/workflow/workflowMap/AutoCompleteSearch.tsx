@@ -65,10 +65,12 @@ const AutoCompleteSearch = ({
   );
   ////////////////////////////////////////////////////////
   return (
-    <div className="flex w-full justify-center items-center gap-2 text-sm px-2">
-      <label htmlFor={label} className={labelWidth + " text-left"}>
-        {label}:
-      </label>
+    <div className="flex w-full justify-center items-center gap-2 text-sm">
+      {label!=="" && (
+        <label htmlFor={label} className={labelWidth + " text-left"}>
+          {label}:
+        </label>
+      )}
       <div className="flex-1">
         <AutoComplet
           options={options.map((b) => ({

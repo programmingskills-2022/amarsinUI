@@ -9,7 +9,7 @@ import {
 export const usePaymentStore = create<PaymentState>()((set) => ({
   //api/Payment/paymentKindSearch
   paymentKindSearch: "",
-  paymentKindSearchPage: 1,
+  paymentKindSearchPage: -1,
   paymentKindSearchLastId: 0,
   paymentKindSearchResponse: {
     meta: { errorCode: 0, message: "", type: "" },
@@ -38,6 +38,7 @@ export const usePaymentStore = create<PaymentState>()((set) => ({
       },
     },
   },
+  posSystemId:-1,
   setChequeBookGetByIdResponse: (
     chequeBookGetByIdResponse: ChequeBookGetByIdResponse
   ) => set({ chequeBookGetByIdResponse }),

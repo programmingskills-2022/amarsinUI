@@ -1,22 +1,18 @@
 import { SearchItem } from "./general"
 
 export interface CustomerSearchRequest{
-    systemId: number
-    yearId: number
+    systemIdCustomerSearch: number
+    yearIdCustomerSearch: number
     centerType: number
     search?:string
     page:number
     lastId:number
     usrPerm:boolean
 }
-/*export interface Customer{
-    id:string,
-    text:string
-}*/
 
 export interface CustomerState extends CustomerSearchRequest{
     customerSearchResponse:CustomerSearchResponse
-    setField: (field: keyof CustomerSearchRequest, value: any) => void;
+    setField: (field: string | number | symbol, value: any) => void;
     setCustomerSearchResponse:(customerSearchResponse:CustomerSearchResponse) =>void
     
 }

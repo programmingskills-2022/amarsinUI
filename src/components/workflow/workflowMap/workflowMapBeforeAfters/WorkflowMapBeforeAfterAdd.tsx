@@ -60,6 +60,7 @@ const WorkflowMapBeforeAfterAdd = ({
           { field: "pageFlowMapsSearch", value: 1 },
           { field: "lastIdFlowMapsSearch", value: 0 },
           { field: "flowNoIdFlowMapsSearch", value: processTitle?.id ?? 0 },
+          { field: "flowNoIdTrigger", value: Date.now() },
         ]}
         fieldSearch="searchFlowMapsSearch"
         selectedOption={process as DefaultOptionType}

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { convertToFarsiDigits } from "../../utilities/general";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { useCustomers } from "../../hooks/useCustomers";
 import { useCustomerStore } from "../../store/customerStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { WarehouseShowIdResponse } from "../../types/warehouse";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { DefaultOptionType } from "../../types/general";
 
 type Customer = {
   id: string;
@@ -25,13 +27,17 @@ const WarehouseShowHeader = ({
   const { setField: setCusomerField } = useCustomerStore();
   const { customers } = useCustomers();
   const { systemId, yearId } = useGeneralContext();
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
+  const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
-  useEffect(() => {
-    setCusomerField("systemId", systemId);
-    setCusomerField("yearId", yearId);
+  /*useEffect(() => {
+    setCusomerField("systemIdCustomerSearch", systemId);
+    setCusomerField("yearIdCustomerSearch", yearId);
+    setCusomerField("page", 1);
+    setCusomerField("lastId", 0);
+    setCusomerField("centerType", 0);
     setCusomerField("search", search);
-  }, [search, systemId]);
+  }, [search, systemId, yearId]);*/
 
   useEffect(() => {
     setCustomer({
@@ -45,7 +51,7 @@ const WarehouseShowHeader = ({
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex items-center justify-between gap-2 w-full">
-        <div className="w-3/4 flex justify-center items-center">
+        {/*<div className="w-3/4 flex justify-center items-center">
           <label className="p-1 w-24 text-left">تامین کننده:</label>
           <div className="bg-slate-50 flex w-full">
             <AutoComplete
@@ -63,7 +69,33 @@ const WarehouseShowHeader = ({
               showClearIcon={false}
             />
           </div>
-        </div>
+        </div>*/}
+        <AutoCompleteSearch
+          label="تامین کننده"
+          labelWidth="w-20"
+          setField={setCusomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "yearIdCustomerSearch", value: yearId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+            { field: "centerType", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
+          setSelectedOption={(newValue: DefaultOptionType) => {
+            setCustomer({
+              id: String(newValue.id),
+              title: newValue.title,
+            });
+          }}
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+        />
         <div className="w-1/4 flex">
           <label className="p-1 w-12 text-left">تاریخ:</label>
           <input

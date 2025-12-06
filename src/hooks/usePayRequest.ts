@@ -108,6 +108,8 @@ export function usePayRequest() {
     onSuccess: (data: any) => {
       setRpCustomerBillsResponse(data);
     },
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
     enabled:
       customerIdRpCustomerBills !== 0 &&
       systemIdRpCustomerBills !== 0 &&
@@ -369,11 +371,14 @@ export function usePayRequest() {
     onSuccess: (data: any) => {
       setPayRequestInvoicesResponse(data);
     },
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
     enabled:
       payRequestId !== -1 &&
       systemIdPayRequestInvoice !== -1 &&
       yearIdPayRequestInvoice !== -1 &&
-      customerId !== -1,
+      customerId !== -1 &&
+      customerId !== 0,
   } as UseQueryOptions<PayRequestInvoicesResponse, Error, PayRequestInvoicesResponse, unknown[]>);
 
   //for Payment/chequeBookSearch
@@ -401,7 +406,9 @@ export function usePayRequest() {
     onSuccess: (data: any) => {
       setChequeBookSearchResponse(data);
     },
-    enabled: acc_systemChequeBookSearch !== 0,
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
+    enabled: acc_systemChequeBookSearch !== -1,
   } as UseQueryOptions<ChequeBookSearchResponse, Error, ChequeBookSearchResponse, unknown[]>);
   //for Payment/chequeBookDtlSearch
   const chequeBookDtlSearchQuery = useQuery<
@@ -432,6 +439,8 @@ export function usePayRequest() {
       console.log(data, "data in chequeBookDtlSearchQuery");
       setChequeBookDtlSearchResponse(data);
     },*/
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
     enabled:
       chequeBookIdChequeBookDtlSearch !== -1 &&
       chequeBookIdChequeBookDtlSearch !== undefined,

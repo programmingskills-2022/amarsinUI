@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { DefaultOptionType } from "../../types/general";
 import { useCustomers } from "../../hooks/useCustomers";
 import { convertToFarsiDigits } from "../../utilities/general";
 import { colors } from "../../utilities/color";
 import Button from "../controls/Button";
+import { useGeneralContext } from "../../context/GeneralContext";
+import { useCustomerStore } from "../../store/customerStore";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   invoiceReturnRequestShowResponse: any; //InvoiceReturnRequestShowResponse;
@@ -27,11 +30,11 @@ const InvoiceReturnRequestShowHeader = ({
 }: Props) => {
   const { customers } = useCustomers();
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
+  const { systemId, yearId } = useGeneralContext();
+  const { setField: setCustomerField } = useCustomerStore();
+  const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
-  useEffect(() => {
-    console.log(search);
-  }, []);
   useEffect(() => {
     setCustomer({
       id:
@@ -55,7 +58,34 @@ const InvoiceReturnRequestShowHeader = ({
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <div className="w-full md:w-3/4 flex justify-center items-center">
+        <AutoCompleteSearch
+          label="خریدار"
+          labelWidth="w-16"
+          setField={setCustomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "yearIdCustomerSearch", value: yearId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+            { field: "centerType", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
+          setSelectedOption={(newValue: DefaultOptionType) => {
+            setCustomer({
+              id: newValue.id,
+              title: newValue.title,
+            });
+          }}
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+          disabled={!canEditForm}
+        />
+        {/*<div className="w-full md:w-3/4 flex justify-center items-center">
           <label className="p-1 w-20 text-left">خریدار:</label>
           <div className="flex w-full rounded-md">
             <AutoComplete
@@ -75,7 +105,7 @@ const InvoiceReturnRequestShowHeader = ({
               inputPadding="0 !important"
             />
           </div>
-        </div>
+        </div>*/}
         <div className="w-full md:w-1/4 flex">
           <label className="p-1 w-20 md:w-12 text-left">تاریخ:</label>
           <input

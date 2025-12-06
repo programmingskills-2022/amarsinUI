@@ -211,13 +211,16 @@ const PayRequestActiveTab2 = ({
     };
   }, [isModalOpen]);
   ////////////////////////////////////////////////////////////////
-  //initializing chequeBookSearch requests api/Payment/chequeBookSearch
   useEffect(() => {
-    setField("acc_systemChequeBookSearch", systemId);
-    setField("searchChequeBookSearch", chequeBookSearch);
-    setField("pageChequeBookSearch", 1);
-    setField("lastIdChequeBookSearch", 0);
-    //console.log(chequeBookSearch, "chequeBookSearch in useEffect");
+    //initializing chequeBookSearch requests api/Payment/chequeBookSearch
+    //if can edit form1, initialize chequeBookSearch requests
+    if (CanEditForm1Dtl1){
+      console.log( "filling params for api/Payment/chequeBookSearch");
+      setField("acc_systemChequeBookSearch", systemId);
+      setField("searchChequeBookSearch", chequeBookSearch);
+      setField("pageChequeBookSearch", 1);
+      setField("lastIdChequeBookSearch", 0);
+    }
   }, [chequeBookSearch]);
   useEffect(() => {
     setField("searchChequeBookDtlSearch", chequeBookDtlSearch);
@@ -446,6 +449,7 @@ const PayRequestActiveTab2 = ({
         />
         <p className="px-2 w-40">نمایش حذف شده ها</p>
       </div>
+      {/*show tab2 table*/}
       <TTable
         columns={columns}
         selectedRowIndex={selectedRowIndex}

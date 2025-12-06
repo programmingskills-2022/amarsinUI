@@ -18,6 +18,7 @@ import {
 } from "../../types/general";
 import PersianDatePicker from "../controls/PersianDatePicker";
 import ModalMessage from "../layout/ModalMessage";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   // canEditForm1Mst1: boolean;
@@ -34,7 +35,8 @@ const InvoiceReceipShowHeader = ({
   salesPricesSearchResponse,
 }: Props) => {
   const { customers } = useCustomers();
-  const [cusomerSearch, setCusomerSearch] = useState<string>("");
+  //const [cusomerSearch, setCusomerSearch] = useState<string>("");
+  const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
   const [cusomerSearchCondition, setCusomerSearchCondition] =
     useState<string>("");
   const [brandsearch, setBrandSearch] = useState<string>("");
@@ -45,16 +47,16 @@ const InvoiceReceipShowHeader = ({
   const { setField: setSalesPriceField } = useProductStore();
 
   useEffect(() => {
-    setCusomerField("systemId", systemId);
-    setCusomerField("yearId", yearId);
+    setCusomerField("systemIdCustomerSearch", systemId);
+    setCusomerField("yearIdCustomerSearch", yearId);
     setCusomerField("search", cusomerSearchCondition);
   }, [cusomerSearchCondition, systemId,yearId]);
   //for api/Customer/search?search=search&page=1&lastId=0
-  useEffect(() => {
-    setCusomerField("systemId", systemId);
-    setCusomerField("yearId", yearId);
+  /*useEffect(() => {
+    setCusomerField("systemIdCustomerSearch", systemId);
+    setCusomerField("yearIdCustomerSearch", yearId);
     setCusomerField("search", cusomerSearch);
-  }, [cusomerSearch, systemId,yearId]);
+  }, [cusomerSearch, systemId,yearId]);*/
 
   useEffect(() => {
     setBrandField("accSystem", systemId);
@@ -63,7 +65,6 @@ const InvoiceReceipShowHeader = ({
   const { brands } = useBrand();
 //for api/Product/salesPricesSearch req
   useEffect(() => {
-    console.log(cusomerSearch);
     setSalesPriceField("salesPricesSearchSearch", salesPricesearch);
     setSalesPriceField("salesPricesSearchPage", 1);
     setSalesPriceField("salesPricesSearchLastId", 0);
@@ -89,7 +90,36 @@ const InvoiceReceipShowHeader = ({
   const body1 = (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-        <div className="w-full flex">
+        <AutoCompleteSearch
+          label="تامین کننده"
+          labelWidth="w-20"
+          setField={setCusomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "yearIdCustomerSearch", value: yearId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+            { field: "centerType", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={ {id: fields.customer?.id ?? 0, title: fields.customer?.title ?? ""} as DefaultOptionType }
+          setSelectedOption={(newValue: DefaultOptionType) => {
+            setFields((prev: Fields) => ({
+              ...prev,
+              customer: {
+                id: String(newValue.id),
+                title: newValue.title,
+              },
+            }));
+          }}
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+        />
+        {/*<div className="w-full flex">
           <label className="p-1 w-24 text-left">تامین کننده:</label>
           <div className="bg-slate-50 flex w-full">
             <AutoComplete
@@ -115,7 +145,7 @@ const InvoiceReceipShowHeader = ({
               outlinedInputPadding="5px"
             />
           </div>
-        </div>
+        </div>*/}
         <div className="flex">
           <label className="p-1 w-24 text-left">سررسید:</label>
           <input

@@ -1,14 +1,18 @@
 import { create } from "zustand";
 import {
   WorkFlowDoFlowResponse,
+  WorkFlowFlowMapBeforeAfterDeleteResponse,
   WorkFlowFlowMapBeforeAftersResponse,
   WorkFlowFlowMapCodeSearchResponse,
+  WorkFlowFlowMapDeleteResponse,
+  WorkFlowFlowMapLoadResponse,
   WorkFlowFlowMapsResponse,
   WorkFlowFlowMapsSearchResponse,
   WorkFlowFlowNosSearchResponse,
   WorkFlowFlowsResponse,
   WorkFlowFormSearchResponse,
   WorkFlowIfOperationFlowMapAddResponse,
+  WorkFlowMapSaveResponse,
   WorkflowRowSelectResponse,
   WorkFlowScriptSearchResponse,
   WorkFlowState,
@@ -213,6 +217,7 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
   //api/WFMS/flowMapsSearch?systemId=4&flowNoId=220200300&page=1&lastId=0
   systemIdFlowMapsSearch: -1,
   flowNoIdFlowMapsSearch: -1,
+  flowNoIdTrigger: 0,
   pageFlowMapsSearch: 1,
   lastIdFlowMapsSearch: 0,
   searchFlowMapsSearch: "",
@@ -222,6 +227,65 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
   },
   //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
   workFlowIfOperationFlowMapAddResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [] },
+  },
+  //api/WFMS/flowMapBeforeAfter/734
+  workFlowFlowMapBeforeAfterDeleteResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [] },
+  },
+  //api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+  workFlowFlowMapDeleteResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: { result: [] },
+  },
+  //api/WFMS/flowMapLoad/205000020
+  idFlowMapLoad: -1,
+  workFlowFlowMapLoadResponse: {
+    meta: { errorCode: 0, message: null, type: "" },
+    data: {
+      result: {
+        id: 0,
+        name: "",
+        fChart: 0,
+        fChartName: "",
+        tChart: 0,
+        tChartName: "",
+        codeId: 0,
+        codeTitle: "",
+        code: "",
+        formNo1: 0,
+        form1Title: "",
+        formNo2: 0,
+        form2Title: "",
+        scriptId: 0,
+        scriptTitle: "",
+        webAPIId: 0,
+        webAPITitle: "",
+        scriptBeforeId: 0,
+        scriptBeforeTitle: "",
+        scriptValidatorId: 0,
+        scriptValidatorTitle: "",
+        statusId: 0,
+        statusTitle: "",
+        canEditForm: false,
+        canEditForm1: false,
+        canEditForm1Dtl1: false,
+        canEditForm1Dtl2: false,
+        canEditForm1Dtl3: false,
+        canEditForm1DtlDel: false,
+        canEditForm1Mst1: false,
+        canEditForm1Mst2: false,
+        canEditForm1Mst3: false,
+        formAfterClick: 0,
+        formAfterClickTitle: "",
+        idempotencyKey: "",
+      },
+    },
+  },
+  //api/WFMS/flowMapSave
+  workFlowMapSaveResponse: {
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: [] },
   },
@@ -272,4 +336,16 @@ export const useWorkflowStore = create<WorkFlowState>()((set) => ({
   setWorkFlowIfOperationFlowMapAddResponse: (
     workFlowIfOperationFlowMapAddResponse: WorkFlowIfOperationFlowMapAddResponse
   ) => set({ workFlowIfOperationFlowMapAddResponse }), //api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+  setWorkFlowFlowMapBeforeAfterDeleteResponse: (
+    workFlowFlowMapBeforeAfterDeleteResponse: WorkFlowFlowMapBeforeAfterDeleteResponse
+  ) => set({ workFlowFlowMapBeforeAfterDeleteResponse }), //api/WFMS/flowMapBeforeAfter/734
+  setWorkFlowFlowMapDeleteResponse: (
+    workFlowFlowMapDeleteResponse: WorkFlowFlowMapDeleteResponse
+  ) => set({ workFlowFlowMapDeleteResponse }), //api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+  setWorkFlowFlowMapLoadResponse: (
+    workFlowFlowMapLoadResponse: WorkFlowFlowMapLoadResponse
+  ) => set({ workFlowFlowMapLoadResponse }), //api/WFMS/flowMapLoad/205000020
+  setWorkFlowMapSaveResponse: (
+    workFlowMapSaveResponse: WorkFlowMapSaveResponse
+  ) => set({ workFlowMapSaveResponse }), //api/WFMS/flowMapSave
 }));

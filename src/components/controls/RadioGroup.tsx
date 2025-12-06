@@ -1,7 +1,9 @@
-import React from 'react';
+import React from "react";
 
 // Define the props for the RadioGroup component
 interface RadioGroupProps {
+  label?: string;
+  labelWidth?: string;
   options: { label: string; value: string }[];
   name: string;
   selectedValue: string;
@@ -11,6 +13,8 @@ interface RadioGroupProps {
 
 // RadioGroup component
 export const RadioGroup: React.FC<RadioGroupProps> = ({
+  label,
+  labelWidth,
   options,
   name,
   selectedValue,
@@ -18,7 +22,20 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   className,
 }) => {
   return (
-    <div className={className ?? "w-full flex md:flex-row flex-col gap-2 items-center justify-between"}>
+    <div
+      className={
+        className ??
+        "w-full flex md:flex-row flex-col gap-2 items-center justify-between"
+      }
+    >
+      {label && (
+        <label
+          htmlFor={label}
+          className={labelWidth ? labelWidth + " text-right" : "w-24 text-right"}
+        >
+          {label}:
+        </label>
+      )}
       {options.map((option) => (
         <div key={option.value}>
           <input

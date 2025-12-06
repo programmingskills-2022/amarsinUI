@@ -86,6 +86,7 @@ const WorkFlowMap = ({
     const tempData: any[] = workFlowMapResponse.data.result.map(
       (item, index) => ({
         index: convertToFarsiDigits(index + 1),
+        ifId: item.ifId,
         id: convertToFarsiDigits(item.id),
         name: convertToFarsiDigits(item.name),
         fChartName: convertToFarsiDigits(item.fChartName),
@@ -99,6 +100,7 @@ const WorkFlowMap = ({
       })
     );
     setData(tempData);
+    setSelectedId(workFlowMapResponse.data.result[0]?.id ?? -1);
   }, [workFlowMapResponse.data.result]);
 
   //for api/WFMS/flowMaps?FlowNoId=4030207&SystemId=4
@@ -106,8 +108,6 @@ const WorkFlowMap = ({
     if (processTitle) {
       setField("flowNoIdFlowMaps", processTitle?.id);
       setField("systemIdFlowMaps", systemId);
-      //to not allow calling workFlowFlowNosSearch when workFlowFlowMaps is called
-      //setField("systemIdFlowNosSearch", -1);
     }
   }, [processTitle, systemId]);
   return (

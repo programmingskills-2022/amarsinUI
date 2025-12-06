@@ -15,8 +15,6 @@ type TableProps<T extends object> = {
   canEditForm?: boolean;
   columns: TableColumns;
   data: T[];
-  //options?: DefaultOptionType[];
-  //setSearchText?: Dispatch<SetStateAction<string>>;
   updateMyData?: (rowIndex: number, columnId: string, value: string) => void;
   updateMyRow?: (
     rowIndex: number,
@@ -241,8 +239,6 @@ export default function TTable<T extends object>({
   canEditForm,
   columns,
   data,
-  //options = [],
-  //setSearchText,
   updateMyData = () => {},
   updateMyRow = () => {},
   changeRowValues = () => {},
@@ -437,7 +433,7 @@ export default function TTable<T extends object>({
                 return (
                   <td
                     {...cell.getCellProps()}
-                    className="text-gray-500  flex justify-start items-center px-1 select-text"
+                    className="text-gray-500 flex justify-start items-center px-1 select-text"
                     key={cell.column.id}
                     title={showToolTip ? cell.value : ""}
                     style={{

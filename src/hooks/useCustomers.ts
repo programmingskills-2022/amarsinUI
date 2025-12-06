@@ -8,8 +8,8 @@ import {
 
 export function useCustomers() {
   const {
-    systemId,
-    yearId,
+    systemIdCustomerSearch,
+    yearIdCustomerSearch,
     centerType,
     search,
     page,
@@ -26,8 +26,8 @@ export function useCustomers() {
   >({
     queryKey: [
       "customers",
-      systemId,
-      yearId,
+      systemIdCustomerSearch,
+      yearIdCustomerSearch,
       centerType,
       search,
       page,
@@ -36,25 +36,24 @@ export function useCustomers() {
     ],
     queryFn: async () => {
       const params: CustomerSearchRequest = {
-        systemId,
-        yearId,
+        systemIdCustomerSearch,
+        yearIdCustomerSearch,
         centerType,
         lastId,
         page,
         usrPerm,
         search,
       };
-      const url = `/api/Customer/search?systemId=${params.systemId}&yearId=${
-        params.yearId
+      const url = `/api/Customer/search?systemId=${params.systemIdCustomerSearch}&yearId=${
+        params.yearIdCustomerSearch
       }&centerType=${params.centerType}&page=${params.page}&lastId=${
         params.lastId
       }&usrPerm=${params.usrPerm}&search=${encodeURIComponent(search ?? "")}`;
       const response = await api.get(url);
-      console.log(url, response.data, "url,response.data in customerSearch");
 
       return response.data;
     },
-    enabled: systemId !== -1 && yearId !== -1,
+    enabled: systemIdCustomerSearch !== -1 && yearIdCustomerSearch !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

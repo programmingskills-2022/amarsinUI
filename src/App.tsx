@@ -10,7 +10,7 @@ import Login from "./pages/Login";
 import { useAuthStore } from "./store/authStore";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Layout from "./components/layout/Layout";
-import User from "./pages/User";
+import User from "./pages/basicDefinitions/User";
 import InventoryGoodList from "./pages/reports/InventoryGoodList";
 import ProviderList from "./pages/reports/ProviderList";
 import ProducerList from "./pages/reports/ProducerList";

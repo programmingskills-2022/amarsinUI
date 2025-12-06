@@ -12,6 +12,12 @@ import { FaTrash } from "react-icons/fa";
 import ModalForm from "../../components/layout/ModalForm";
 import WorkflowMapBeforeAftersDel from "../../components/workflow/workflowMap/workflowMapBeforeAfters/WorkflowMapBeforeAftersDel";
 import AutoCompleteSearch from "../../components/workflow/workflowMap/AutoCompleteSearch";
+import { v4 as uuidv4 } from "uuid";
+import {
+  WorkFlowFlowMapBeforeAfterDeleteRequest,
+  WorkFlowFlowMapDeleteRequest,
+} from "../../types/workflow";
+import ModalMessage from "../../components/layout/ModalMessage";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -23,7 +29,9 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
     workFlowFlowMapsResponse,
     isLoadingWorkFlowFlowMaps,
     isRefetchingWorkFlowFlowMaps,
+    refetchWorkFlowFlowMaps,
     workFlowFlowMapBeforeAftersResponse,
+    refetchWorkFlowFlowMapBeforeAfters,
     workFlowFlowMapCodeSearchResponse, //for نوع مقصد search
     workFlowFormSearchResponse, //for فرم 1/ فرم 2 search
     workFlowScriptSearchResponse, //for اسکریپت قبل اجرا search
@@ -31,14 +39,22 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
     workFlowStatusSearchResponse, //for وضعیت search
     workFlowFlowMapsSearchResponse, //for عنوان فرایند search
     workFlowIfOperationFlowMapAdd, //for api/WFMS/ifOperationFlowMapAdd?flowMapId=205000045&ifOperationFlowMapId=205000043
+    workFlowFlowMapBeforeAfterDelete, //for api/WFMS/flowMapBeforeAfter/734
+    workFlowFlowMapDelete, //for api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+    isLoadingWorkFlowFlowMapDelete,
+    workFlowFlowMapDeleteResponse, //for delete process api/WFMS/flowMap/220200301?systemId=4&idempotencyKey=234343
+    workFlowFlowMapLoadResponse, //for load edit data : /api/WFMS/flowMapLoad/205000020
+    workFlowFlowMapSave, //for api/WFMS/flowMapSave
+    isLoadingWorkFlowMapSave, //for api/WFMS/flowMapSave
+    workFlowFlowMapSaveResponse, //for api/WFMS/flowMapSave
   } = useWorkflow();
   const { systemId } = useGeneralContext();
   const { setField } = useWorkflowStore();
   //const [isNew, setIsNew] = useState(false);
   const [newEdit, setNewEdit] = useState(-1); // 1 for new, 0 for edit
-  const [isEdit, setIsEdit] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
   const [isDeletedProcess, setIsDeletedProcess] = useState(false);
+  //to show message if process is deleted
+  const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   //to show message if no process title is selected
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [processTitle, setProcessTitle] = useState<DefaultOptionType | null>(
@@ -49,7 +65,11 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
   // this is the id of the selected row in the workFlowMap
   const [selectedId, setSelectedId] = useState<number>(-1);
   //for before and after
-  const [isOpenAdd, setIsOpenAdd] = useState(false);
+  const [isOpenAddBefore, setIsOpenAddBefore] = useState(false);
+  const [isOpenAddAfter, setIsOpenAddAfter] = useState(false);
+  const [isPrev, setIsPrev] = useState(true);
+  const [ifIdToDelete, setIfIdToDelete] = useState<number>(-1);
+  const [isDeletedBeforeAfter, setIsDeletedBeforeAfter] = useState(false);
   const columnsBeforeAfter: TableColumns = [
     {
       Header: "ردیف",
@@ -85,8 +105,8 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           onMouseDown={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            console.log("updateToDeleted", row.original.id);
-            setIsDeletedProcess(true);
+            setIfIdToDelete(row.original.ifId);
+            setIsDeletedBeforeAfter(true);
           }}
         >
           <FaTrash
@@ -103,24 +123,83 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
     },
   ];
 
+  /////////////////////////////////////////////////////////////////
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (isModalOpenDelete) {
+      timeoutId = setTimeout(() => {
+        setIsModalOpenDelete(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isModalOpenDelete]);
+
   //for api/WFMS/flowMapBeforeAfters?FlowMapId=205000045&SystemId=4
   useEffect(() => {
+    console.log("selectedId", selectedId);
     setField("flowMapIdBeforeAfters", selectedId);
     setField("systemIdBeforeAfters", systemId);
   }, [selectedId, systemId]);
-
+  // refetch after delete process
+  useEffect(() => {
+    if (
+      !isLoadingWorkFlowFlowMapDelete &&
+      workFlowFlowMapDeleteResponse.meta.errorCode <= 0
+    ) {
+      setField("flowNoIdFlowMaps", processTitle?.id ?? -1);
+      setField("systemIdFlowMaps", systemId);
+      refetch();
+    }
+  }, [
+    isLoadingWorkFlowFlowMapDelete,
+    workFlowFlowMapDeleteResponse.meta.errorCode,
+  ]);
+  //refetch after save process
+  useEffect(() => {
+    if (
+      !isLoadingWorkFlowMapSave &&
+      workFlowFlowMapSaveResponse.meta.errorCode <= 0
+    ) {
+      setField("flowNoIdFlowMaps", processTitle?.id ?? -1);
+      setField("systemIdFlowMaps", systemId);
+      refetch();
+    }
+  }, [isLoadingWorkFlowMapSave, workFlowFlowMapSaveResponse.meta.errorCode]);
+  //handle delete process
   const handleDelete = () => {
-    setIsDelete(true);
-    console.log(isDelete);
+    setIsDeletedProcess(true);
   };
 
-  const handleEdit = () => {
-    setIsEdit(true);
-    console.log(isEdit);
+  const handleDeleteConfirmProcess = () => {
+    const request: WorkFlowFlowMapDeleteRequest = {
+      flowMapIdDelete: selectedId,
+      systemIdDelete: systemId,
+      idempotencyKeyDelete: uuidv4(),
+    };
+    console.log(request, "request");
+    workFlowFlowMapDelete(request);
+    setIsDeletedProcess(false);
+    setIsModalOpenDelete(true);
   };
 
   const refetch = () => {
     console.log("refetch");
+    refetchWorkFlowFlowMaps();
+    refetchWorkFlowFlowMapBeforeAfters();
+  };
+  // to delete before after
+  const handleDeleteConfirmBeforeAfter = () => {
+    const request: WorkFlowFlowMapBeforeAfterDeleteRequest = {
+      flowMapIdBeforeAfterDelete: ifIdToDelete,
+      idempotencyKey: uuidv4(),
+    };
+    console.log(request, "request");
+    workFlowFlowMapBeforeAfterDelete(request);
+    setIsDeletedBeforeAfter(false);
   };
 
   return (
@@ -131,9 +210,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
       <WorkflowMapHeader
         setNewEdit={setNewEdit}
         newEdit={newEdit}
-        onCloseNewEdit={() => setNewEdit(-1)} // 0 for close
         handleDelete={handleDelete}
-        handleEdit={handleEdit}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
         processTitle={processTitle as DefaultOptionType}
@@ -141,11 +218,16 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
         setIsModalOpen={setIsModalOpen}
         workFlowFlowMapCodeSearchResponse={
           workFlowFlowMapCodeSearchResponse.data.result
-        }//just search items for نوع مقصد search
-        workFlowFormSearchResponse={workFlowFormSearchResponse.data.result}//just search items for فرم 1/ فرم 2 search
+        } //just search items for نوع مقصد search
+        workFlowFormSearchResponse={workFlowFormSearchResponse.data.result} //just search items for فرم 1/ فرم 2 search
         workFlowScriptSearchResponse={workFlowScriptSearchResponse.data.result} //just search items for اسکریپت قبل اجرا search
         workFlowWebAPISearchResponse={workFlowWebAPISearchResponse.data.result} //just search items for ای پی آی search
         workFlowStatusSearchResponse={workFlowStatusSearchResponse.data.result} //just search items for وضعیت search
+        workFlowFlowMapLoadResponse={workFlowFlowMapLoadResponse} //for load edit data : /api/WFMS/flowMapLoad/205000020
+        selectedId={selectedId}
+        workFlowFlowMapSave={workFlowFlowMapSave} //for api/WFMS/flowMapSave
+        isLoadingWorkFlowMapSave={isLoadingWorkFlowMapSave} //for api/WFMS/flowMapSave
+        workFlowMapSaveResponse={workFlowFlowMapSaveResponse} //for api/WFMS/flowMapSave
       />
       {/* search process title*/}
       <AutoCompleteSearch
@@ -182,12 +264,13 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           borderColor={colors.green100}
           hoverBackgroundColor={colors.green300}
           backgroundColor={colors.green200}
-          setIsOpenAdd={setIsOpenAdd}
-          isOpenAdd={isOpenAdd}
+          setIsOpenAdd={setIsOpenAddBefore}
+          isOpenAdd={isOpenAddBefore}
           flowMapId={selectedId}
           processTitle={processTitle as DefaultOptionType}
           workFlowIfOperationFlowMapAdd={workFlowIfOperationFlowMapAdd}
-          isPrev={true}
+          isPrev={isPrev}
+          setIsPrev={setIsPrev}
         />
         <WorkflowMapBeforeAfters
           workFlowFlowMapsSearchResponse={workFlowFlowMapsSearchResponse}
@@ -199,13 +282,26 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           borderColor={colors.blue200}
           hoverBackgroundColor={colors.blue200}
           backgroundColor={colors.blue300}
-          setIsOpenAdd={setIsOpenAdd}
-          isOpenAdd={isOpenAdd}
+          setIsOpenAdd={setIsOpenAddAfter}
+          isOpenAdd={isOpenAddAfter}
           flowMapId={selectedId}
           processTitle={processTitle as DefaultOptionType}
           workFlowIfOperationFlowMapAdd={workFlowIfOperationFlowMapAdd}
-          isPrev={false}
+          isPrev={isPrev}
+          setIsPrev={setIsPrev}
         />
+        <ModalForm
+          isOpen={isDeletedBeforeAfter}
+          onClose={() => setIsDeletedBeforeAfter(false)}
+          title="پیام"
+          width="1/3"
+        >
+          <WorkflowMapBeforeAftersDel
+            label="فرایند انتخاب شده، از لیست فرایندهای بعد حذف شود؟"
+            onConfirm={handleDeleteConfirmBeforeAfter}
+            onCancel={() => setIsDeletedBeforeAfter(false)}
+          />
+        </ModalForm>
         <ModalForm
           isOpen={isDeletedProcess}
           onClose={() => setIsDeletedProcess(false)}
@@ -213,11 +309,35 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
           width="1/3"
         >
           <WorkflowMapBeforeAftersDel
-            label="فرایند انتخاب شده، از لیست فرایندهای بعد حذف شود؟"
-            onConfirm={() => setIsDeletedProcess(false)}
+            label="سطر فرایند انتخاب شده، حذف شود؟"
+            onConfirm={handleDeleteConfirmProcess}
             onCancel={() => setIsDeletedProcess(false)}
           />
         </ModalForm>
+        {!isLoadingWorkFlowFlowMapDelete && (
+          <ModalMessage
+            isOpen={isModalOpenDelete}
+            backgroundColor={
+              workFlowFlowMapDeleteResponse.meta.errorCode <= 0
+                ? "bg-green-200"
+                : "bg-red-200"
+            }
+            bgColorButton={
+              workFlowFlowMapDeleteResponse.meta.errorCode <= 0
+                ? "bg-green-500"
+                : "bg-red-500"
+            }
+            bgColorButtonHover={
+              workFlowFlowMapDeleteResponse.meta.errorCode <= 0
+                ? "bg-green-600"
+                : "bg-red-600"
+            }
+            color="text-white"
+            onClose={() => setIsModalOpenDelete(false)}
+            message={workFlowFlowMapDeleteResponse.meta.message}
+            visibleButton={false}
+          />
+        )}
       </div>
     </div>
   );

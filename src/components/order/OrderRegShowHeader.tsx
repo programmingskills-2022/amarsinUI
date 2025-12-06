@@ -8,6 +8,7 @@ import { useCustomers } from "../../hooks/useCustomers";
 import { DefaultOptionType, SearchItem } from "../../types/general";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { WarehouseSearchResponse } from "../../types/warehouse";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   orderRegShowResponse: OrderRegShowResponse;
@@ -53,19 +54,19 @@ const OrderRegShowHeader = ({
   const { systemId, yearId } = useGeneralContext();
   const { customers } = useCustomers();
   const { setField: setCustomerField } = useCustomerStore();
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
+  const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
-  useEffect(() => {
-    setCustomerField("systemId", systemId);
-    setCustomerField("yearId", yearId);
+  /*useEffect(() => {
+    setCustomerField("systemIdCustomerSearch", systemId);
+    setCustomerField("yearIdCustomerSearch", yearId);
     setCustomerField("search", search);
     setCustomerField("page", 1);
     setCustomerField("lastId", 0);
     setCustomerField("centerType", 0);
-  }, [search, systemId, yearId]);
+  }, [search, systemId, yearId]);*/
 
   useEffect(() => {
-    setSearch("");
     setCash1(orderRegShowResponse.data.result.orderMst?.cash);
     setByPhone(orderRegShowResponse.data.result.orderMst?.byPhone);
     setUrgency(orderRegShowResponse.data.result.orderMst?.urgency);
@@ -80,7 +81,31 @@ const OrderRegShowHeader = ({
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <div className="w-full md:w-3/4 flex justify-center items-center">
+        <AutoCompleteSearch
+          label="خریدار"
+          labelWidth="w-16"
+          setField={setCustomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "yearIdCustomerSearch", value: yearId },
+          ]}
+          fieldSearch="search"
+          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
+          setSelectedOption={(newValue: DefaultOptionType) => {
+            setCustomer({
+              id: newValue.id,
+              title: newValue.title,
+            });
+          }}
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+          disabled={!canEditForm1Mst1}
+        />
+        {/*<div className="w-full md:w-3/4 flex justify-center items-center">
           <label className="p-1 w-20 text-left">خریدار:</label>
           <div className="bg-slate-50 flex w-full rounded-md">
             <AutoComplete
@@ -103,7 +128,7 @@ const OrderRegShowHeader = ({
           {orderRegShowResponse.data.result.orderMst?.blackList ? (
             <p className="text-red-500 w-20 p-1">لیست سیاه</p>
           ) : null}
-        </div>
+        </div>*/}
         <div className="w-full md:w-1/4 flex">
           <label className="p-1 w-20 md:w-12 text-left">ثبت:</label>
           <input

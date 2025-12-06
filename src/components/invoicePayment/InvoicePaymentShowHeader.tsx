@@ -33,6 +33,7 @@ import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { useInvoiceStore } from "../../store/invoiceStore";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../utilities/color";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   invoicePaymentResponse: InvoicePaymentResponse;
@@ -54,7 +55,7 @@ const InvoicePaymentShowHeader = ({
   invoicePaymentSave,
   isLoadingInvoicePaymentSave,
   invoicePaymentSaveResponse,
-  banks
+  banks,
 }: Props) => {
   //برای نقدی
   const [fishNo, setFishNo] = useState("");
@@ -64,26 +65,25 @@ const InvoicePaymentShowHeader = ({
   const [cashPosSystem, setCashPosSystem] = useState<DefaultOptionType | null>( //برای صندوق
     null
   );
-  const [cashPosSystemSearchString, setCashPosSystemSearchString] =
-    useState<string>("");
+  const [cashPosSystemEntered, setCashPosSystemEntered] = useState(false);
   //برای پوز
-  const { posList, chequeBookGetById } = usePayment();
+  const { chequeBookGetById } = usePayment();
+  const [posSystemEntered, setPosSystemEntered] = useState(false);
 
   const [cash_PosSystem, setCash_PosSystem] =
     useState<DefaultOptionType | null>(null);
-  const [posSearch, setPosSearch] = useState<string>("");
   //برای چک
   const [prsn, setPrsn] = useState(""); // در وجه
   const [sayadi, setSayadi] = useState(""); //  صیادی
   const [bank, setBank] = useState<DefaultOptionType | null>(null); // بانک (id:bankId)(title:bankName_Partners)
-  const [bankSearch, setBankSearch] = useState("");
+  const [isBankEntered, setIsBankEntered] = useState(false);
   const [transferenceOwner, setTransferenceOwner] = useState(""); // شعبه
   const [fixSerial, setFixSerial] = useState(""); // برای سریال
   const [accNo, setAccNo] = useState(""); //  برای شبا
   const { chequeBookSearchResponse, chequeBookDtlSearchResponse } =
     usePayRequest();
   const { setField: setPayRequestField } = usePayRequestStore();
-  const [chequeBookSearch, setChequeBookSearch] = useState("");
+  const [isChequeBookEntered, setIsChequeBookEntered] = useState(false);
   const [chequeBooks, setChequeBooks] = useState<DefaultOptionType[]>([]);
   const [acc_DefCheq, setAcc_DefCheq] = useState<DefaultOptionType | null>(
     null
@@ -100,7 +100,7 @@ const InvoicePaymentShowHeader = ({
     null
   );
   const { bankAccountSearchResponse } = useBankAccount();
-  const [bankAccountSearch, setBankAccountSearch] = useState<string>("");
+  const [isBankAccountEntered, setIsBankAccountEntered] = useState(false);
   const [peygiri, setPeygiri] = useState("");
   const [karmozd, setKarmozd] = useState("");
   const [Tafkik, setTafkik] = useState(false);
@@ -108,7 +108,7 @@ const InvoicePaymentShowHeader = ({
   const { customers } = useCustomers();
   const { setField: setCusomerField } = useCustomerStore();
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
-  const [customerSearch, setCustomerSearch] = useState<string>("");
+  const [isCustomerEntered, setIsCustomerEntered] = useState(false);
   const [dat, setDat] = useState<string>("");
   const [payKind, setPayKind] = useState<number>(0);
   const [dsc, setDsc] = useState<string>(""); // توضیحات
@@ -117,7 +117,7 @@ const InvoicePaymentShowHeader = ({
   const [paymentKind, setPaymentKind] = useState<DefaultOptionType | null>(
     null
   );
-  const [paymentKindSearch, setPaymentKindSearch] = useState<string>("");
+  const [isPaymentKindEntered, setIsPaymentKindEntered] = useState(false);
   const { setField: setBankAccountField } = useBankAccountStore();
   const { paymentKinds } = usePayment();
   const paymentKindsOrdered = useMemo(
@@ -129,9 +129,6 @@ const InvoicePaymentShowHeader = ({
   const [message, setMessage] = useState("");
   const { systemId, yearId } = useGeneralContext();
   // order paymentKinds by id is handled by useMemo above
-  useEffect(() => {
-    console.log(customerSearch, posSearch);
-  }, []);
 
   useEffect(() => {
     setCustomer({
@@ -140,10 +137,11 @@ const InvoicePaymentShowHeader = ({
     });
     setDat(invoicePaymentResponse.data.result.dat);
     const findPaymentKind = paymentKinds.find((b) => b.id === 9);
-    setPaymentKind({
-      id: findPaymentKind?.id ?? 0,
-      title: findPaymentKind?.text ?? "",
-    });
+    if (findPaymentKind)
+      setPaymentKind({
+        id: findPaymentKind?.id ?? 0,
+        title: findPaymentKind?.text ?? "",
+      });
     setBankAccount({
       id: 0,
       title: "",
@@ -154,15 +152,17 @@ const InvoicePaymentShowHeader = ({
       id: 0,
       title: "",
     });
-  }, [invoicePaymentResponse, paymentKinds]);
+  }, [invoicePaymentResponse]);
   ////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (paymentKind?.id === 9) setDsc("واریز به");
-    else
-      setDsc(
-        `پرداخت ${paymentKind?.title} به ${invoicePaymentResponse.data.result.srName}`
-      );
-
+    else {
+      const to =
+        paymentKind === null
+          ? ""
+          : invoicePaymentResponse?.data?.result?.srName ?? "";
+      setDsc(`پرداخت  ${paymentKind ? paymentKind.title : ""} به ${to}`);
+    }
     setSayadi("");
     setAccNo("");
     setCheqNo({ id: 0, title: "" });
@@ -189,11 +189,13 @@ const InvoicePaymentShowHeader = ({
 
   // برای دسته چک
   useEffect(() => {
-    setChequeBooks(
-      chequeBookSearchResponse.data.result.results.map((p) => {
-        return { id: p.id, title: convertToFarsiDigits(p.text) };
-      })
-    );
+    if (chequeBookSearchResponse.data.result.results.length > 0) {
+      setChequeBooks(
+        chequeBookSearchResponse.data.result.results.map((p) => {
+          return { id: p.id, title: convertToFarsiDigits(p.text) };
+        })
+      );
+    }
   }, [chequeBookSearchResponse.data.result.results]);
   //برای شماره چک
   useEffect(() => {
@@ -206,7 +208,7 @@ const InvoicePaymentShowHeader = ({
   }, [chequeBookDtlSearchResponse.data.result.results]);
   //  برای حساب
   useEffect(() => {
-    setDsc((prev) => `${prev} ${bankAccount?.title}`);
+    setDsc(`واریز به ${bankAccount ? bankAccount.title : ""}`);
   }, [bankAccount]);
   //برای پیغام
   useEffect(() => {
@@ -214,47 +216,47 @@ const InvoicePaymentShowHeader = ({
   }, [invoicePaymentSaveResponse]);
 
   //برای صندوق
-  useEffect(() => {
+  /*useEffect(() => {
     setCashPosSystemField("systemId", systemId);
     setCashPosSystemField("page", 1);
     setCashPosSystemField("lastId", 0);
     setCashPosSystemField("search", cashPosSystemSearchString);
     setCashPosSystemField("payKind", 0);
-  }, [systemId, cashPosSystemSearchString]);
+  }, [systemId, cashPosSystemSearchString]); */
   //initial payment kind search params for api/Payment/KindSearch?search=%D8%B3&page=1&lastId=0
   //برای نحوه پرداخت
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(paymentKindSearch, "paymentKindSearch");
     setPaymentField("paymentKindSearch", paymentKindSearch);
     setPaymentField("paymentKindSearchPage", 1);
     setPaymentField("paymentKindSearchLastId", 0);
-  }, [paymentKindSearch]);
+  }, [paymentKindSearch]);*/
 
   //for api/Customer/search?search=search&page=1&lastId=0
   //برای طرف حساب
-  useEffect(() => {
+  /*useEffect(() => {
     setCusomerField("systemId", systemId);
     setCusomerField("yearId", yearId);
     setCusomerField("search", customerSearch);
-  }, [customerSearch, systemId, yearId]);
+  }, [customerSearch, systemId, yearId]);*/
 
   //fetch data for bankAccountSearch query for api/Payment/bankAccountSearch?search=%D8%A2&page=1&lastId=0&SystemId=1
   //برای حساب
-  useEffect(() => {
+  /*useEffect(() => {
     setBankAccountField("systemId", systemId);
     setBankAccountField("page", 1);
     setBankAccountField("lastId", 0);
     setBankAccountField("search", bankAccountSearch);
-  }, [systemId, bankAccountSearch]);
+  }, [systemId, bankAccountSearch]);*/
 
   //initializing chequeBookSearch requests api/Payment/chequeBookSearch
-  useEffect(() => {
+  /*useEffect(() => {
     setPayRequestField("acc_systemChequeBookSearch", systemId);
     setPayRequestField("searchChequeBookSearch", chequeBookSearch);
     setPayRequestField("pageChequeBookSearch", 1);
     setPayRequestField("lastIdChequeBookSearch", 0);
     //console.log(chequeBookSearch, "chequeBookSearch in useEffect");
-  }, [chequeBookSearch]);
+  }, [chequeBookSearch]);*/
   // api/Payment/chequeBookDtlSearch?ChequeBookId=
   useEffect(() => {
     setPayRequestField("searchChequeBookDtlSearch", cheqNoSearch);
@@ -266,11 +268,11 @@ const InvoicePaymentShowHeader = ({
   }, [cheqNoSearch, acc_DefCheq?.id]);
 
   //for api/Payment/bankSearch
-  useEffect(() => {
+  /*useEffect(() => {
     setBankField("page", 1);
     setBankField("lastId", 0);
     setBankField("search", bankSearch);
-  }, [bankSearch]);
+  }, [bankSearch]);*/
 
   //for api/Payment/chequeBookGetById?id=190
   useEffect(() => {
@@ -305,10 +307,13 @@ const InvoicePaymentShowHeader = ({
     let request: InvoicePaymentSaveRequest;
     let cash_Pos = 0;
     if (paymentKind?.id === 0) {
+      // دریافت
       cash_Pos = cashPosSystem?.id ?? 0;
     } else if (paymentKind?.id === 1) {
+      // پوز
       cash_Pos = cash_PosSystem?.id ?? 0;
     } else if (paymentKind?.id === 9) {
+      // واریز به حساب
       cash_Pos = bankAccount?.id ?? 0;
     }
     request = {
@@ -358,74 +363,80 @@ const InvoicePaymentShowHeader = ({
           className="text-sm text-gray-600 w-full p-1 border border-gray-300 rounded-md"
         />
       </div>
-      <div className="w-full md:w-1/2 flex justify-center items-center">
-        <label className="p-1 w-24 text-left"> صندوق:</label>
-        <div className="flex w-full rounded-md">
-          <AutoComplete
-            options={cashPosSystemSearch.map((b: any) => ({
-              id: b.id,
-              title: b.text,
-            }))}
-            value={cashPosSystem}
-            setSearch={setCashPosSystemSearchString}
-            showLabel={false}
-            inputPadding="0 !important"
-            backgroundColor="white"
-            textColor="gray"
-            showClearIcon={false}
-            handleChange={(_event, newValue) => {
-              setCashPosSystem(newValue as DefaultOptionType | null);
-            }}
-          />
-        </div>
-      </div>
+      <AutoCompleteSearch
+        label="صندوق"
+        labelWidth="w-24"
+        setField={setCashPosSystemField}
+        fieldValues={[
+          { field: "systemId", value: systemId },
+          { field: "page", value: 1 },
+          { field: "lastId", value: 0 },
+          { field: "payKind", value: 0 },
+        ]}
+        fieldSearch="search"
+        selectedOption={cashPosSystem as DefaultOptionType}
+        setSelectedOption={(cash_PosSystem: any) =>
+          setCashPosSystem(cash_PosSystem as DefaultOptionType)
+        }
+        options={cashPosSystemSearch.map((b: any) => ({
+          id: b.id,
+          text: b.text,
+        }))}
+        isEntered={cashPosSystemEntered}
+        setIsEntered={setCashPosSystemEntered}
+      />
     </>
   );
   //for پوز
   const ShowFieldOfPaymentKind1 = (
-    <div className="w-full md:w-1/2 flex justify-center items-center">
-      <label className="p-1 w-24 text-left"> پوز:</label>
-      <div className="flex w-full rounded-md">
-        <AutoComplete
-          options={posList.map((b) => ({
-            id: b.id,
-            title: b.name,
-          }))}
-          value={cash_PosSystem}
-          setSearch={setPosSearch}
-          showLabel={false}
-          inputPadding="0 !important"
-          backgroundColor="white"
-          showClearIcon={false}
-          handleChange={(_event, newValue) => {
-            setCash_PosSystem(newValue as DefaultOptionType | null);
-          }}
-        />
-      </div>
-    </div>
+    <AutoCompleteSearch
+      label="پوز"
+      labelWidth="w-20"
+      setField={setCashPosSystemField}
+      fieldValues={[
+        { field: "systemId", value: systemId },
+        { field: "page", value: 1 },
+        { field: "lastId", value: 0 },
+        { field: "payKind", value: 1 },
+      ]}
+      fieldSearch="search"
+      selectedOption={cash_PosSystem as DefaultOptionType}
+      setSelectedOption={(cash_PosSystem: any) =>
+        setCash_PosSystem(cash_PosSystem as DefaultOptionType)
+      }
+      options={cashPosSystemSearch.map((b: any) => ({
+        id: b.id,
+        text: b.text,
+      }))}
+      isEntered={posSystemEntered}
+      setIsEntered={setPosSystemEntered}
+    />
   );
   //for واریز به حساب
   const ShowFieldOfPaymentKind9 = (
     <>
       <div className="w-full md:w-1/2 flex justify-center items-center">
-        <label className="p-1 w-24 text-left"> حساب:</label>
-        <div className="flex w-full rounded-md">
-          <AutoComplete
-            options={bankAccountSearchResponse.map((b) => ({
-              id: b.id,
-              title: b.text,
-            }))}
-            value={bankAccount}
-            setSearch={setBankAccountSearch}
-            showLabel={false}
-            inputPadding="0 !important"
-            backgroundColor="white"
-            showClearIcon={false}
-            handleChange={(_event, newValue) => {
-              setBankAccount(newValue as DefaultOptionType | null);
-            }}
-          />
-        </div>
+        <AutoCompleteSearch
+          label="حساب"
+          labelWidth="w-20"
+          setField={setBankAccountField}
+          fieldValues={[
+            { field: "systemId", value: systemId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={bankAccount as DefaultOptionType}
+          setSelectedOption={(bankAccount: any) =>
+            setBankAccount(bankAccount as DefaultOptionType)
+          }
+          options={bankAccountSearchResponse.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isBankAccountEntered}
+          setIsEntered={setIsBankAccountEntered}
+        />
       </div>
       <div className="w-full md:w-1/4 flex">
         <label className="p-1 w-20 md:w-12 text-left">پیگیری:</label>
@@ -462,7 +473,6 @@ const InvoicePaymentShowHeader = ({
     </>
   );
   //for چک
-  //console.log(chequeBooks,"chequeBooks")
   const ShowFieldOfPaymentKind2_part1 = (
     <>
       <div className="w-full md:w-1/4 flex ">
@@ -485,31 +495,28 @@ const InvoicePaymentShowHeader = ({
             disabled={!canEditForm}
           />
         </div>
-        <label className="p-1 w-20 text-left">دسته چک:</label>
-        <div className="flex w-full rounded-md">
-          <AutoComplete
-            options={chequeBooks.map((b) => ({
-              id: b.id,
-              title: convertToLatinDigits(b.title),
-            }))}
-            value={acc_DefCheq}
-            handleChange={(_event, newValue) => {
-              if (newValue) {
-                const selectedOption = newValue as DefaultOptionType;
-                return setAcc_DefCheq({
-                  ...selectedOption,
-                  title: convertToFarsiDigits(selectedOption.title),
-                });
-              }
-              return setAcc_DefCheq(null);
-            }}
-            setSearch={setChequeBookSearch}
-            disabled={!isCheckChequeBook}
-            backgroundColor={!isCheckChequeBook ? "inherit" : "white"}
-            showClearIcon={false}
-            inputPadding="0 !important"
-          />
-        </div>
+        <AutoCompleteSearch
+          label="دسته چک"
+          labelWidth="w-16"
+          setField={setPayRequestField}
+          fieldValues={[
+            { field: "acc_systemChequeBookSearch", value: systemId },
+            { field: "pageChequeBookSearch", value: 1 },
+            { field: "lastIdChequeBookSearch", value: 0 },
+          ]}
+          fieldSearch="searchChequeBookSearch"
+          selectedOption={acc_DefCheq as DefaultOptionType}
+          setSelectedOption={(acc_DefCheq: any) =>
+            setAcc_DefCheq(acc_DefCheq as DefaultOptionType)
+          }
+          options={chequeBooks.map((b) => ({
+            id: b.id,
+            text: b.title,
+          }))}
+          disabled={!isCheckChequeBook}
+          isEntered={isChequeBookEntered}
+          setIsEntered={setIsChequeBookEntered}
+        />
       </div>
       <div className="w-full md:w-1/4 flex justify-center items-center">
         <label className="p-1 w-12 text-left">صیادی:</label>
@@ -597,26 +604,29 @@ const InvoicePaymentShowHeader = ({
           </div>
         </div>
         <div className="w-full md:w-1/4 flex justify-center items-center">
-          <label className="p-1 w-16 text-left">بانک:</label>
-          <div className="flex w-full rounded-md">
-            <AutoComplete
-              options={banks.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={bank}
-              handleChange={(_event, newValue) => {
-                return setBank(newValue as DefaultOptionType | null);
-              }}
-              disabled={isCheckChequeBook}
-              setSearch={setBankSearch}
-              showLabel={false}
-              backgroundColor={isCheckChequeBook ? "inherit" : "white"}
-              showClearIcon={false}
-              inputPadding="0 !important"
-            />
-          </div>
+          <AutoCompleteSearch
+            label="بانک"
+            labelWidth="w-20"
+            setField={setBankField}
+            fieldValues={[
+              { field: "page", value: 1 },
+              { field: "lastId", value: 0 },
+            ]}
+            fieldSearch="search"
+            selectedOption={bank as DefaultOptionType}
+            setSelectedOption={(bank: any) =>
+              setBank(bank as DefaultOptionType)
+            }
+            options={banks.map((b) => ({
+              id: b.id,
+              text: b.text,
+            }))}
+            disabled
+            isEntered={isBankEntered}
+            setIsEntered={setIsBankEntered}
+          />
         </div>
+
         <div className="w-full md:w-1/4 flex justify-center items-center">
           <label className="p-1 w-12 text-left">شعبه:</label>
           <input
@@ -648,27 +658,31 @@ const InvoicePaymentShowHeader = ({
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       {/*first row*/}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <div className="w-full md:w-2/4 flex justify-center items-center">
-          <label className="p-1 w-24 text-left">طرف حساب:</label>
-          <div className="flex w-full rounded-md">
-            <AutoComplete
-              options={customers.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={customer}
-              handleChange={(_event, newValue) => {
-                return setCustomer(newValue as DefaultOptionType | null);
-              }}
-              disabled
-              setSearch={setCustomerSearch}
-              showLabel={false}
-              backgroundColor={!canEditForm ? "inherit" : "white"}
-              showClearIcon={false}
-              inputPadding="0 !important"
-            />
-          </div>
-        </div>
+        {/*  طرف حساب */}
+        <AutoCompleteSearch
+          label="طرف حساب"
+          labelWidth="w-20"
+          setField={setCusomerField}
+          fieldValues={[
+            { field: "systemIdCustomerSearch", value: systemId },
+            { field: "page", value: 1 },
+            { field: "lastId", value: 0 },
+            { field: "yearIdCustomerSearch", value: yearId },
+            { field: "centerType", value: 0 },
+          ]}
+          fieldSearch="search"
+          selectedOption={customer as DefaultOptionType}
+          setSelectedOption={(customer: any) =>
+            setCustomer(customer as DefaultOptionType)
+          }
+          options={customers.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          disabled
+          isEntered={isCustomerEntered}
+          setIsEntered={setIsCustomerEntered}
+        />
         <div className="w-full md:w-1/4 flex gap-2">
           <input
             type="radio"
@@ -699,27 +713,28 @@ const InvoicePaymentShowHeader = ({
         </div>
       </div>
       {/*second row*/}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <div className="w-full md:w-1/4 flex justify-center items-center">
-          <label className="p-1 w-28 text-left">نحوه پرداخت:</label>
-          <div className="flex w-full rounded-md">
-            <AutoComplete
-              options={paymentKindsOrdered.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={paymentKind}
-              handleChange={(_event, newValue) => {
-                return setPaymentKind(newValue as DefaultOptionType | null);
-              }}
-              setSearch={setPaymentKindSearch}
-              showLabel={false}
-              backgroundColor={!canEditForm ? "inherit" : "white"}
-              showClearIcon={false}
-              inputPadding="0 !important"
-            />
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-1/4">
+        <AutoCompleteSearch
+          label="نحوه پرداخت"
+          labelWidth="w-20"
+          setField={setPaymentField}
+          fieldValues={[
+            { field: "paymentKindSearchSystemId", value: systemId },
+            { field: "paymentKindSearchPage", value: 1 },
+            { field: "paymentKindSearchLastId", value: 0 },
+          ]}
+          fieldSearch="paymentKindSearch"
+          selectedOption={paymentKind as DefaultOptionType}
+          setSelectedOption={(paymentKind: any) =>
+            setPaymentKind(paymentKind as DefaultOptionType)
+          }
+          options={paymentKindsOrdered.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isPaymentKindEntered}
+          setIsEntered={setIsPaymentKindEntered}
+        />
       </div>
       {/*third row*/}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
