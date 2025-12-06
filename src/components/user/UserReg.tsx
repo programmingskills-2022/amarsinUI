@@ -24,6 +24,7 @@ const UserReg = ({ isNewUser, users }: Props) => {
   console.log(isNewUser);
   const [isUserEntered, setIsUserEntered] = useState(false);
   const [reportRangeChecked, setReportRangeChecked] = useState(false);
+  const [isPasswordChanged, setIsPasswordChanged] = useState(false);
   const [user, setUser] = useState<User>({
     id: 0,
     username: "",
@@ -234,7 +235,11 @@ const UserReg = ({ isNewUser, users }: Props) => {
         />
         <div className="w-1/2 flex flex-row gap-2 items-center justify-between">
           <div className="w-1/4 flex flex-row gap-2 items-center justify-between">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={isPasswordChanged}
+              onChange={() => setIsPasswordChanged(!isPasswordChanged)}
+            />
             <label>تغییر کلمه عبور</label>
           </div>
           <div className="w-3/4 flex flex-col gap-2 items-center justify-between">
@@ -250,6 +255,7 @@ const UserReg = ({ isNewUser, users }: Props) => {
               variant="outlined"
               placeholder="کلمه عبور"
               required={true}
+              disabled={!isPasswordChanged}
             />
             <Input
               type="password"
@@ -263,6 +269,7 @@ const UserReg = ({ isNewUser, users }: Props) => {
               variant="outlined"
               placeholder="کلمه عبور"
               required={true}
+              disabled={!isPasswordChanged}
             />
           </div>
         </div>
@@ -339,10 +346,7 @@ const UserReg = ({ isNewUser, users }: Props) => {
         </div>
       </div>
       <div className="w-full flex justify-end gap-2 text-sm">
-        <ConfirmCancel
-          onConfirm={() => {}}
-          onCancel={() => {}}
-        />
+        <ConfirmCancel onConfirm={() => {}} onCancel={() => {}} />
       </div>
     </div>
   );

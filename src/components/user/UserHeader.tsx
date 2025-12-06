@@ -7,8 +7,6 @@ import Accept24 from "../../assets/images/GrayThem/accept24.png";
 import { FaRegCopy } from "react-icons/fa";
 import UserReg from "./UserReg";
 import ModalForm from "../layout/ModalForm";
-import { useGeneralContext } from "../../context/GeneralContext";
-import { useEffect } from "react";
 
 type Props = {
   isNewUser: number;
