@@ -3,24 +3,29 @@ import UserTree from "./UserTree";
 import Input from "../controls/Input";
 import { RadioGroup } from "../controls/RadioGroup";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { convertToFarsiDigits } from "../../utilities/general";
 
 type Props = {
-  testData: any[];
+  users: any[];
 };
-const UserInfo = ({ testData }: Props) => {
+const UserInfo = ({ users }: Props) => {
   const [data, setData] = useState<any[]>([]);
   useEffect(() => {
-    const tempData = testData.map((item) => {
+    const tempData = users.map((item) => {
       return {
         ...item,
-        status:
-          item.status === 1 ? (
+        idString:convertToFarsiDigits(item.id),
+        userName:convertToFarsiDigits(item.userName),
+        nam:convertToFarsiDigits(item.nam),
+        chartFullName:convertToFarsiDigits(item.chartFullName),
+        isActiveImg:
+          item.active === true ? (
             <FaCheck color="green" />
           ) : (
             <FaTimes color="red" />
           ),
-        online:
-          item.online === 1 ? (
+        isOnlineImg:
+          item.isOnline === true ? (
             <FaCheck color="green" />
           ) : (
             <FaTimes color="red" />
@@ -28,7 +33,7 @@ const UserInfo = ({ testData }: Props) => {
       };
     });
     setData(tempData);
-  }, []);
+  }, [users]);
   return (
     <div className="w-1/2 flex flex-col gap-2 p-2 text-sm text-gray-600">
       <div className="w-full flex justify-end gap-2">

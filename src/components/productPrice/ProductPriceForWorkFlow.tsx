@@ -31,7 +31,7 @@ const ProductPriceForWorkFlow = ({ workFlowRowSelectResponse,definitionDateTime,
   const [selectedProductPrice, setSelectedProductPrice] =
   useState<ProductPrice | null>(null);
   
-  const {yearId, systemId  }=useGeneralContext()
+  const {yearId, systemId  }=useGeneralContext() 
   if (id!==workFlowRowSelectResponse.workTableRow.formId){
     setField("yearIdDtl", yearId);
     setField("systemIdDtl", systemId);

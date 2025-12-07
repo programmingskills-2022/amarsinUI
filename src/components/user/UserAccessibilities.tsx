@@ -1,10 +1,26 @@
 import { Switch } from "@mui/material";
 import Input from "../controls/Input";
 import Card from "../controls/Card";
+import PermissionsInfo from "./PermissionsInfo";
+import { useUserStore } from "../../store/userStore";
+import { useGeneralContext } from "../../context/GeneralContext";
+import { useEffect } from "react";
 
-const UserAccessibilities = () => {
+type Props = {
+  permissions: any[];
+  isLoading: boolean;
+};
+const UserAccessibilities = ({ permissions, isLoading }: Props) => {
+  const {setField : setPermissionField}= useUserStore()
+  const {systemId} = useGeneralContext()
+  ////////////////////////////////////////////////////////
+  useEffect(() => {
+    setPermissionField("systemId", systemId)
+    setPermissionField("destUsrId", 0)
+  }, [systemId])
+  ////////////////////////////////////////////////////////
   return (
-    <div className="w-1/2 flex flex-col gap-3 p-3 text-sm text-gray-600 h-[calc(100vh-150px)]">
+    <div className="w-1/2 flex flex-col gap-3 p-3 text-sm text-gray-600 h-full">
       <div className="w-full flex justify-end">
         <Input
           label="جستجو:"
@@ -24,7 +40,7 @@ const UserAccessibilities = () => {
           <div className="w-full flex items-center justify-between bg-blue-300 rounded-t-lg p-1">
             منوهای نرم افزار
           </div>
-          <p>--------------------------------</p>
+          <PermissionsInfo permissions={permissions} isLoading={isLoading} />
         </Card>
         <div className="w-1/2 flex flex-col gap-2 h-full">
           <Card border="none" padding="none" className="w-full h-1/4">

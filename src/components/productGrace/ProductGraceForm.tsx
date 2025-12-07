@@ -263,6 +263,7 @@ const ProductGraceForm = ({
     });
   }, [products, setSearch]);
   ////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////
   //for excel head cells
   const excelHeadCells: TableColumns = [
     {
@@ -289,8 +290,7 @@ const ProductGraceForm = ({
       Header: "شرح",
       accessor: "dtlDsc",
     },
-  ];
-  ////////////////////////////////////////////////////////
+  ];  
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
@@ -298,7 +298,7 @@ const ProductGraceForm = ({
       setShowHistory(true);
     }
   };
-
+////////////////////////////////////////////////////////
   const updateToDeleted = (row: any) => {
     setOriginalData((old) =>
       old.map((origRow) => {

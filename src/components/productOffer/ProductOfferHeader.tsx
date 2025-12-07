@@ -1,7 +1,7 @@
 import { TableColumns } from "../../types/general";
 import { ProductOffer } from "../../types/productOffer";
 import PageTitle from "../layout/PageTitle";
-import ExcelExport from "../../utilities/ExcelExport";
+import { handleExport } from "../../utilities/ExcelExport";
 import Add32 from "../../assets/images/GrayThem/add32.png";
 //import Add24Disabled from "../../assets/images/GrayThem/add24_disabled.png";
 import Refresh32 from "../../assets/images/GrayThem/rfrsh32.png";
@@ -16,10 +16,11 @@ import { ProductGrace } from "../../types/productGrace";
 import { ProductPrice } from "../../types/productPrice";
 import { Indent } from "../../types/product";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
-
+import ExcelIcon from "../../assets/images/GrayThem/excel24.png";
+import { useEffect, useState } from "react";
 type Props = {
   columns: TableColumns;
-  setIsNew: React.Dispatch<React.SetStateAction<boolean>>
+  setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
   handleDelete: () => void;
   handleEdit: () => void;
   handleConfirm: () => void;
@@ -28,11 +29,11 @@ type Props = {
     | ProductPerm
     | ProductGrace
     | ProductPrice
-    |Indent |null;
+    | Indent
+    | null;
   data: any[];
   refetch: () => void;
   definitionInvironment: DefinitionInvironment;
-  //setIsOpen?: (isOpen: boolean) => void; //if it comes from menu it will be set to true else it will be set to false
 };
 
 const ProductOfferHeader = ({
@@ -45,8 +46,22 @@ const ProductOfferHeader = ({
   data,
   refetch,
   definitionInvironment,
-  //setIsOpen,
 }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  ////////////////////////////////////////////////////////
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (isModalOpen) {
+      timeoutId = setTimeout(() => {
+        setIsModalOpen(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isModalOpen]);
   return (
     <header className="flex flex-col gap-2 md:flex-row items-center justify-between border-gray-300 border-b pb-2">
       <PageTitle definitionInvironment={definitionInvironment} />
@@ -117,11 +132,11 @@ const ProductOfferHeader = ({
           }`}
           onClick={() => {
             selectedProductOffer === null || selectedProductOffer.flwId !== 0
-            ? console.log(
-                selectedProductOffer,
-                "selectedProductOffer is null or flwId is not 0"
-              )
-            : handleConfirm()
+              ? console.log(
+                  selectedProductOffer,
+                  "selectedProductOffer is null or flwId is not 0"
+                )
+              : handleConfirm();
           }}
         >
           <img
@@ -136,7 +151,26 @@ const ProductOfferHeader = ({
           <p className="text-xs">تایید</p>
         </div>
 
-        <ExcelExport data={data} headCells={columns} />
+        <div
+          className="flex flex-col items-center justify-center  cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
+          onClick={() =>
+            handleExport({
+              data: data,
+              setIsModalOpen,
+              headCells: columns,
+              fileName: "data_export.xlsx",
+              hasPersianTitle: true,
+            })
+          }
+        >
+          <img
+            src={ExcelIcon}
+            alt="ExcelIcon"
+            className="w-6 h-6"
+            style={{ filter: data?.length > 0 ? "none" : "grayscale(100%)" }}
+          />
+          <p className="text-xs">اکسل</p>
+        </div>
 
         <div
           className="flex flex-col items-center cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"

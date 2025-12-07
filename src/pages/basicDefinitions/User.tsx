@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageTitle from "../../components/layout/PageTitle";
 import UserAccessibilities from "../../components/user/UserAccessibilities";
 import UserHeader from "../../components/user/UserHeader";
 import UserInfo from "../../components/user/UserInfo";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
+import useUserList from "../../hooks/useUser";
+import { useUserStore } from "../../store/userStore";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -11,61 +13,62 @@ type Props = {
 
 export default function User({ definitionInvironment }: Props) {
   const [isNew, setIsNew] = useState(-1);
-  const testData: any[] = [
-    {
-      parentId: null,
-      username: "test1",
-      title: "test",
-      orgUnit: "test",
-      status: 1,
-      online: 1,
-      id: 1,
-      isOpenLevelClicked: false,
-    },
-    {
-      parentId: null,
-      username: "test2",
-      title: "test",
-      orgUnit: "test",
-      status:1,
-      online: 0,
-      id: 2,
-      isOpenLevelClicked: false,
-    },
-    {
-      parentId: 1,
-      username: "test11",
-      title: "test",
-      orgUnit: "test",
-      status: 1,
-      online: 0,
-      id: 11,
-      isOpenLevelClicked: false,
-    },
-    {
-      parentId: 11,
-      username: "test111",
-      title: "test",
-      orgUnit: "test",
-      status: 0,
-      online: 0,
-      id: 111,
-      isOpenLevelClicked: false,
-    },
-  ];
+  const [users, setUsers] = useState<any[]>([]);
+  const [permissions, setPermissions] = useState<any[]>([]);
+  const {
+    userListResponse,
+    isLoadingUserList,
+    errorUserList,
+    userPermsResponse,
+    isLoadingUserPerms,
+    errorUserPerms,
+  } = useUserList();
+  const { setField: setUserField } = useUserStore();
+  ////////////////////////////////////////////////////////
+  useEffect(() => {
+    console.log("useEffect");
+    setUserField("Active", -1);
+    setUserField("IsOnline", -1);
+  }, []);
+  ////////////////////////////////////////////////////////
+  useEffect(() => {
+    const tempData: any[] = userListResponse.data.result.users.map(
+      (user: any) => {
+        return {
+          ...user,
+          parentId: user.parent,
+        };
+      }
+    );
+    setUsers(tempData);
+  }, [isLoadingUserList, errorUserList, userListResponse]);
+  ////////////////////////////////////////////////////////
+  useEffect(() => {
+    const tempData: any[] = userPermsResponse.data.result.permissions.map(
+      (permission: any) => {
+        return {
+          ...permission,
+          id: permission.progpartId,
+          parentId: permission.parent,
+        };
+      }
+    );
+    setPermissions(tempData);
+  }, [isLoadingUserPerms, errorUserPerms, userPermsResponse]);
+  ////////////////////////////////////////////////////////
   return (
-    <div className="h-[calc(100vh-72px)] overflow-y-auto flex flex-col bg-gray-200 pt-2">
+    <div className="h-[calc(100vh-50px)] flex flex-col bg-gray-200 pt-2">
       {/* Top blue header */}
       <header className="flex items-center justify-between border-b-2 border-gray-300">
         <PageTitle definitionInvironment={definitionInvironment} />
-        <UserHeader isNewUser={isNew} setIsNewUser={setIsNew} users={testData} />
+        <UserHeader isNewUser={isNew} setIsNewUser={setIsNew} users={users} />
       </header>
       {/* Sub-header */}
 
       {/* Main content */}
-      <main className="w-full flex items-start justify-between">
-        <UserInfo testData={testData} />
-        <UserAccessibilities />
+      <main className="w-full h-full flex items-start justify-between">
+        <UserInfo users={users} />
+        <UserAccessibilities permissions={permissions} isLoading={isLoadingUserPerms} />
       </main>
 
       {/* Footer */}

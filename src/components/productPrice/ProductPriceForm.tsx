@@ -299,8 +299,6 @@ const ProductPriceForm = ({
       };
     });
   }, [products, setSearch]);
-
-  ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
   //for excel head cells
   const excelHeadCells: TableColumns = [
@@ -344,7 +342,8 @@ const ProductPriceForm = ({
       Header: "شرح",
       accessor: "dtlDsc",
     },
-  ];  
+  ]; 
+  ////////////////////////////////////////////////////////
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");

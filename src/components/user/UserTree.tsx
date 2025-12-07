@@ -1,3 +1,4 @@
+import { useUserStore } from "../../store/userStore";
 import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
 
 type Props = {
@@ -8,55 +9,59 @@ interface UserData {
   id: string | number;
   parentId?: string | number | null;
   username?: string;
-  title?: string;
-  orgUnit?: string;
-  status?: string;
-  online?: string;
+  nam?: string;
+  chartFullName?: string;
+  isActive?: boolean;
+  isOnline?: boolean;
+  idString?: string;
   [key: string]: any;
 }
 
 const UserTree = ({ data }: Props) => {
+  const {setField : setPermissionField}= useUserStore()
   const columns: TableTreeColumn<UserData>[] = [
     {
       header: "نام کاربری",
-      accessor: "username",
+      accessor: "userName",
       width: "20%",
     },
     {
       header: "عنوان",
-      accessor: "title",
+      accessor: "nam",
       width: "20%",
     },
     {
       header: "واحد سازمانی",
-      accessor: "orgUnit",
+      accessor: "chartFullName",
       width: "40%",
     },
     {
       header: "فعال",
-      accessor: "status",
+      accessor: "isActiveImg",
       width: "5%",
     },
     {
       header: "آنلاین",
-      accessor: "online",
+      accessor: "isOnlineImg",
       width: "5%",
     },
     {
       header: "شناسه",
-      accessor: "id",
+      accessor: "idString",
       width: "10%",
     },
   ];
 
   const handleRowClick = (user: UserData) => {
     console.log("Row clicked:", user);
+    setPermissionField("destUsrId", user.id)
     // Add your row click logic here
   };
 
   return (
     <div className="w-full text-sm flex flex-col gap-2">
       <TableTreeView
+        expandAll={true}
         data={data}
         columns={columns}
         defaultExpandedLevel={0}

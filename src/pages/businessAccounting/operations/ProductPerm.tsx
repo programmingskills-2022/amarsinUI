@@ -26,6 +26,7 @@ import ModalMessage from "../../../components/layout/ModalMessage";
 import ModalForm from "../../../components/layout/ModalForm";
 import ProductPermForm from "../../../components/productPerm/ProductPermForm";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
+import { TableColumns } from "../../../types/general";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -123,6 +124,34 @@ const ProductPerm = ({ definitionDateTime, definitionInvironment }: Props) => {
     ],
     []
   );
+    ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد",
+      accessor: "productCode",
+    },
+    {
+      Header: "کالا",
+      accessor: "product",
+    },
+    {
+      Header: "نیاز به مجوز",
+      accessor: "npBool",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   // Refs for maintaining focus on input elements
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -306,7 +335,9 @@ const ProductPerm = ({ definitionDateTime, definitionInvironment }: Props) => {
         return {
           index: convertToFarsiDigits(index + 1),
           bName: convertToFarsiDigits(item.bName),
+          productCode: convertToFarsiDigits(item.productCode),
           product: convertToFarsiDigits(item.product),
+          npBool: item.np,
           np: item.np ? (
             <img src={Accept} alt="Accept" className="w-4 h-4" />
           ) : null,
@@ -397,13 +428,13 @@ const ProductPerm = ({ definitionDateTime, definitionInvironment }: Props) => {
       className={`sm:h-full overflow-y-scroll flex flex-col bg-gray-200 pt-2 gap-2`}
     >
       <ProductOfferHeader
-        columns={columns}
+        columns={ excelHeadCells}
         setIsNew={setIsNew}
         handleDelete={handleDelete}
         handleEdit={handleEdit}
         handleConfirm={handleConfirm}
         selectedProductOffer={selectedProductPerm || ({} as ProductPermType)}
-        data={data}
+        data={dataDtl}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
       />

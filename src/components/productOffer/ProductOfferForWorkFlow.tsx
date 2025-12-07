@@ -7,6 +7,7 @@ import { ProductOffer } from "../../types/productOffer";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 
+
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
   definitionDateTime: DefinitionDateTime;

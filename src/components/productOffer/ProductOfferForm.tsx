@@ -317,9 +317,10 @@ const ProductOfferForm = ({
     });
   }, [products, setSearch]);
 
+////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
   //for excel head cells
-  const excelHeadCells: TableColumns = [
+  const excelHeadCellsList: TableColumns = [
     {
       Header: "ردیف",
       accessor: "index",
@@ -761,7 +762,7 @@ const ProductOfferForm = ({
             handleExport({
               data: excelData,
               setIsModalOpen,
-              headCells: excelHeadCells,
+              headCells: excelHeadCellsList,
               fileName,
               hasPersianTitle: true,
             })

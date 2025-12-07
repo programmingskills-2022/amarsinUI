@@ -257,7 +257,7 @@ export default function ClearBookShow({
         ) : clearBookProducts.clearBookProductsName?.length > 0 ? (
           <div
             className="mt-2 overflow-y-auto"
-            style={width > 640 ? { height: height } : { height: "fit" }}
+            style={width > 640 ? { height: height - 100 } : { height: "fit" }}
           >
             <TTable
               columns={allColumns}

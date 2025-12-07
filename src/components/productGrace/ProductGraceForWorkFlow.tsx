@@ -14,7 +14,12 @@ type Props = {
   setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const ProductGraceForWorkFlow = ({ workFlowRowSelectResponse, definitionDateTime, refetchSwitch, setRefetchSwitch }: Props) => {
+const ProductGraceForWorkFlow = ({
+  workFlowRowSelectResponse,
+  definitionDateTime,
+  refetchSwitch,
+  setRefetchSwitch,
+}: Props) => {
   const {
     refetchProductGraceDtl,
     productGraceDtl,
@@ -26,14 +31,14 @@ const ProductGraceForWorkFlow = ({ workFlowRowSelectResponse, definitionDateTime
     isLoadingProductGraceSave,
   } = useProductGrace();
 
-  const { setField , id } = useProductGraceStore();
+  const { setField, id } = useProductGraceStore();
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedProductGrace, setSelectedProductGrace] =
     useState<ProductGrace | null>(null);
 
   const { yearId, systemId } = useGeneralContext();
 
-  if (id!==workFlowRowSelectResponse.workTableRow.formId){
+  if (id !== workFlowRowSelectResponse.workTableRow.formId) {
     setField("yearIdDtl", yearId);
     setField("systemIdDtl", systemId);
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
@@ -54,7 +59,7 @@ const ProductGraceForWorkFlow = ({ workFlowRowSelectResponse, definitionDateTime
       setRefetchSwitch(false);
     }
   }, [refetchSwitch]);
-  
+
   ////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (workFlowRowSelectResponse.workTableRow.formId !== 0) {

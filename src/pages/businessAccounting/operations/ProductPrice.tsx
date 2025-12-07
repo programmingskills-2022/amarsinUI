@@ -28,6 +28,7 @@ import { useProductPrice } from "../../../hooks/useProductPrice";
 import ProductPriceForm from "../../../components/productPrice/ProductPriceForm";
 import ErrorPage from "../../../components/common/ErrorPage";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
+import { TableColumns } from "../../../types/general";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -95,6 +96,51 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
   const [sortStep, setSortStep] = useState<number>(0);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in productGrace table
   const [selectedRowIndexDtl, setSelectedRowIndexDtl] = useState<number>(0); //for selected row index in productGraceDtl table
+
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد کالا",
+      accessor: "productCode",
+    },
+    {
+      Header: "نام کالا",
+      accessor: "product",
+    },
+    {
+      Header: "پخش",
+      accessor: "p1",
+    },
+    {
+      Header: "داروخانه",
+      accessor: "p2",
+    },
+    {
+      Header: "مصرف کننده",
+      accessor: "p3",
+    },
+    {
+      Header: "مشتری",
+      accessor: "p4",
+    },
+    {
+      Header: "مشتری ",
+      accessor: "p5",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];  
 
   const columnsDtl = React.useMemo(
     () => [
@@ -338,6 +384,7 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
         return {
           index: convertToFarsiDigits(index + 1),
           bName: convertToFarsiDigits(item.bName),
+          productCode: convertToFarsiDigits(item.productCode),
           product: convertToFarsiDigits(item.product),
           lastBuyPrice: convertToFarsiDigits(item.lastBuyPrice),
           tax: convertToFarsiDigits(item.tax),
@@ -441,13 +488,13 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
       className={`sm:h-full overflow-y-scroll flex flex-col bg-gray-200 pt-2 gap-2`}
     >
       <ProductOfferHeader
-        columns={columns}
+        columns={ excelHeadCells}
         setIsNew={setIsNew}
         handleDelete={handleDelete}
         handleEdit={handleEdit}
         handleConfirm={handleConfirm}
         selectedProductOffer={selectedProductPrice || null}
-        data={data}
+        data={dataDtl}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
       />

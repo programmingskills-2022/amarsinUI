@@ -29,6 +29,7 @@ import ProductGraceDtlHeader from "../../../components/productGrace/ProductGrace
 import { colors } from "../../../utilities/color";
 import useCalculateTableHeight from "../../../hooks/useCalculateTableHeight";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
+import { TableColumns } from "../../../types/general";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -145,7 +146,34 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
     ],
     []
   );
-
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد",
+      accessor: "productCode",
+    },
+    {
+      Header: "کالا",
+      accessor: "product",
+    },
+    {
+      Header: "فرجه",
+      accessor: "gd",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   // Refs for maintaining focus on input elements
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -329,6 +357,7 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
         return {
           index: convertToFarsiDigits(index + 1),
           bName: convertToFarsiDigits(item.bName),
+          productCode: convertToFarsiDigits(item.productCode),
           product: convertToFarsiDigits(item.product),
           gd: convertToFarsiDigits(item.gd),
           sc: convertToFarsiDigits(item.sc),
@@ -424,13 +453,13 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
       className={`sm:h-full overflow-y-scroll flex flex-col bg-gray-200 pt-2 gap-2`}
     >
       <ProductOfferHeader
-        columns={columns}
+        columns={excelHeadCells}
         setIsNew={setIsNew}
         handleDelete={handleDelete}
         handleEdit={handleEdit}
         handleConfirm={handleConfirm}
         selectedProductOffer={selectedProductGrace || null}
-        data={data}
+        data={dataDtl}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
       />

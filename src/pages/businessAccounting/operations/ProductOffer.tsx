@@ -24,7 +24,11 @@ import { TablePaginationActions } from "../../../components/controls/TablePagina
 import ProductOfferTblHeader from "../../../components/productOffer/ProductOfferTblHeader";
 import ProductOfferHeader from "../../../components/productOffer/ProductOfferHeader";
 import { columns } from "../../../components/productOffer/ProductOfferGeneral";
-import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
+import {
+  DefinitionDateTime,
+  DefinitionInvironment,
+} from "../../../types/definitionInvironment";
+import { TableColumns } from "../../../types/general";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -81,7 +85,50 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
     ],
     []
   );
-
+  ////////////////////////////////////////////////////////
+  //for excel head cells
+  const excelHeadCells: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+    },
+    {
+      Header: "برند",
+      accessor: "bName",
+    },
+    {
+      Header: "کد کالا",
+      accessor: "productCode",
+    },
+    {
+      Header: "نام کالا",
+      accessor: "product",
+    },
+    {
+      Header: "پ 1",
+      accessor: "s1Excel",
+    },
+    {
+      Header: "پ 2",
+      accessor: "s2Excel",
+    },
+    {
+      Header: "پ 3",
+      accessor: "s3Excel",
+    },
+    {
+      Header: "پ 4",
+      accessor: "s4Excel",
+    },
+    {
+      Header: "بدون آفر",
+      accessor: "no",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+    },
+  ];
   const {
     setField,
     id: prevId,
@@ -108,7 +155,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
   //const { setField: setProductOfferField } = useProductOfferStore();
   const [data, setData] = useState<any[]>([]);
   const [dataDtl, setDataDtl] = useState<ProductOfferDtlTable[]>([]);
-  const { yearId, systemId, chartId,defaultRowsPerPage} = useGeneralContext();
+  const { yearId, systemId, chartId, defaultRowsPerPage } = useGeneralContext();
   const [selectedId, setSelectedId] = useState<number>(1363);
   const [isNew, setIsNew] = useState<boolean>(false); //for new
   const [isEdit, setIsEdit] = useState<boolean>(false); //for edit
@@ -328,6 +375,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
           bName: convertToFarsiDigits(item.bName),
           pId: item.pId,
           product: convertToFarsiDigits(item.product),
+          productCode: convertToFarsiDigits(item.productCode),
           lastDate: convertToFarsiDigits(item.lastDate),
           s1O:
             item.s1N + item.s1D < 0
@@ -365,6 +413,23 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
             <img src={Accept} alt="Accept" className="w-4 h-4" />
           ) : null,
           dtlDsc: convertToFarsiDigits(item.dtlDsc),
+          //for excel
+          s1Excel:
+            Number(item.s1N) + Number(item.s1D) > 0
+              ? item.s1D.toString() + "+" + item.s1N.toString()
+              : "",
+          s2Excel:
+            Number(item.s2N) + Number(item.s2D) > 0
+              ? item.s2D.toString() + "+" + item.s2N.toString()
+              : "",
+          s3Excel:
+            Number(item.s3N) + Number(item.s3D) > 0
+              ? item.s3D.toString() + "+" + item.s3N.toString()
+              : "",
+          s4Excel:
+            Number(item.s4N) + Number(item.s4D) > 0
+              ? item.s4D.toString() + "+" + item.s4N.toString()
+              : "",
         };
       });
       if (tempDataDtl) {
@@ -412,9 +477,9 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
 
   const handleDelete = () => {
     productOfferDel(selectedId);
-    setSelectedId(0)
-    setSelectedRowIndex(0)
-    setSelectedProductOffer(null)    
+    setSelectedId(0);
+    setSelectedRowIndex(0);
+    setSelectedProductOffer(null);
     setIsModalDeleteOpen(true);
   };
 
@@ -450,13 +515,13 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
     >
       {/* Top header */}
       <ProductOfferHeader
-        columns={columns}
+        columns={excelHeadCells}
         setIsNew={setIsNew}
         handleDelete={handleDelete}
         handleEdit={handleEdit}
         handleConfirm={handleConfirm}
         selectedProductOffer={selectedProductOffer as ProductOfferType}
-        data={data}
+        data={dataDtl}
         refetch={refetch}
         definitionInvironment={definitionInvironment}
       />
@@ -491,9 +556,24 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
                     style={{ width: columns[1].width }}
                     className={`border p-1 text-sm rounded-sm`}
                   />
-                  {ProductOfferInput("srchDate", columns[2].width, srchDate, setSrchDate)}
-                  {ProductOfferInput("srchTime", columns[3].width, srchTime, setSrchTime)}
-                  {ProductOfferInput("srchDsc", columns[4].width, srchDsc, setSrchDsc)}
+                  {ProductOfferInput(
+                    "srchDate",
+                    columns[2].width,
+                    srchDate,
+                    setSrchDate
+                  )}
+                  {ProductOfferInput(
+                    "srchTime",
+                    columns[3].width,
+                    srchTime,
+                    setSrchTime
+                  )}
+                  {ProductOfferInput(
+                    "srchDsc",
+                    columns[4].width,
+                    srchDsc,
+                    setSrchDsc
+                  )}
                   <input
                     name="srchAccepted"
                     type="checkbox"
@@ -508,8 +588,18 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
                     style={{ width: columns[5].width }}
                     className={`border p-1 text-sm rounded-sm`}
                   />
-                  {ProductOfferInput("srchUsrName", columns[6].width, srchUsrName, setSrchUsrName)}
-                  {ProductOfferInput("srchStep", columns[7].width, srchStep, setSrchStep)}
+                  {ProductOfferInput(
+                    "srchUsrName",
+                    columns[6].width,
+                    srchUsrName,
+                    setSrchUsrName
+                  )}
+                  {ProductOfferInput(
+                    "srchStep",
+                    columns[7].width,
+                    srchStep,
+                    setSrchStep
+                  )}
                 </div>
                 <ProductOfferTblHeader
                   columns={columns}
@@ -649,7 +739,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
         bgColorButtonHover="bg-red-600"
         color="text-white"
         message={
-          productOfferDelResponse?.meta.errorCode >0
+          productOfferDelResponse?.meta.errorCode > 0
             ? productOfferDelResponse?.meta.message || ""
             : "اطلاعات با موفقیت حذف شد."
         }
