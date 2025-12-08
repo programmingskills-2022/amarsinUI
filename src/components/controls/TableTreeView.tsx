@@ -25,7 +25,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import {  IconButton } from "@mui/material";
+import { IconButton, Paper } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowLeft } from "@mui/icons-material";
 import TTable from "./TTable";
 import { TableColumns } from "../../types/general";
@@ -50,6 +50,7 @@ export interface TableTreeColumn<T = any> {
 interface TableTreeViewProps<T extends TreeItem> {
   data: T[];
   columns: TableTreeColumn<T>[];
+  heightOffset?: number;
   defaultExpandedLevel?: number; // Auto-expand to this level (0 = root only, 1 = root + children, etc.)
   onRowClick?: (item: T) => void;
   fontSize?: string;
@@ -67,6 +68,7 @@ interface TreeNode<T> extends TreeItem {
 export function TableTreeView<T extends TreeItem>({
   data = [],
   columns,
+  heightOffset = 50,
   defaultExpandedLevel = 0,
   onRowClick,
   fontSize = "12px",
@@ -380,35 +382,37 @@ export function TableTreeView<T extends TreeItem>({
 
   const { height, width } = useCalculateTableHeight();
   return (
-    <div
-      className="w-full overflow-y-auto"
-      style={width > 640 ? { height: height - 50 } : { height: "fit" }}
+    <Paper
+      className="w-full overflow-y-auto px-2"
+      style={
+        width > 640 ? { height: height - heightOffset } : { height: "fit" }
+      }
     >
       {isLoading ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <Skeleton />
-        </div>
+        <div className="text-center">{<Skeleton />}</div>
       ) : (
-        <TTable
-          columns={tableColumns}
-          selectedRowIndex={selectedRowIndex}
-          setSelectedRowIndex={setSelectedRowIndex}
-          data={tableData}
-          fontSize={fontSize}
-          changeRowSelectColor={true}
-          showHeader={showHeader}
-          setSelectedId={
-            onRowClick
-              ? (id: number) => {
-                  const item = flattenedRows.find((row) => row.id === id);
-                  if (item) {
-                    onRowClick(item.originalData);
+        <div className="w-full mt-2">
+          <TTable
+            columns={tableColumns}
+            selectedRowIndex={selectedRowIndex}
+            setSelectedRowIndex={setSelectedRowIndex}
+            data={tableData}
+            fontSize={fontSize}
+            changeRowSelectColor={true}
+            showHeader={showHeader}
+            setSelectedId={
+              onRowClick
+                ? (id: number) => {
+                    const item = flattenedRows.find((row) => row.id === id);
+                    if (item) {
+                      onRowClick(item.originalData);
+                    }
                   }
-                }
-              : undefined
-          }
-        />
+                : undefined
+            }
+          />
+        </div>
       )}
-    </div>
+    </Paper>
   );
 }

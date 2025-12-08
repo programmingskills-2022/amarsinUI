@@ -31,7 +31,6 @@ export function useUserList() {
         active,
         isOnline,
       };
-
       const url: string = `/api/User/userList?Active=${params.active}&IsOnline=${params.isOnline}`;
       console.log(url, "url");
       const response = await api.get(url);
@@ -73,15 +72,16 @@ export function useUserList() {
 
   return {
     //for api/User/userList?Active=0&IsOnline=0
-    //getInventoryList: () => query.refetch(), // Optional manual trigger
-    isLoadingUserList: userListQuery.isLoading,
+    refetchUserList: () => userListQuery.refetch(), // Optional manual trigger
+    isLoadingUserList: userListQuery.isLoading || userListQuery.isFetching,
     errorUserList: userListQuery.error,
     userListResponse: userListQuery.data ?? {
       meta: { errorCode: 0, message: "", type: "" },
       data: { result: { users: [] } },
     },
     //for api/User/userPerms?SystemId=4&DestUsrId=0
-    isLoadingUserPerms: userPermsQuery.isLoading,
+    refetchUserPerms: () => userPermsQuery.refetch(), // Optional manual trigger
+    isLoadingUserPerms: userPermsQuery.isLoading || userPermsQuery.isFetching,
     errorUserPerms: userPermsQuery.error,
     userPermsResponse: userPermsQuery.data ?? {
       meta: { errorCode: 0, message: "", type: "" },

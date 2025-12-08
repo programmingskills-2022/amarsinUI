@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import PageTitle from "../../components/layout/PageTitle";
-import UserAccessibilities from "../../components/user/UserAccessibilities";
+import UserAccessibilities from "../../components/user/UserPermissions";
 import UserHeader from "../../components/user/UserHeader";
 import UserInfo from "../../components/user/UserInfo";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import useUserList from "../../hooks/useUser";
-import { useUserStore } from "../../store/userStore";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -22,14 +21,9 @@ export default function User({ definitionInvironment }: Props) {
     userPermsResponse,
     isLoadingUserPerms,
     errorUserPerms,
+    refetchUserList,
+    refetchUserPerms,
   } = useUserList();
-  const { setField: setUserField } = useUserStore();
-  ////////////////////////////////////////////////////////
-  useEffect(() => {
-    console.log("useEffect");
-    setUserField("Active", -1);
-    setUserField("IsOnline", -1);
-  }, []);
   ////////////////////////////////////////////////////////
   useEffect(() => {
     const tempData: any[] = userListResponse.data.result.users.map(
@@ -61,14 +55,23 @@ export default function User({ definitionInvironment }: Props) {
       {/* Top blue header */}
       <header className="flex items-center justify-between border-b-2 border-gray-300">
         <PageTitle definitionInvironment={definitionInvironment} />
-        <UserHeader isNewUser={isNew} setIsNewUser={setIsNew} users={users} />
+        <UserHeader
+          isNewUser={isNew}
+          setIsNewUser={setIsNew}
+          users={users}
+          refetchUserList={refetchUserList}
+          refetchUserPerms={refetchUserPerms}
+        />
       </header>
       {/* Sub-header */}
 
       {/* Main content */}
-      <main className="w-full h-full flex items-start justify-between">
-        <UserInfo users={users} />
-        <UserAccessibilities permissions={permissions} isLoading={isLoadingUserPerms} />
+      <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-center gap-2">
+        <UserInfo users={users} isLoading={isLoadingUserList} />
+        <UserAccessibilities
+          permissions={permissions}
+          isLoading={isLoadingUserPerms}
+        />
       </main>
 
       {/* Footer */}

@@ -3,6 +3,8 @@ import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
 
 type Props = {
   data: any[];
+  isExpanded: boolean;
+  isLoading: boolean;
 };
 
 interface UserData {
@@ -17,8 +19,8 @@ interface UserData {
   [key: string]: any;
 }
 
-const UserTree = ({ data }: Props) => {
-  const {setField : setPermissionField}= useUserStore()
+const UserInfoTree = ({ data, isExpanded, isLoading }: Props) => {
+  const { setField: setPermissionField } = useUserStore();
   const columns: TableTreeColumn<UserData>[] = [
     {
       header: "نام کاربری",
@@ -54,21 +56,24 @@ const UserTree = ({ data }: Props) => {
 
   const handleRowClick = (user: UserData) => {
     console.log("Row clicked:", user);
-    setPermissionField("destUsrId", user.id)
+    setPermissionField("destUsrId", user.id);
     // Add your row click logic here
   };
 
   return (
-    <div className="w-full text-sm flex flex-col gap-2">
+    <div className="w-full text-sm flex flex-col gap-2 overflow-y-auto h-full">
       <TableTreeView
-        expandAll={true}
+        isLoading={isLoading}
+        heightOffset={15}
+        expandAll={isExpanded}
         data={data}
         columns={columns}
         defaultExpandedLevel={0}
         onRowClick={handleRowClick}
+        showHeader={true}
       />
     </div>
   );
 };
 
-export default UserTree;
+export default UserInfoTree;

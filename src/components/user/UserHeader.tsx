@@ -12,8 +12,16 @@ type Props = {
   isNewUser: number;
   setIsNewUser: (isNewUser: number) => void;
   users: any[];
+  refetchUserList: () => void;
+  refetchUserPerms: () => void;
 };
-const UserHeader = ({ isNewUser, setIsNewUser, users }: Props) => {
+const UserHeader = ({
+  isNewUser,
+  setIsNewUser,
+  users,
+  refetchUserList,
+  refetchUserPerms,
+}: Props) => {
   const handleNew = () => {
     setIsNewUser(1); // for new
   };
@@ -29,6 +37,10 @@ const UserHeader = ({ isNewUser, setIsNewUser, users }: Props) => {
   };
   const handleClose = () => {
     setIsNewUser(-1); // for close
+  };
+  const handleRefresh = () => {
+    refetchUserList();
+    refetchUserPerms();
   };
   ////////////////////////////////////////////////////////
   return (
@@ -102,15 +114,13 @@ const UserHeader = ({ isNewUser, setIsNewUser, users }: Props) => {
 
       <div
         className="flex flex-col items-center cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
-        onClick={() => {
-          console.log("refresh");
-        }}
+        onClick={handleRefresh}
       >
         <img src={Refresh32} alt="Refresh32" className="w-6 h-6" />
         <p className="text-xs">بازخوانی</p>
       </div>
       <ModalForm
-        isOpen={isNewUser===1 || isNewUser===0}
+        isOpen={isNewUser === 1 || isNewUser === 0}
         onClose={handleClose}
         title="تعریف کاربر"
         width="1/2"

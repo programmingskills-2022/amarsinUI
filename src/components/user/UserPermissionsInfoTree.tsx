@@ -4,6 +4,7 @@ import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
 type Props = {
   data: any[];
   isLoading: boolean;
+  isExpanded: boolean;
 };
 
 interface PermissionData {
@@ -13,7 +14,7 @@ interface PermissionData {
   [key: string]: any;
 }
 
-const PermissionsTree = ({ data, isLoading }: Props) => {
+const UserPermissionsInfoTree = ({ data, isLoading, isExpanded }: Props) => {
   const columns: TableTreeColumn<PermissionData>[] = [
     {
       header: ".",
@@ -36,7 +37,7 @@ const PermissionsTree = ({ data, isLoading }: Props) => {
       <TableTreeView
         isLoading={isLoading}
         showHeader={false}
-        expandAll={true}
+        expandAll={isExpanded}
         data={data}
         columns={columns}
         defaultExpandedLevel={0}
@@ -46,4 +47,4 @@ const PermissionsTree = ({ data, isLoading }: Props) => {
   );
 };
 
-export default PermissionsTree;
+export default UserPermissionsInfoTree;
