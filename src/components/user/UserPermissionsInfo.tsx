@@ -19,9 +19,7 @@ const UserPermissionsInfo = ({
   const data = useMemo(() => {
     const searchLower = searchPermissions.toLowerCase();
     return permissions
-      .filter((item) =>
-        item.nam?.toLowerCase().includes(searchLower)
-      )
+      .filter((item) => item.nam?.toLowerCase().includes(searchLower))
       .map((item) => {
         return {
           ...item,
@@ -41,7 +39,7 @@ const UserPermissionsInfo = ({
       });
   }, [permissions, searchPermissions, onPermissionChange]);
   return (
-    <div className="w-full flex flex-col gap-2 text-sm text-gray-600 h-full">
+    <div className="w-full flex flex-col gap-2 text-sm text-gray-600 md:h-[calc(100%-30px)] md:overflow-y-auto">
       <UserPermissionsInfoTree
         data={data}
         isLoading={isLoading}

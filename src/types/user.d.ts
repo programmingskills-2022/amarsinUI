@@ -33,6 +33,9 @@ interface UserPermsResponse {
   data: {
     result: {
       permissions: UserPerms[];
+      systemUserPerms: SystemUserPerms[];
+      usrChartsPerms: UsrChartsPerms[];
+      salesPriceUserPerms: SalesPriceUserPerms[];
     };
   };
 }
@@ -43,6 +46,32 @@ interface UserPerms {
   usrId: number;
   checked: boolean;
 }
+	
+interface SystemUserPerms{
+  id: number,
+  parent: number,
+  title: string,
+  slct: boolean, // 0: false, 1: true for checked
+  acc_System: number,
+}
+
+interface UsrChartsPerms{
+  id: number,
+  parent: number,
+  name: string,
+  slct: boolean, // 0: false, 1: true for checked
+  chart: number,
+  chartId: number,
+}
+
+interface SalesPriceUserPerms{
+  salesPriceId: number,
+  title: string,
+  slct: boolean, // 0: false, 1: true for checked
+}
+
+
+
 
 export interface userState extends UserListRequest, UserPermsRequest{
   userListResponse: UserListResponse;

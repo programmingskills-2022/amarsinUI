@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useUserStore } from "../../store/userStore";
 import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
 
@@ -5,6 +6,7 @@ type Props = {
   data: any[];
   isExpanded: boolean;
   isLoading: boolean;
+  setSelectedUser: (user: any) => void;
 };
 
 interface UserData {
@@ -19,8 +21,14 @@ interface UserData {
   [key: string]: any;
 }
 
-const UserInfoTree = ({ data, isExpanded, isLoading }: Props) => {
+const UserInfoTree = ({
+  data,
+  isExpanded,
+  isLoading,
+  setSelectedUser,
+}: Props) => {
   const { setField: setPermissionField } = useUserStore();
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
   const columns: TableTreeColumn<UserData>[] = [
     {
       header: "نام کاربری",
@@ -59,9 +67,14 @@ const UserInfoTree = ({ data, isExpanded, isLoading }: Props) => {
     setPermissionField("destUsrId", user.id);
     // Add your row click logic here
   };
-
+  //initialize selectedUser when selectedRowIndex changes
+  useEffect(() => {
+    setSelectedUser(data[selectedRowIndex]);
+  }, [data, selectedRowIndex]);
   return (
-    <div className="w-full text-sm flex flex-col gap-2 overflow-y-auto h-full">
+    <div
+      className="w-full text-sm flex flex-col gap-2 md:overflow-y-auto h-full"
+    >
       <TableTreeView
         isLoading={isLoading}
         heightOffset={15}
@@ -71,6 +84,8 @@ const UserInfoTree = ({ data, isExpanded, isLoading }: Props) => {
         defaultExpandedLevel={0}
         onRowClick={handleRowClick}
         showHeader={true}
+        selectedRowIndex={selectedRowIndex}
+        setSelectedRowIndex={setSelectedRowIndex}
       />
     </div>
   );

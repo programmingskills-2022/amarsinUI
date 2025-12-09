@@ -21,7 +21,9 @@ interface GeneralContextProps {
   setSystemId: (value: number) => void;
   chartId: number;
   setChartId: (value: number) => void;
-  defaultRowsPerPage: number; 
+  defaultRowsPerPage: number;
+  usrId: number;
+  setUsrId: (value: number) => void;
   setDefaultRowsPerPage: (value: number) => void;
   pageNumbers: number[];
   isModalOpen: boolean;
@@ -57,14 +59,16 @@ export const GeneralProvider: React.FC<{ children: ReactNode }> = ({
   const [chartId, setChartId] = useState<number>(() =>
     getInitial("chartId", -1)
   );
-  const [defaultRowsPerPage, setDefaultRowsPerPage] = useState<number>(pageNumbers[1])
-  
+  const [usrId, setUsrId] = useState<number>(() => getInitial("usrId", -1));
+  const [defaultRowsPerPage, setDefaultRowsPerPage] = useState<number>(
+    pageNumbers[1]
+  );
+
   // const [defaultRowsPerPage, setDefaultRowsPerPage] = useState<number>(() =>
   //   getInitial("defaultRowsPerPage", pageNumbers[1])
   // );
-  const [isModalOpen, setIsModalOpen] = useState(false);  
-  const [url, setUrl] = useState("http://www.ps.dotis.ir");  
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [url, setUrl] = useState("http://www.ps.dotis.ir");
 
   useEffect(() => {
     localStorage.setItem("isMenuOpened", JSON.stringify(isMenuOpened));
@@ -81,7 +85,9 @@ export const GeneralProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     localStorage.setItem("chartId", JSON.stringify(chartId));
   }, [chartId]);
-
+  useEffect(() => {
+    localStorage.setItem("usrId", JSON.stringify(usrId));
+  }, [usrId]);
   // useEffect(() => {
   //   localStorage.setItem(
   //     "defaultRowsPerPage",
@@ -102,6 +108,8 @@ export const GeneralProvider: React.FC<{ children: ReactNode }> = ({
         setSystemId,
         chartId,
         setChartId,
+        usrId,
+        setUsrId,
         defaultRowsPerPage,
         setDefaultRowsPerPage,
         pageNumbers,
@@ -110,7 +118,7 @@ export const GeneralProvider: React.FC<{ children: ReactNode }> = ({
         remember,
         setRemember,
         url,
-        setUrl
+        setUrl,
       }}
     >
       {children}

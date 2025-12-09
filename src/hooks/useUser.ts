@@ -85,7 +85,14 @@ export function useUserList() {
     errorUserPerms: userPermsQuery.error,
     userPermsResponse: userPermsQuery.data ?? {
       meta: { errorCode: 0, message: "", type: "" },
-      data: { result: { permissions: [] } },
+      data: {
+        result: {
+          permissions: [],
+          systemUserPerms: [],
+          usrChartsPerms: [],
+          salesPriceUserPerms: [],
+        },
+      },
     },
   };
 }

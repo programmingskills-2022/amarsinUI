@@ -11,9 +11,10 @@ type Props = {
   definitionInvironment: DefinitionInvironment;
 }
 const PageTitle = ({definitionInvironment}: Props) => {
-  const { setSystemId, setYearId } = useGeneralContext();
+  const { setSystemId, setYearId ,setUsrId} = useGeneralContext();
   const { authApiResponse } = useAuthStore();
   const initData = authApiResponse?.data.result.initData;
+  const userId = authApiResponse?.data.result.login.usrId;
   //const { definitionInvironment } = useDefinitionInvironment();
 
   const [search, setSearch] = useState<string>("");
@@ -42,6 +43,11 @@ const PageTitle = ({definitionInvironment}: Props) => {
     }
   }, [system]);
 
+  useEffect(() => {
+    if (userId !== undefined && userId !== 0) {
+      setUsrId(Number(userId));
+    }
+  }, [userId]);
   return (
     <div className="flex justify-center items-center w-80 md:flex-row pt-2 md:pt-0 px-4 gap-2 text-xs md:text-sm">
       <div className="flex flex-col justify-evenly items-end text-center w-20">

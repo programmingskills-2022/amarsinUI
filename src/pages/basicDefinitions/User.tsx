@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import PageTitle from "../../components/layout/PageTitle";
-import UserAccessibilities from "../../components/user/UserPermissions";
 import UserHeader from "../../components/user/UserHeader";
 import UserInfo from "../../components/user/UserInfo";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import useUserList from "../../hooks/useUser";
+import { SystemUserPerms, UsrChartsPerms } from "../../types/user";
+import { useUserStore } from "../../store/userStore";
+import { useGeneralContext } from "../../context/GeneralContext";
+import UserPermissions from "../../components/user/UserPermissions";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -14,6 +17,10 @@ export default function User({ definitionInvironment }: Props) {
   const [isNew, setIsNew] = useState(-1);
   const [users, setUsers] = useState<any[]>([]);
   const [permissions, setPermissions] = useState<any[]>([]);
+  const [systemUserPerms, setSystemUserPerms] = useState<any[]>([]);
+  const [usrChartsPerms, setUsrChartsPerms] = useState<any[]>([]);
+  const [salesPriceUserPerms, setSalesPriceUserPerms] = useState<any[]>([]);
+  ////////////////////////////////////////////////////////
   const {
     userListResponse,
     isLoadingUserList,
@@ -24,9 +31,20 @@ export default function User({ definitionInvironment }: Props) {
     refetchUserList,
     refetchUserPerms,
   } = useUserList();
+  const { setField: setPermissionField } = useUserStore();
+  const { systemId } = useGeneralContext();
+  const { usrId } = useGeneralContext();
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  ////////////////////////////////////////////////////////
+  // api/User/userPerms?SystemId=4&DestUsrId=0
+  useEffect(() => {
+    console.log(selectedUser, "selectedUser");
+    setPermissionField("systemId", systemId);
+    setPermissionField("destUsrId", selectedUser?.id || usrId);
+  }, [systemId, usrId, selectedUser]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
-    const tempData: any[] = userListResponse.data.result.users.map(
+    const tempData1: any[] = userListResponse.data.result.users.map(
       (user: any) => {
         return {
           ...user,
@@ -34,7 +52,7 @@ export default function User({ definitionInvironment }: Props) {
         };
       }
     );
-    setUsers(tempData);
+    setUsers(tempData1);
   }, [isLoadingUserList, errorUserList, userListResponse]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
@@ -48,12 +66,31 @@ export default function User({ definitionInvironment }: Props) {
       }
     );
     setPermissions(tempData);
+    const tempData2: any[] = userPermsResponse.data.result.systemUserPerms.map(
+      (systemUserPerm: SystemUserPerms) => {
+        return {
+          ...systemUserPerm,
+          parentId: systemUserPerm.parent,
+        };
+      }
+    );
+    setSystemUserPerms(tempData2);
+    const tempData3: any[] = userPermsResponse.data.result.usrChartsPerms.map(
+      (usrChartsPerm: UsrChartsPerms) => {
+        return {
+          ...usrChartsPerm,
+          parentId: usrChartsPerm.parent,
+        };
+      }
+    );
+    setUsrChartsPerms(tempData3);
+    setSalesPriceUserPerms(userPermsResponse.data.result.salesPriceUserPerms);    
   }, [isLoadingUserPerms, errorUserPerms, userPermsResponse]);
   ////////////////////////////////////////////////////////
   return (
-    <div className="h-[calc(100vh-50px)] flex flex-col bg-gray-200 pt-2">
+    <div className="w-full h-[calc(100vh-50px)] flex flex-col bg-gray-200 pt-2">
       {/* Top blue header */}
-      <header className="flex items-center justify-between border-b-2 border-gray-300">
+      <header className="flex flex-col md:flex-row items-center justify-between border-b-2 border-gray-300">
         <PageTitle definitionInvironment={definitionInvironment} />
         <UserHeader
           isNewUser={isNew}
@@ -67,9 +104,16 @@ export default function User({ definitionInvironment }: Props) {
 
       {/* Main content */}
       <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-center gap-2">
-        <UserInfo users={users} isLoading={isLoadingUserList} />
-        <UserAccessibilities
+        <UserInfo
+          users={users}
+          isLoading={isLoadingUserList}
+          setSelectedUser={setSelectedUser}
+        />
+        <UserPermissions
           permissions={permissions}
+          systemUserPerms={systemUserPerms}
+          usrChartsPerms={usrChartsPerms}
+          salesPriceUserPerms={salesPriceUserPerms}
           isLoading={isLoadingUserPerms}
         />
       </main>

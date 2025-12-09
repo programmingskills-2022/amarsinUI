@@ -5,22 +5,21 @@ import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
 type Props = {
   data: any[];
   isLoading: boolean;
-  isExpanded: boolean;
 };
 
-interface PermissionData {
+interface usrChartsPermData {
   id: string | number;
   parentId?: string | number | null;
-  nam?: string;
+  name?: string;
   [key: string]: any;
 }
 
-const UserPermissionsInfoTree = ({ data, isLoading, isExpanded }: Props) => {
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
-  const columns: TableTreeColumn<PermissionData>[] = [
+const UserPermissionsChartTree = ({ data, isLoading }: Props) => {
+    const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
+  const columns: TableTreeColumn<usrChartsPermData>[] = [
     {
       header: ".",
-      accessor: "nam",
+      accessor: "name",
       width: "92%",
     },
     {
@@ -29,27 +28,25 @@ const UserPermissionsInfoTree = ({ data, isLoading, isExpanded }: Props) => {
       width: "8%",
     },
   ];
-  const handleRowClick = (permission: PermissionData) => {
-    console.log("Row clicked:", permission.id);
+  const handleRowClick = (systemUserPerm: any) => {
+    console.log("Row clicked:", systemUserPerm);
     // Add your row click logic here
   };
-
   return (
-    <div className="w-full text-sm flex flex-col gap-2 md:overflow-y-auto h-full" >
+    <div className="w-full text-sm flex flex-col gap-2 md:overflow-y-auto h-full">
       <TableTreeView
         isLoading={isLoading}
         showHeader={false}
-        expandAll={isExpanded}
+        expandAll={true}
         data={data}
         columns={columns}
         defaultExpandedLevel={0}
         onRowClick={handleRowClick}
         selectedRowIndex={selectedRowIndex}
         setSelectedRowIndex={setSelectedRowIndex}
-        heightOffset={40}
       />
     </div>
   );
 };
 
-export default UserPermissionsInfoTree;
+export default UserPermissionsChartTree;

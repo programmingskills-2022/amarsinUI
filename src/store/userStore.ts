@@ -14,7 +14,14 @@ export const useUserStore = create<userState>()((set) => ({
   destUsrId: 0,
   userPermsResponse: {
     meta: { errorCode: 0, message: "", type: "" },
-    data: { result: { permissions: [] } },
+    data: {
+      result: {
+        permissions: [],
+        systemUserPerms: [],
+        usrChartsPerms: [],
+        salesPriceUserPerms: [],
+      },
+    },
   },
   setField: (field: string | number | symbol, value: any) =>
     set((state) => ({ ...state, [field]: value })),

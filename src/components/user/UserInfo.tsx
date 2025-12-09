@@ -11,8 +11,9 @@ import { useUserStore } from "../../store/userStore";
 type Props = {
   users: any[];
   isLoading: boolean;
+  setSelectedUser: (user: any) => void;
 };
-const UserInfo = ({ users, isLoading }: Props) => {
+const UserInfo = ({ users, isLoading, setSelectedUser }: Props) => {
   const [data, setData] = useState<any[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchUserName, setSearchUserName] = useState("");
@@ -28,7 +29,9 @@ const UserInfo = ({ users, isLoading }: Props) => {
   ////////////////////////////////////////////////////////
   useEffect(() => {
     const tempData = users
-      .filter((item) => item.userName.toLowerCase().includes(searchUserName.toLowerCase()))
+      .filter((item) =>
+        item.userName.toLowerCase().includes(searchUserName.toLowerCase())
+      )
       .map((item) => {
         return {
           ...item,
@@ -54,7 +57,7 @@ const UserInfo = ({ users, isLoading }: Props) => {
   }, [users, searchUserName]);
 
   return (
-    <div className="w-1/2 flex flex-col gap-2 py-2 text-sm text-gray-600">
+    <div className="w-full md:w-1/2 md:h-full flex flex-col items-start justify-start md:justify-between md:items-center  gap-2 py-2 text-sm text-gray-600">
       <div className="w-full flex items-center justify-between gap-2">
         <Input
           label="جستجو:"
@@ -71,7 +74,9 @@ const UserInfo = ({ users, isLoading }: Props) => {
             { label: "همه", value: "all" },
           ]}
           name="status"
-          selectedValue={active === -1 ? "all" : active === 1 ? "active" : "inactive"}
+          selectedValue={
+            active === -1 ? "all" : active === 1 ? "active" : "inactive"
+          }
           onChange={(value) => {
             setActive(value === "all" ? -1 : value === "active" ? 1 : 0);
           }}
@@ -84,7 +89,9 @@ const UserInfo = ({ users, isLoading }: Props) => {
             { label: "همه", value: "all" },
           ]}
           name="online"
-          selectedValue= {isOnline === -1 ? "all" : isOnline === 0 ? "offLine" : "online"}
+          selectedValue={
+            isOnline === -1 ? "all" : isOnline === 0 ? "offLine" : "online"
+          }
           onChange={(value) => {
             setIsOnline(value === "all" ? -1 : value === "online" ? 1 : 0);
           }}
@@ -101,7 +108,12 @@ const UserInfo = ({ users, isLoading }: Props) => {
           />
         </div>
       </div>
-      <UserTree data={data} isExpanded={isExpanded} isLoading={isLoading}/>
+      <UserTree
+        data={data}
+        isExpanded={isExpanded}
+        isLoading={isLoading}
+        setSelectedUser={setSelectedUser}
+      />
     </div>
   );
 };

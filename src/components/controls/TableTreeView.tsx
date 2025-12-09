@@ -48,6 +48,8 @@ export interface TableTreeColumn<T = any> {
 }
 
 interface TableTreeViewProps<T extends TreeItem> {
+  selectedRowIndex?: number;
+  setSelectedRowIndex?: (value: number) => void;
   data: T[];
   columns: TableTreeColumn<T>[];
   heightOffset?: number;
@@ -66,6 +68,8 @@ interface TreeNode<T> extends TreeItem {
 }
 
 export function TableTreeView<T extends TreeItem>({
+  selectedRowIndex,
+  setSelectedRowIndex,
   data = [],
   columns,
   heightOffset = 50,
@@ -77,7 +81,6 @@ export function TableTreeView<T extends TreeItem>({
   isLoading = false,
 }: TableTreeViewProps<T>) {
   // Build tree structure from flat array
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
   const tree = useMemo(() => {
     if (!data || data.length === 0) {
       return [];
@@ -385,7 +388,7 @@ export function TableTreeView<T extends TreeItem>({
     <Paper
       className="w-full overflow-y-auto px-2"
       style={
-        width > 640 ? { height: height - heightOffset } : { height: "fit" }
+        width > 640 ? { height: height - heightOffset } : { height: "" }
       }
     >
       {isLoading ? (
