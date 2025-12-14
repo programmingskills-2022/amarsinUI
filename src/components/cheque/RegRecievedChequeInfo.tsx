@@ -27,6 +27,7 @@ import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import RegRecievedChequeInfoSanad from "./RegRecievedChequeInfoSanad";
 import { FaCircle } from "react-icons/fa";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   canEditForm: boolean;
@@ -61,16 +62,12 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   definitionInvironment,
   banks,
   isLoadingBanks,
-
 }: Props) => {
-  const [bankSearch, setBankSearch] = useState("");
-  //const { banks, isLoading: isLoadingBanks } = useBanks();
   const { setField } = useBankStore();
-  //const { definitionInvironment, isLoading: isLoadingDefinition } =
-  //  useDefinitionInvironment();
   const [systemSearch, setSystemSearch] = useState<string>("");
   const [yearSearch, setYearSearch] = useState<string>("");
-  const [cashPosSystemSerch, setCashPosSystemSerch] = useState<string>("");
+  const [cash_PosSystemEntered, setCash_PosSystemEntered] = useState(false);
+  const [bankEntered, setBankEntered] = useState(false);
   const [sayadiTextColor, setSayadiTextColor] = useState<string>("");
   const { authApiResponse } = useAuthStore();
   const initData = authApiResponse?.data?.result?.initData;
@@ -176,20 +173,21 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   };
   ///////////////////////////////////////////////////////////////////
   //for api/Payment/bankSearch
-  useEffect(() => {
+  /*useEffect(() => {
     setField("page", 1);
     setField("lastId", 0);
     setField("search", bankSearch);
-  }, [bankSearch]);
+  }, [bankSearch]);*/
   /////////////////////////////////////////////////////////////////////
   // Set search-related fields when search changes
-  useEffect(() => {
+  //for api/Payment/cashPosSystemSearch
+  /*useEffect(() => {
     setChequeField("search", cashPosSystemSerch);
     setChequeField("page", 1);
     setChequeField("lastId", 0);
     setChequeField("systemId", initData?.systemId ?? -1);
     if (payKind !== 2) setChequeField("payKind", payKind);
-  }, [cashPosSystemSerch, initData?.systemId, payKind]);
+  }, [cashPosSystemSerch, initData?.systemId, payKind]);*/
 
   // Initialize systemId and payKind only once per record for /api/cheque/cashPosSystemSearch
   /*useEffect(() => {
@@ -250,10 +248,6 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   }, [workFlowRowSelectResponse]);
   ///////////////////////////////////////////////////////////////////
   useEffect(() => {
-    /*console.log(
-      loadPaymentResponse,
-      "loadPaymentResponse in reg recieved cheque info"
-    );*/
     setIsSayadiClick(false);
     setCheque({
       sayadiMessage: convertToFarsiDigits(
@@ -439,6 +433,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
     }
     setIsFieldChanged(false);
   };
+  ///////////////////////////////////////////////////////////////////
   const setChequeFields = (
     fieldName: string,
     value: string | number | DefaultOptionType | boolean
@@ -798,6 +793,40 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
         )*/}
         {(payKind === 0 || payKind === 9 || payKind === 1) && (
           <div className="flex w-full justify-center items-center gap-2">
+            <AutoCompleteSearch
+              label={
+                payKind === 0 ? "صندوق" : payKind === 9 ? "بانک" : "پایانه"
+              }
+              labelWidth="w-20"
+              setField={setChequeField}
+              fieldValues={[
+                { field: "page", value: 1 },
+                { field: "lastId", value: 0 },
+                { field: "systemId", value: initData?.systemId ?? -1 },
+                { field: "payKind", value: payKind },
+              ]}
+              fieldSearch="search"
+              selectedOption={cheque.cash_PosSystem as DefaultOptionType}
+              handleChange={(_event, newValue) => {
+                setChequeFields1(
+                  "cash_PosSystem",
+                  newValue as DefaultOptionType
+                );
+              }}
+              options={cashPosSystemSearch.map((b: any) => ({
+                id: b.id,
+                text: b.text,
+              }))}
+              isEntered={cash_PosSystemEntered}
+              setIsEntered={setCash_PosSystemEntered}
+              disabled={!canEditForm}
+            />
+            {showValidationError("cash_PosSystem")}
+          </div>
+        )}
+        {/*
+        {(payKind === 0 || payKind === 9 || payKind === 1) && (
+          <div className="flex w-full justify-center items-center gap-2">
             <label className="w-24 text-left">
               {payKind === 0 ? "صندوق:" : payKind === 9 ? "بانک:" : "پایانه:"}
             </label>
@@ -827,14 +856,11 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
                     : "white"
                 }
                 ref={systemRef}
-                /*handleBlur={() => {
-                  updateCheque("cash_PosSystem", cheque.cash_PosSystem);
-                }}*/
               />
               {showValidationError("cash_PosSystem")}
             </div>
-          </div>
-        )}
+          </div> 
+        )} */}
       </div>
       <div className="flex justify-between w-full">
         <Input
@@ -875,6 +901,30 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
       {payKind === 2 && (
         <div className="flex justify-between w-full">
           <div className="flex w-1/2 justify-center items-center gap-2">
+            <AutoCompleteSearch
+              label="بانک"
+              labelWidth="w-20"
+              setField={setField}
+              fieldValues={[
+                { field: "page", value: 1 },
+                { field: "lastId", value: 0 },
+              ]}
+              fieldSearch="search"
+              selectedOption={cheque.bank as DefaultOptionType}
+              handleChange={(_event, newValue) => {
+                setChequeFields1("bank", newValue as DefaultOptionType);
+              }}
+              options={banks.map((b: any) => ({
+                id: b.id,
+                text: b.text,
+              }))}
+              isEntered={bankEntered}
+              setIsEntered={setBankEntered}
+              disabled={!canEditForm}
+            />
+            {showValidationError("bankId")}
+          </div>
+          {/*<div className="flex w-1/2 justify-center items-center gap-2">
             <label className="w-24 text-left">
               <span className="text-red-500">* </span>بانک:
             </label>
@@ -903,13 +953,10 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
                     : "white"
                 }
                 ref={bankRef}
-                /*handleBlur={() => {
-                  updateCheque("bank", cheque.bank as DefaultOptionType);
-                }}*/
               />
               {showValidationError("bankId")}
-            </div>
-          </div>
+            </div>  
+          </div> */}
           <div className="flex w-1/2 justify-center items-center gap-2">
             <Input
               disabled={!canEditForm}

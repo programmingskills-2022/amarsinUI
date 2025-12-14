@@ -16,11 +16,15 @@ type Props = {
   fieldValues: FieldValues[];
   fieldSearch: string;
   selectedOption: DefaultOptionType;
-  setSelectedOption: (option: DefaultOptionType) => void;
+  setSelectedOption?: (option: DefaultOptionType | null) => void;
   options: { id: string | number; text: string }[];
   disabled?: boolean;
   isEntered?: boolean;
   setIsEntered?: (isEntered: boolean) => void;
+  handleChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    newValue: DefaultOptionType | null
+  ) => void;
 };
 
 const AutoCompleteSearch = ({
@@ -35,6 +39,7 @@ const AutoCompleteSearch = ({
   disabled = false,
   isEntered = false,
   setIsEntered = () => {},
+  handleChange = () => {},
 }: Props) => {
   const [search, setSearch] = useState("");
   //for api search
@@ -66,7 +71,7 @@ const AutoCompleteSearch = ({
   ////////////////////////////////////////////////////////
   return (
     <div className="flex w-full justify-center items-center gap-2 text-sm">
-      {label!=="" && (
+      {label !== "" && (
         <label htmlFor={label} className={labelWidth + " text-left"}>
           {label}:
         </label>
@@ -81,14 +86,19 @@ const AutoCompleteSearch = ({
             id: selectedOption?.id ?? "",
             title: convertToFarsiDigits(selectedOption?.title ?? ""),
           }}
-          handleChange={(_event, newValue) => {
-            return setSelectedOption({
-              id: (newValue as DefaultOptionType)?.id ?? "",
-              title: convertToFarsiDigits(
-                (newValue as DefaultOptionType)?.title ?? ""
-              ),
-            });
-          }}
+          handleChange={
+            handleChange !== undefined
+              ? (_event, newValue) =>
+                  handleChange(_event, newValue as DefaultOptionType | null)
+              : (_event, newValue) => {
+                  return setSelectedOption?.({
+                    id: (newValue as DefaultOptionType)?.id ?? "",
+                    title: convertToFarsiDigits(
+                      (newValue as DefaultOptionType)?.title ?? ""
+                    ),
+                  });
+                }
+          }
           setSearch={setSearch}
           showLabel={false}
           inputPadding="4px !important"

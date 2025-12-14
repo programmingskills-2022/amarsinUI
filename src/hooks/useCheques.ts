@@ -108,7 +108,7 @@ export function useCheques() {
       });
     },
   });
-  //for Payment/cashPosSystemSearch
+  //for api/Payment/cashPosSystemSearch
   const cashPosSystemSearch = useQuery({
     queryKey: ["cashPosSystemSearch", search, page, lastId, systemId, payKind],
     queryFn: async () => {

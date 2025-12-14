@@ -1,9 +1,6 @@
 import Add32 from "../../assets/images/GrayThem/add32.png";
-//import Add24Disabled from "../../assets/images/GrayThem/add24_disabled.png";
 import Refresh32 from "../../assets/images/GrayThem/rfrsh32.png";
-import Del24 from "../../assets/images/GrayThem/del24.png";
 import Edit24 from "../../assets/images/GrayThem/edit24.png";
-import Accept24 from "../../assets/images/GrayThem/accept24.png";
 import { FaRegCopy } from "react-icons/fa";
 import UserReg from "./UserReg";
 import ModalForm from "../layout/ModalForm";
@@ -24,9 +21,6 @@ const UserHeader = ({
 }: Props) => {
   const handleNew = () => {
     setIsNewUser(1); // for new
-  };
-  const handleDelete = () => {
-    console.log("delete");
   };
   const handleEdit = () => {
     setIsNewUser(0); // for edit
@@ -53,24 +47,6 @@ const UserHeader = ({
         <p className="text-xs">جدید</p>
       </div>
       <div
-        className="flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 
-          cursor-pointer
-      "
-        onClick={handleDelete}
-      >
-        <img
-          src={
-            //selectedProductOffer === null || selectedProductOffer.flwId !== 0
-            //? Del24Disabled
-            //: Del24
-            Del24
-          }
-          alt="Del24"
-          className="w-6 h-6"
-        />
-        <p className="text-xs">غیرفعال</p>
-      </div>
-      <div
         className="flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 cursor-pointer"
         onClick={handleEdit} // for edit
       >
@@ -85,24 +61,6 @@ const UserHeader = ({
           className="w-6 h-6"
         />
         <p className="text-xs">ویرایش</p>
-      </div>
-      <div
-        className="flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 cursor-pointer"
-        onClick={() => {
-          console.log("confirm");
-        }}
-      >
-        <img
-          src={
-            //selectedProductOffer === null || selectedProductOffer.flwId !== 0
-            //? Accept24Disabled
-            //: Accept24
-            Accept24
-          }
-          alt="Accept24"
-          className="w-6 h-6"
-        />
-        <p className="text-xs">ذخیره</p>
       </div>
       <div
         className="flex flex-col items-center hover:font-bold hover:bg-gray-300 rounded-md p-1 cursor-pointer"

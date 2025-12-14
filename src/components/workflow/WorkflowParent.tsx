@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Paper } from "@mui/material";
 import Skeleton from "../layout/Skeleton";
 import { useNavigate } from "react-router-dom";
@@ -9,12 +9,14 @@ import {
   convertToFarsiDigits,
   convertToLatinDigits,
   formatNumberWithCommas,
+  convertPixelWidthsToPercentages,
 } from "../../utilities/general";
 import { debounce } from "lodash";
 import TTable from "../controls/TTable";
 import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
 import { TablePaginationActions } from "../controls/TablePaginationActions";
 import { WorkflowResponse } from "../../types/workflow";
+import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 
 type Props = {
   selectedId: number;
@@ -41,62 +43,90 @@ export default function WorkflowParent({
 }: Props) {
   const { flowMapId: flowMapIdStore, setField } = useWorkflowStore();
   const { systemId, chartId, defaultRowsPerPage } = useGeneralContext();
+  const { width: tableWidth } = useCalculateTableHeight();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(defaultRowsPerPage);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in workflowParent table
   //const { workTableId } = useWorkflowRowSelectStore();
   const navigate = useNavigate();
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  const columns: TableColumns = [
-    {
-      Header: "ردیف",
-      accessor: "index",
-      width: "3%",
-    },
-    {
-      //define for selectedId
-      Header: "شناسه",
-      accessor: "id",
-      width: "5%",
-      visible: false,
-    },
-    {
-      Header: "زمان",
-      accessor: "regDateTime",
-      width: "10%",
-    },
-    {
-      Header: "فرم",
-      accessor: "formTitle",
-      width: "27%",
-    },
-    {
-      Header: "کد",
-      accessor: "formCode",
-      width: "10%",
-    },
-    {
-      Header: "مقدار",
-      accessor: "formCost",
-      width: "10%",
-    },
-    {
-      Header: "مرحله",
-      accessor: "flowMapTitle",
-      width: "10%",
-    },
-    {
-      Header: "فرستنده",
-      accessor: "fChartName",
-      width: "10%",
-    },
-    {
-      Header: "شرح",
-      accessor: "dsc",
-      width: "20%",
-    },
-  ];
+  //to save column widths if user changes them (stored as percentages)
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
+    index: 3,
+    id: 5,
+    regDateTime: 10,
+    formTitle: 27,
+    formCode: 10,
+    formCost: 10,
+    flowMapTitle: 10,
+    fChartName: 10,
+    dsc: 20,
+  });
+  
+  const columns: TableColumns = useMemo(() => {
+    // Note: columnWidths contains percentages, TTable will convert them to pixels
+    return [
+      {
+        Header: "ردیف",
+        accessor: "index",
+        width: columnWidths.index + "%",
+      },
+      {
+        //define for selectedId
+        Header: "شناسه",
+        accessor: "id",
+        width: columnWidths.id + "%",
+        visible: false,
+      },
+      {
+        Header: "زمان",
+        accessor: "regDateTime",
+        width: columnWidths.regDateTime + "%",
+      },
+      {
+        Header: "فرم",
+        accessor: "formTitle",
+        width: columnWidths.formTitle + "%",
+      },
+      {
+        Header: "کد",
+        accessor: "formCode",
+        width: columnWidths.formCode + "%",
+      },
+      {
+        Header: "مقدار",
+        accessor: "formCost",
+        width: columnWidths.formCost + "%",
+      },
+      {
+        Header: "مرحله",
+        accessor: "flowMapTitle",
+        width: columnWidths.flowMapTitle + "%",
+      },
+      {
+        Header: "فرستنده",
+        accessor: "fChartName",
+        width: columnWidths.fChartName + "%",
+      },
+      {
+        Header: "شرح",
+        accessor: "dsc",
+        width: columnWidths.dsc + "%",
+      },
+    ];
+  }, [columnWidths]);
+  
+  // Convert pixels back to percentages when saving (only for visible columns)
+  const handleColumnResize = useCallback((pixelWidths: Record<string, number>) => {
+    if (tableWidth > 0) {
+      const percentageWidths = convertPixelWidthsToPercentages(
+        pixelWidths,
+        columns,
+        columnWidths
+      );
+      setColumnWidths(percentageWidths);
+    }
+  }, [tableWidth, columns, columnWidths]);
 
   useEffect(() => {
     if (error) {
@@ -106,7 +136,7 @@ export default function WorkflowParent({
   }, [error, navigate]);
 
   useEffect(() => {
-   /* console.log(
+    /* console.log(
       "one of these were changed:" + systemId,
       chartId,
       pageNumber,
@@ -209,12 +239,18 @@ export default function WorkflowParent({
     // This prevents losing selection when data is refetched
     if (workFlowResponse.workTables.length > 0) {
       // Only reset if selectedId doesn't exist in current data
-      const selectedExists = workFlowResponse.workTables.some(table => table.id === selectedId);
+      const selectedExists = workFlowResponse.workTables.some(
+        (table) => table.id === selectedId
+      );
       if (!selectedExists) {
         setSelectedId(workFlowResponse.workTables[0].id);
         setSelectedRowIndex(0);
-      }else{
-        setSelectedRowIndex(workFlowResponse.workTables.findIndex(table => table.id === selectedId) ?? 0);
+      } else {
+        setSelectedRowIndex(
+          workFlowResponse.workTables.findIndex(
+            (table) => table.id === selectedId
+          ) ?? 0
+        );
       }
       // If selectedId exists, don't reset selectedRowIndex - preserve user's selection
     } else {
@@ -248,11 +284,15 @@ export default function WorkflowParent({
   useEffect(() => {
     setSkipPageReset(false);
   }, [data]);
+
+  useEffect(() => {
+    console.log(columnWidths, "columnWidths");
+  }, [columnWidths]);
   return (
     <>
       <Paper className="p-2 mt-2 w-full">
         <div className="w-full flex justify-center md:justify-end items-center ">
-          <div className="w-[3%]"></div>
+          <div style={{ width: columnWidths.index + "%" }}></div>
           <input
             name="dateTime"
             value={convertToFarsiDigits(dateTime ?? "")}
@@ -263,8 +303,8 @@ export default function WorkflowParent({
               );
               setDateTime(convertToLatinDigits(e.target.value));
             }}
-            className={`border p-1 text-sm rounded-sm w-[10%]`}
-            //style={{width:headCells[1].cellWidth}}
+            className={`border p-1 text-sm rounded-sm`}
+            style={{width:columnWidths.regDateTime + "%"}}
           />
           <input
             name="title"
@@ -273,8 +313,8 @@ export default function WorkflowParent({
               handleDebounceFilterChange("title", e.target.value);
               setTitle(e.target.value);
             }}
-            className={`border p-1 text-sm rounded-sm w-[27%]`}
-            //style={{  width: headCells[2].cellWidth}}
+            className={`border p-1 text-sm rounded-sm`}
+            style={{width:columnWidths.formTitle + "%"}}
           />
           <input
             name="code"
@@ -287,7 +327,7 @@ export default function WorkflowParent({
               setCode(convertToLatinDigits(e.target.value));
             }}
             className="border p-1 text-sm rounded-sm"
-            style={{ width: "10%" }}
+            style={{ width: columnWidths.formCode + "%" }}
           />
           <input
             name="cost"
@@ -300,9 +340,9 @@ export default function WorkflowParent({
               setCost(convertToLatinDigits(e.target.value));
             }}
             className="border p-1 text-sm rounded-sm"
-            style={{ width: "10%" }}
+            style={{ width: columnWidths.formCost + "%" }}
           />
-          <div style={{ width: "10%" }}>
+          <div style={{ width: columnWidths.flowMapTitle + "%" }}>
             <AutoComplete
               options={workFlowResponse.flowMapTitles.map((b) => ({
                 id: b.id.toString(),
@@ -333,7 +373,7 @@ export default function WorkflowParent({
               setName(e.target.value);
             }}
             className="border p-1 text-sm rounded-sm"
-            style={{ width: "10%" }}
+            style={{ width: columnWidths.fChartName + "%" }}
           />
           <input
             name="dsc"
@@ -343,10 +383,11 @@ export default function WorkflowParent({
               setDsc(e.target.value);
             }}
             className="border p-1 text-sm rounded-sm"
-            style={{ width: "20%" }}
+            style={{ width: columnWidths.dsc + "%" }}
           />
         </div>
-        {isLoading || isRefetchingWorkTable /*|| isRefetchingWorkTableRowSelect*/ ? (
+        {isLoading ||
+        isRefetchingWorkTable /*|| isRefetchingWorkTableRowSelect*/ ? (
           <div className="w-full text-center">{<Skeleton />}</div>
         ) : workFlowResponse.err !== 0 ? (
           <p className="p-6 text-red-400 text-sm md:text-base font-bold">
@@ -370,6 +411,9 @@ export default function WorkflowParent({
               wordWrap={false}
               showToolTip={true}
               //maxVisibleColumns={7}
+              enableColumnResize={true}
+              initialColumnWidths={columnWidths}
+              onColumnResize={handleColumnResize}
             />
             <TablePaginationActions
               page={pageNumber - 1}

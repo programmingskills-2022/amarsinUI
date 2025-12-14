@@ -7,7 +7,6 @@ import {
   formatNumberWithCommas,
 } from "../../utilities/general";
 import { colors } from "../../utilities/color";
-//import AutoComplete from "./AutoComplete";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import AutoComplet from "./AutoComplet";
 
@@ -35,6 +34,9 @@ type TableProps<T extends object> = {
   setSelectedRowIndex?: (value: number) => void; // just for background color
   maxVisibleColumns?: number; // Maximum number of columns to show before collapsing
   collapsedColumnWidth?: number;
+  enableColumnResize?: boolean; // Enable column resizing feature
+  onColumnResize?: (columnWidths: Record<string, number>) => void; // Callback when column widths change
+  initialColumnWidths?: Record<string, number>; // Initial column widths from parent (takes precedence over column definitions)
 };
 
 // Create an editable cell renderer
@@ -45,8 +47,6 @@ interface EditableCellProps<T extends object> extends CellProps<T, any> {
     newValue: DefaultOptionType | DefaultOptionType[] | null,
     columnId?: string
   ) => void;
-  //options?: DefaultOptionType[];
-  //setSearchText: Dispatch<SetStateAction<string>>;
   changeRowValues: (
     value: string | boolean,
     rowIndex: number,
@@ -61,8 +61,6 @@ export function EditableInput<T extends object>({
   value: initialValue,
   row: { index },
   column,
-  //options,
-  //setSearchText,
   updateMyData,
   updateMyRow,
   changeRowValues,
@@ -112,7 +110,6 @@ export function EditableInput<T extends object>({
       | null
   ) => {
     console.log(event, "event in handleAutoCompleteChange");
-    //console.log(newValue, "newValue in handleAutoCompleteChange");
     setValue((newValue as DefaultOptionType)?.title ?? "");
     if (updateMyRow) {
       updateMyRow(index, newValue as DefaultOptionType, id);
@@ -123,20 +120,11 @@ export function EditableInput<T extends object>({
     }
   };
 
-  /*const handleInputChange = (event: any, newInputValue: string) => {
-    if (setSearch && event !== null) {
-      const persianInput = convertToFarsiDigits(newInputValue);
-      setSearch?.(persianInput);
-      //console.log(persianInput, event, "persianInput in handleInputChange");
-    }
-  };*/
-
   if (type === "autoComplete") {
     return (
       <AutoComplet
         disabled={!canEditForm}
         options={autoOptions || []}
-        //value={options?.find((opt) => opt.title === value) || null}
         value={value ? { id: 0, title: value as string } : null}
         handleChange={handleAutoCompleteChange}
         setSearch={setSearch}
@@ -157,8 +145,6 @@ export function EditableInput<T extends object>({
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
-        //onInputChange={handleInputChange}
-        //inputValue={search}
       />
     );
   }
@@ -255,11 +241,34 @@ export default function TTable<T extends object>({
   setSelectedRowIndex,
   maxVisibleColumns,
   collapsedColumnWidth = 15,
+  enableColumnResize = false,
+  onColumnResize,
+  initialColumnWidths,
 }: TableProps<T>) {
   //const [rowSelect, setRowSelect] = useState(0);
 
   const { width } = useCalculateTableHeight();
   const [showTableHeader, setShowTableHeader] = useState<boolean>(showHeader);
+  
+  // Column resizing state
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+  const resizeStateRef = React.useRef<{
+    isResizing: boolean;
+    resizingColumn: string | null;
+    startX: number;
+    startWidth: number;
+  }>({
+    isResizing: false,
+    resizingColumn: null,
+    startX: 0,
+    startWidth: 0,
+  });
+  const onColumnResizeRef = React.useRef(onColumnResize);
+  
+  // Update ref when callback changes
+  useEffect(() => {
+    onColumnResizeRef.current = onColumnResize;
+  }, [onColumnResize]);
 
   useEffect(() => {
     if (!maxVisibleColumns || width > 768) {
@@ -268,6 +277,150 @@ export default function TTable<T extends object>({
       setShowTableHeader(true);
     }
   }, [showHeader, width]);
+
+  // Initialize column widths from parent or column definitions
+  useEffect(() => {
+    if (enableColumnResize && columns.length > 0) {
+      setColumnWidths((prev) => {
+        // If we already have widths set, don't reinitialize (preserve user resizes)
+        if (Object.keys(prev).length > 0) {
+          return prev;
+        }
+        
+        const initialWidths: Record<string, number> = {};
+        
+        // First, use initialColumnWidths from parent if provided
+        if (initialColumnWidths && Object.keys(initialColumnWidths).length > 0) {
+          // Get visible columns to calculate total percentage
+          const visibleColumns = columns.filter((col: any) => (col as any).visible !== false);
+          const totalVisiblePercentage = visibleColumns.reduce((sum, col: any) => {
+            const columnId = col.id ?? col.accessor;
+            const value = initialColumnWidths[columnId];
+            // Only count if it's a percentage (< 100) and column is visible
+            if (value && value < 100 && (col as any).visible !== false) {
+              return sum + value;
+            }
+            return sum;
+          }, 0);
+          
+          // Convert percentages to pixels if values are small (likely percentages)
+          // Assume values < 100 are percentages, values >= 100 are already pixels
+          Object.keys(initialColumnWidths).forEach((key) => {
+            const value = initialColumnWidths[key];
+            // Find the column to check if it's visible
+            const col = columns.find((c: any) => (c.id ?? c.accessor) === key) as any;
+            if (value < 100) {
+              // Treat as percentage and convert to pixels
+              // If total percentage > 100, scale proportionally; otherwise use direct conversion
+              if (totalVisiblePercentage > 100 && col && col.visible !== false) {
+                // Scale proportionally to fit table width
+                initialWidths[key] = (width * value) / totalVisiblePercentage;
+              } else {
+                initialWidths[key] = (width * value) / 100;
+              }
+            } else {
+              // Treat as pixels
+              initialWidths[key] = value;
+            }
+          });
+        }
+        
+        // Then, fill in missing widths from column definitions
+        columns.forEach((col: any) => {
+          const columnId = col.id ?? col.accessor;
+          if (columnId && !initialWidths[columnId]) {
+            // Parse width from string (e.g., "20%" or "200px") or use default
+            const widthStr = col.width || col.totalWidth || "100px";
+            if (typeof widthStr === "string") {
+              if (widthStr.includes("%")) {
+                // For percentage, calculate based on table width
+                const percent = parseFloat(widthStr);
+                initialWidths[columnId] = (width * percent) / 100;
+              } else if (widthStr.includes("px")) {
+                initialWidths[columnId] = parseFloat(widthStr);
+              } else {
+                initialWidths[columnId] = 100; // default
+              }
+            } else {
+              initialWidths[columnId] = widthStr || 100;
+            }
+          }
+        });
+        return initialWidths;
+      });
+    }
+  }, [columns, enableColumnResize, width, initialColumnWidths]);
+
+  // Track previous columnWidths to only notify on actual changes
+  const prevColumnWidthsRef = React.useRef<Record<string, number>>({});
+  
+  // Notify parent when column widths change (only on actual changes, not on every render)
+  useEffect(() => {
+    if (enableColumnResize && Object.keys(columnWidths).length > 0) {
+      // Only notify if widths actually changed (not just a reference change)
+      const prevWidths = prevColumnWidthsRef.current;
+      const hasChanged = Object.keys(columnWidths).some(
+        (key) => prevWidths[key] !== columnWidths[key]
+      ) || Object.keys(prevWidths).length !== Object.keys(columnWidths).length;
+      
+      if (hasChanged && onColumnResizeRef.current) {
+        onColumnResizeRef.current(columnWidths);
+        prevColumnWidthsRef.current = { ...columnWidths };
+      }
+    }
+  }, [columnWidths, enableColumnResize]);
+
+  // Handle column resize
+  const handleMouseDown = React.useCallback((e: React.MouseEvent, columnId: string) => {
+    if (!enableColumnResize) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const currentWidth = columnWidths[columnId] || 100;
+    resizeStateRef.current = {
+      isResizing: true,
+      resizingColumn: columnId,
+      startX: e.clientX,
+      startWidth: currentWidth,
+    };
+    
+    // Add global mouse event listeners
+    const handleMouseMove = (e: MouseEvent) => {
+      const state = resizeStateRef.current;
+      if (!state.isResizing || !state.resizingColumn) return;
+      const diff = e.clientX - state.startX;
+      const newWidth = Math.max(50, state.startWidth + diff); // Minimum width 50px
+      setColumnWidths((prev) => {
+        const updated = {
+          ...prev,
+          [state.resizingColumn!]: newWidth,
+        };
+        // Call callback with updated widths during resize (optional - can be removed if only want final value)
+        // onColumnResize?.(updated);
+        return updated;
+      });
+    };
+
+    const handleMouseUp = () => {
+      resizeStateRef.current = {
+        isResizing: false,
+        resizingColumn: null,
+        startX: 0,
+        startWidth: 0,
+      };
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      
+      // The useEffect will automatically call onColumnResize when columnWidths updates
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }, [enableColumnResize, columnWidths]);
 
   // Process columns for mobile/tablet responsiveness
   const processedColumns = React.useMemo(() => {
@@ -345,13 +498,9 @@ export default function TTable<T extends object>({
     {
       columns: processedColumns,
       data: data ? data : [],
-      //defaultColumn,
-      //autoResetPage: !skipPageReset,
       updateMyData,
       updateMyRow,
       changeRowValues,
-      //options,
-      //setSearchText,
       canEditForm,
       selectedRowIndex,
       setSelectedRowIndex,
@@ -374,18 +523,34 @@ export default function TTable<T extends object>({
               <th
                 {...column.getHeaderProps()}
                 scope="col"
-                className="py-1 text-center font-semibold text-gray-500 uppercase tracking-wider bg-gray-300"
+                className="py-1 text-center font-semibold text-gray-500 uppercase tracking-wider bg-gray-300 relative"
                 key={String(column.id)}
                 style={{
                   borderLeft: column.noLeftBorder
                     ? "none"
                     : "1px solid #D0D0D0",
                   textAlign: column.align ?? "center",
-                  width: column.totalWidth || column.width,
+                  width: enableColumnResize && columnWidths[column.id ?? column.accessor]
+                    ? `${columnWidths[column.id ?? column.accessor]}px`
+                    : column.totalWidth || column.width,
                   backgroundColor: column.backgroundColor ?? colors.gray200,
+                  position: "relative",
                 }}
               >
-                {column.render("Header")}
+                <div className="flex items-center justify-center">
+                  {column.render("Header")}
+                </div>
+                {enableColumnResize && (
+                  <div
+                    onMouseDown={(e) => handleMouseDown(e, column.id ?? column.accessor)}
+                    className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-400 bg-transparent z-10"
+                    style={{
+                      right: "-2px",
+                      width: "4px",
+                    }}
+                    title="کشیدن برای تغییر عرض ستون"
+                  />
+                )}
               </th>
             )
           )}
@@ -440,7 +605,9 @@ export default function TTable<T extends object>({
                       borderLeft: cell.column.noLeftBorder
                         ? "none"
                         : "1px solid #e0e0e0",
-                      width: cell.column.totalWidth || cell.column.width,
+                      width: enableColumnResize && columnWidths[cell.column.id ?? cell.column.accessor]
+                        ? `${columnWidths[cell.column.id ?? cell.column.accessor]}px`
+                        : cell.column.totalWidth || cell.column.width,
                       backgroundColor: (() => {
                         // Priority 1: CellColorChange (if it returns a non-null value)
                         if (

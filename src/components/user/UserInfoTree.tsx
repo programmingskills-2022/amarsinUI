@@ -47,7 +47,7 @@ const UserInfoTree = ({
     },
     {
       header: "فعال",
-      accessor: "isActiveImg",
+      accessor: "isActiveInput",
       width: "5%",
     },
     {
@@ -69,8 +69,11 @@ const UserInfoTree = ({
   };
   //initialize selectedUser when selectedRowIndex changes
   useEffect(() => {
-    setSelectedUser(data[selectedRowIndex]);
-  }, [data, selectedRowIndex]);
+    if (data[selectedRowIndex]) {
+      console.log(data[selectedRowIndex], "selectedUser in UserInfoTree");
+      setSelectedUser(data[selectedRowIndex]);
+    }
+  }, [ selectedRowIndex]);
   return (
     <div
       className="w-full text-sm flex flex-col gap-2 md:overflow-y-auto h-full"

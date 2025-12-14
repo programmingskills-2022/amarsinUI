@@ -50,7 +50,7 @@ const InvoiceReceipShowHeader = ({
     setCusomerField("systemIdCustomerSearch", systemId);
     setCusomerField("yearIdCustomerSearch", yearId);
     setCusomerField("search", cusomerSearchCondition);
-  }, [cusomerSearchCondition, systemId,yearId]);
+  }, [cusomerSearchCondition, systemId, yearId]);
   //for api/Customer/search?search=search&page=1&lastId=0
   /*useEffect(() => {
     setCusomerField("systemIdCustomerSearch", systemId);
@@ -63,7 +63,7 @@ const InvoiceReceipShowHeader = ({
     setBrandField("search", brandsearch);
   }, [brandsearch, systemId]);
   const { brands } = useBrand();
-//for api/Product/salesPricesSearch req
+  //for api/Product/salesPricesSearch req
   useEffect(() => {
     setSalesPriceField("salesPricesSearchSearch", salesPricesearch);
     setSalesPriceField("salesPricesSearchPage", 1);
@@ -102,15 +102,27 @@ const InvoiceReceipShowHeader = ({
             { field: "centerType", value: 0 },
           ]}
           fieldSearch="search"
-          selectedOption={ {id: fields.customer?.id ?? 0, title: fields.customer?.title ?? ""} as DefaultOptionType }
-          setSelectedOption={(newValue: DefaultOptionType) => {
-            setFields((prev: Fields) => ({
-              ...prev,
-              customer: {
-                id: String(newValue.id),
-                title: newValue.title,
-              },
-            }));
+          selectedOption={
+            {
+              id: fields.customer?.id ?? 0,
+              title: fields.customer?.title ?? "",
+            } as DefaultOptionType
+          }
+          setSelectedOption={(newValue: DefaultOptionType | null) => {
+            if (newValue) {
+              setFields((prev: Fields) => ({
+                ...prev,
+                customer: {
+                  id: String(newValue.id),
+                  title: newValue.title,
+                },
+              }));
+            } else {
+              setFields((prev: Fields) => ({
+                ...prev,
+                customer: null,
+              }));
+            }
           }}
           options={customers.map((b) => ({
             id: b.id,

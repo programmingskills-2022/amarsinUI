@@ -184,19 +184,73 @@ export function TableTreeView<T extends TreeItem>({
     return calculateExpandedIds(tree, expandAll, defaultExpandedLevel);
   });
 
+  // Track previous expandAll value to detect prop changes
+  const prevExpandAllRef = React.useRef<boolean | undefined>(expandAll);
+  const prevTreeLengthRef = React.useRef<number>(0);
+  
   // Handle expandAll and tree changes
   useEffect(() => {
-    const newExpandedIds = calculateExpandedIds(
-      tree,
-      expandAll,
-      defaultExpandedLevel
-    );
-    setExpandedIds(newExpandedIds);
+    // Only reset expanded state if expandAll prop explicitly changed
+    // Use strict comparison to properly detect undefined -> false/true transitions
+    const expandAllChanged = prevExpandAllRef.current !== expandAll;
+    const treeHasData = tree.length > 0;
+    const treeJustLoaded = prevTreeLengthRef.current === 0 && treeHasData;
+    prevExpandAllRef.current = expandAll;
+    prevTreeLengthRef.current = tree.length;
+    
+    if (expandAllChanged) {
+      // expandAll prop changed - recalculate expanded state
+      // This works for both expanding (true) and compressing (false)
+      const newExpandedIds = calculateExpandedIds(
+        tree,
+        expandAll,
+        defaultExpandedLevel
+      );
+      // Always create a new Set instance to ensure React detects the state change
+      // This is especially important when collapsing (empty set) to ensure re-render
+      setExpandedIds(new Set(newExpandedIds));
+    } else if (treeJustLoaded && (expandAll === true || (expandAll === undefined && defaultExpandedLevel > 0))) {
+      // Tree just loaded with data and we should expand - recalculate expanded state
+      const newExpandedIds = calculateExpandedIds(
+        tree,
+        expandAll,
+        defaultExpandedLevel
+      );
+      setExpandedIds(new Set(newExpandedIds));
+    } else {
+      // Tree data changed but expandAll didn't - preserve existing expanded state
+      // Only keep expanded IDs that still exist in the new tree
+      setExpandedIds((prev) => {
+        const preserved = new Set<string | number>();
+        const allNodeIds = new Set<string | number>();
+        
+        // Collect all node IDs from the new tree
+        const collectIds = (nodes: TreeNode<T>[]) => {
+          nodes.forEach((node) => {
+            allNodeIds.add(node.id);
+            if (node.children.length > 0) {
+              collectIds(node.children);
+            }
+          });
+        };
+        collectIds(tree);
+        
+        // Preserve expanded IDs that still exist in the new tree
+        prev.forEach((id) => {
+          if (allNodeIds.has(id)) {
+            preserved.add(id);
+          }
+        });
+        
+        return preserved;
+      });
+    }
   }, [expandAll, tree, defaultExpandedLevel, calculateExpandedIds]);
 
   const toggleExpand = useCallback(
     (id: string | number, e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       setExpandedIds((prev) => {
         const next = new Set(prev);
         if (next.has(id)) {
@@ -208,6 +262,25 @@ export function TableTreeView<T extends TreeItem>({
       });
     },
     []
+  );
+  
+  // Handle mouse down to prevent row selection
+  const handleExpandMouseDown = useCallback(
+    (_id: string | number, e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    []
+  );
+  
+  // Handle mouse up to prevent row selection
+  const handleExpandMouseUp = useCallback(
+    (id: string | number, e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      toggleExpand(id, e);
+    },
+    [toggleExpand]
   );
 
   // Flatten tree for rendering based on expanded state
@@ -260,7 +333,7 @@ export function TableTreeView<T extends TreeItem>({
           return (
             <div
               style={{
-                paddingLeft: `${level * 20}px`,
+                paddingLeft: `${level *  20}px`,
                 display: "flex",
                 alignItems: "center",
                 height: "100%",
@@ -270,7 +343,12 @@ export function TableTreeView<T extends TreeItem>({
               {hasChildrenFlag ? (
                 <IconButton
                   size="small"
-                  onClick={(e) => toggleExpand(nodeId, e)}
+                  onMouseDown={(e) => handleExpandMouseDown(nodeId, e)}
+                  onMouseUp={(e) => handleExpandMouseUp(nodeId, e)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                   sx={{
                     padding: "2px",
                     margin: 0,
@@ -317,7 +395,7 @@ export function TableTreeView<T extends TreeItem>({
           try {
             const { row } = props;
             const level = row?.original?._level || 0;
-            const indent = index === 0 ? level * 20 : 0;
+            const indent = index === 0 ? level * (width > 640 ? 20 : 10) : 0;
             return (
               <div
                 style={{
@@ -347,7 +425,7 @@ export function TableTreeView<T extends TreeItem>({
             return (
               <div
                 style={{
-                  paddingRight: `${level * 20}px`,
+                  paddingRight: `${level * (width > 640 ? 20 : 10)}px`,
                   display: "flex",
                   alignItems: "center",
                   minHeight: "28px",
@@ -371,17 +449,6 @@ export function TableTreeView<T extends TreeItem>({
 
     return [expandColumn, ...dataColumns];
   }, [columns, toggleExpand]);
-
-  // Debug logging
-  /*if (process.env.NODE_ENV === 'development') {
-    console.log('TableTreeView render:', {
-      dataLength: data.length,
-      treeLength: tree.length,
-      flattenedRowsLength: flattenedRows.length,
-      tableDataLength: tableData.length,
-      columnsLength: tableColumns.length,
-    });*
-  }*/
 
   const { height, width } = useCalculateTableHeight();
   return (

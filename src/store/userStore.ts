@@ -23,8 +23,43 @@ export const useUserStore = create<userState>()((set) => ({
       },
     },
   },
+  // api/user/disableEnable
+  disableEnableResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { err: "", msg: "" } }, 
+  },
+  // api/user/addRemovePermission
+  addRemovePermissionResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { err: "", msg: "" } },
+  },
+  // api/user/addRemoveChartPermission
+  addRemoveChartPermissionResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { err: "", msg: "" } },
+  },
+  // api/user/addRemoveSystemPermission
+  addRemoveSystemPermissionResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { err: "", msg: "" } },
+  },
+  // api/user/addRemoveSalesPricePermission
+  addRemoveSalesPricePermissionResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { err: "", msg: "" } },
+  },
   setField: (field: string | number | symbol, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setUserListResponse: (userListResponse) => set({ userListResponse }),
   setUserPermsResponse: (userPermsResponse) => set({ userPermsResponse }),
+  setDisableEnableResponse: (disableEnableResponse) =>
+    set({ disableEnableResponse }),
+  setAddRemovePermissionResponse: (addRemovePermissionResponse) =>
+    set({ addRemovePermissionResponse }),
+  setAddRemoveChartPermissionResponse: (addRemoveChartPermissionResponse) =>
+    set({ addRemoveChartPermissionResponse }),
+  setAddRemoveSystemPermissionResponse: (addRemoveSystemPermissionResponse) =>
+    set({ addRemoveSystemPermissionResponse }),
+  setAddRemoveSalesPricePermissionResponse: (addRemoveSalesPricePermissionResponse) =>
+    set({ addRemoveSalesPricePermissionResponse }),
 }));

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
+import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 
 type Props = {
   data: any[];
@@ -17,16 +18,17 @@ interface PermissionData {
 
 const UserPermissionsInfoTree = ({ data, isLoading, isExpanded }: Props) => {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
+  const { width } = useCalculateTableHeight();
   const columns: TableTreeColumn<PermissionData>[] = [
     {
       header: ".",
       accessor: "nam",
-      width: "92%",
+      width: width > 640 ? "92%" : "90%",
     },
     {
       header: ".",
       accessor: "checkedInput",
-      width: "8%",
+      width: width > 640 ? "8%" : "10%",
     },
   ];
   const handleRowClick = (permission: PermissionData) => {

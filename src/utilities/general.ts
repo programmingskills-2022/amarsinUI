@@ -281,3 +281,49 @@ export function normalizeInputForSearch(input: string): string {
     .replace(/\s+/g, ' ') 
     .trim();
 }
+////////////////////////////////////////////////////////////
+// Convert pixel widths to percentage widths for table columns
+// Only considers visible columns when calculating percentages
+export function convertPixelWidthsToPercentages(
+  pixelWidths: Record<string, number>,
+  columns: Array<{ id?: string; accessor?: string; visible?: boolean; columns?: any[] }>,
+  currentColumnWidths: Record<string, number>
+): Record<string, number> {
+  const percentageWidths: Record<string, number> = {};
+  
+  // Flatten columns (handle ColumnGroup with nested columns)
+  const flatColumns = columns.flatMap((col) => {
+    // If it's a ColumnGroup, use its nested columns
+    if ('columns' in col && Array.isArray(col.columns)) {
+      return col.columns;
+    }
+    // Otherwise, it's a Column
+    return [col];
+  });
+  
+  // Get visible columns to only convert visible ones
+  const visibleColumnIds = flatColumns
+    .filter((col) => col.visible !== false)
+    .map((col) => col.id ?? col.accessor)
+    .filter((id): id is string => id !== undefined);
+  
+  // Calculate total visible width in pixels
+  const totalVisiblePixels = visibleColumnIds.reduce((sum, colId) => {
+    return sum + (pixelWidths[colId] || 0);
+  }, 0);
+  
+  // Convert to percentages based on visible columns only
+  Object.keys(pixelWidths).forEach((key) => {
+    if (visibleColumnIds.includes(key)) {
+      // Convert based on visible columns total
+      percentageWidths[key] = totalVisiblePixels > 0
+        ? (pixelWidths[key] / totalVisiblePixels) * 100
+        : 0;
+    } else {
+      // Keep invisible columns as they were (they might not be in pixelWidths)
+      percentageWidths[key] = currentColumnWidths[key] || 0;
+    }
+  });
+  
+  return percentageWidths;
+}

@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { TableTreeView, TableTreeColumn } from "../controls/TableTreeView";
+import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 
 type Props = {
   data: any[];
@@ -15,17 +15,18 @@ interface usrChartsPermData {
 }
 
 const UserPermissionsChartTree = ({ data, isLoading }: Props) => {
-    const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0);
+  const { width } = useCalculateTableHeight();
   const columns: TableTreeColumn<usrChartsPermData>[] = [
     {
       header: ".",
       accessor: "name",
-      width: "92%",
+      width: width > 640 ? "92%" : "80%",
     },
     {
       header: ".",
       accessor: "checkedInput",
-      width: "8%",
+      width: width > 640 ? "8%" : "10%",
     },
   ];
   const handleRowClick = (systemUserPerm: any) => {

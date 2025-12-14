@@ -82,12 +82,21 @@ const WarehouseShowHeader = ({
             { field: "centerType", value: 0 },
           ]}
           fieldSearch="search"
-          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
-          setSelectedOption={(newValue: DefaultOptionType) => {
-            setCustomer({
-              id: String(newValue.id),
-              title: newValue.title,
-            });
+          selectedOption={
+            {
+              id: customer?.id ?? 0,
+              title: customer?.title ?? "",
+            } as DefaultOptionType
+          }
+          setSelectedOption={(newValue: DefaultOptionType | null) => {
+            if (newValue) {
+              setCustomer({
+                id: String(newValue.id),
+                title: newValue.title,
+              });
+            } else {
+              setCustomer(null);
+            }
           }}
           options={customers.map((b) => ({
             id: b.id,

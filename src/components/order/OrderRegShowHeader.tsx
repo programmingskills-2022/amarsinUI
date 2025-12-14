@@ -91,11 +91,15 @@ const OrderRegShowHeader = ({
           ]}
           fieldSearch="search"
           selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
-          setSelectedOption={(newValue: DefaultOptionType) => {
-            setCustomer({
-              id: newValue.id,
-              title: newValue.title,
-            });
+          setSelectedOption={(newValue: DefaultOptionType | null) => {
+            if (newValue) {
+              setCustomer({
+                id: newValue.id,
+                title: newValue.title,
+              });
+            } else {
+              setCustomer(null);
+            }
           }}
           options={customers.map((b) => ({
             id: b.id,

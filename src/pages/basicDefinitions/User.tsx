@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import PageTitle from "../../components/layout/PageTitle";
 import UserHeader from "../../components/user/UserHeader";
 import UserInfo from "../../components/user/UserInfo";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import useUserList from "../../hooks/useUser";
-import { SystemUserPerms, UsrChartsPerms } from "../../types/user";
+import {
+  DisableEnableRequest,
+  SystemUserPerms,
+  UsrChartsPerms,
+} from "../../types/user";
 import { useUserStore } from "../../store/userStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 import UserPermissions from "../../components/user/UserPermissions";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -30,15 +35,31 @@ export default function User({ definitionInvironment }: Props) {
     errorUserPerms,
     refetchUserList,
     refetchUserPerms,
+    disableEnable,
+    isLoadingDisableEnable,
+    disableEnableResponse,
+    addRemovePermission,
+    isLoadingAddRemovePermission,
+    addRemovePermissionResponse,
+    addRemoveChartPermission,
+    isLoadingAddRemoveChartPermission,
+    addRemoveChartPermissionResponse,
+    addRemoveSystemPermission,
+    isLoadingAddRemoveSystemPermission,
+    addRemoveSystemPermissionResponse,
+    addRemoveSalesPricePermission,
+    isLoadingAddRemoveSalesPricePermission,
+    addRemoveSalesPricePermissionResponse,
   } = useUserList();
   const { setField: setPermissionField } = useUserStore();
   const { systemId } = useGeneralContext();
   const { usrId } = useGeneralContext();
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isDisableEnableModalOpen, setIsDisableEnableModalOpen] =
+    useState(false);
   ////////////////////////////////////////////////////////
   // api/User/userPerms?SystemId=4&DestUsrId=0
   useEffect(() => {
-    console.log(selectedUser, "selectedUser");
     setPermissionField("systemId", systemId);
     setPermissionField("destUsrId", selectedUser?.id || usrId);
   }, [systemId, usrId, selectedUser]);
@@ -56,6 +77,13 @@ export default function User({ definitionInvironment }: Props) {
   }, [isLoadingUserList, errorUserList, userListResponse]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
+    if (userListResponse.data.result.users.length === 0) {
+      setPermissions([]);
+      setSystemUserPerms([]);
+      setUsrChartsPerms([]);
+      setSalesPriceUserPerms([]);
+      return;
+    }
     const tempData: any[] = userPermsResponse.data.result.permissions.map(
       (permission: any) => {
         return {
@@ -84,11 +112,53 @@ export default function User({ definitionInvironment }: Props) {
       }
     );
     setUsrChartsPerms(tempData3);
-    setSalesPriceUserPerms(userPermsResponse.data.result.salesPriceUserPerms);    
-  }, [isLoadingUserPerms, errorUserPerms, userPermsResponse]);
+    setSalesPriceUserPerms(userPermsResponse.data.result.salesPriceUserPerms);
+  }, [isLoadingUserPerms, errorUserPerms, userPermsResponse,userListResponse]);
   ////////////////////////////////////////////////////////
+  const handleUserActiveChange = async (
+    userId: number,
+    setCurrentUserId: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    //let active = true;
+    const backupUsers = [...users];
+    setUsers((prev: any) => {
+      return prev.map((item: any) => {
+        if (item.id === userId) {
+          return { ...item, active: !item.active };
+        }
+        return item;
+      });
+    });
+    // for api/user/disableEnable
+    setCurrentUserId(userId);
+    const active = !users.find((item: any) => item.id === userId)?.active;
+    const request: DisableEnableRequest = {
+      userId,
+      active,
+      sourceCall: "web",
+      idempotencyKey: uuidv4(),
+    };
+    console.log(request, "request");
+    try {
+      const response = await disableEnable(request);
+      // Check error using the response directly, not the state
+      if (response.meta.errorCode > 0) {
+        console.log("error occured");
+        console.log(response, "disableEnableResponse");
+        //means error occured - restore previous state
+        setUsers(backupUsers);
+      }
+    } catch (error) {
+      // Handle network/request errors
+      console.log("error occured", error);
+      setUsers(backupUsers);
+    }
+    setIsDisableEnableModalOpen(true);
+  };
+  ////////////////////////////////////////////////////////
+
   return (
-    <div className="w-full h-[calc(100vh-50px)] flex flex-col bg-gray-200 pt-2">
+    <div className="w-full h-full md:h-[calc(100vh-50px)] flex flex-col bg-gray-200 pt-2">
       {/* Top blue header */}
       <header className="flex flex-col md:flex-row items-center justify-between border-b-2 border-gray-300">
         <PageTitle definitionInvironment={definitionInvironment} />
@@ -103,11 +173,17 @@ export default function User({ definitionInvironment }: Props) {
       {/* Sub-header */}
 
       {/* Main content */}
-      <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-center gap-2">
+      <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-start md:gap-2 text-xs md:text-sm">
         <UserInfo
           users={users}
           isLoading={isLoadingUserList}
           setSelectedUser={setSelectedUser}
+          onUserActiveChange={handleUserActiveChange}
+          isLoadingDisableEnable={isLoadingDisableEnable}
+          disableEnableResponse={disableEnableResponse}
+          isDisableEnableModalOpen={isDisableEnableModalOpen}
+          setIsDisableEnableModalOpen={setIsDisableEnableModalOpen}
+          //CheckAndReturnActiveToFormerState={CheckAndReturnActiveToFormerState}
         />
         <UserPermissions
           permissions={permissions}
@@ -115,6 +191,19 @@ export default function User({ definitionInvironment }: Props) {
           usrChartsPerms={usrChartsPerms}
           salesPriceUserPerms={salesPriceUserPerms}
           isLoading={isLoadingUserPerms}
+          isLoadingAddRemovePermission={isLoadingAddRemovePermission}
+          addRemovePermission={addRemovePermission}
+          selectedUser={selectedUser}
+          addRemovePermissionResponse={addRemovePermissionResponse}
+          isLoadingAddRemoveChartPermission={isLoadingAddRemoveChartPermission}
+          addRemoveChartPermission={addRemoveChartPermission}
+          addRemoveChartPermissionResponse={addRemoveChartPermissionResponse}
+          isLoadingAddRemoveSystemPermission={isLoadingAddRemoveSystemPermission}
+          addRemoveSystemPermission={addRemoveSystemPermission}
+          addRemoveSystemPermissionResponse={addRemoveSystemPermissionResponse}
+          isLoadingAddRemoveSalesPricePermission={isLoadingAddRemoveSalesPricePermission}
+          addRemoveSalesPricePermission={addRemoveSalesPricePermission}
+          addRemoveSalesPricePermissionResponse={addRemoveSalesPricePermissionResponse}
         />
       </main>
 

@@ -24,7 +24,6 @@ export function useBanks() {
       }&search=${encodeURIComponent(search ?? "")}`;
       console.log(url, "url");
       const response = await api.get(url);
-      console.log(url, response.data, "url,response.data in bankSearch");
 
       return response.data;
     },
