@@ -1,18 +1,20 @@
-import {
-  convertToLatinDigits,
-} from "../../utilities/general";
+import { convertToLatinDigits } from "../../utilities/general";
 import Skeleton from "../layout/Skeleton";
 import TTable from "../controls/TTable";
-import { DefaultOptionType, SearchItem, TableColumns } from "../../types/general";
+import {
+  DefaultOptionType,
+  SearchItem,
+  TableColumns,
+} from "../../types/general";
 import OrderRegShowTableHeader from "./OrderRegShowTableHeader";
 import { colors } from "../../utilities/color";
-import {   useState } from "react";
+import { useState } from "react";
 import { WarehouseSearchResponse } from "../../types/warehouse";
 
 type Props = {
   processedData: any[];
   isLoadingOrderRegShow: boolean;
-  warehouse:DefaultOptionType | null;
+  warehouse: DefaultOptionType | null;
   salesPrice: DefaultOptionType | null;
   columns: TableColumns;
   setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
@@ -34,19 +36,22 @@ const OrderRegShowTable = ({
   changeSalesPrice,
   changeWarehouse,
   salesPricesSearchResponse,
-  warehouseSearchResponse
+  warehouseSearchResponse,
 }: Props) => {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in orderRegShowTable table
   //////////////////////////////////////////////////////////////
   const handleCellColorChange = (row: any, columnId: string): string | null => {
     const colsInfo = row.cells;
+    const isEqualOfferNo = Number(convertToLatinDigits(colsInfo?.[5]?.value ?? 0)) === Number(convertToLatinDigits(colsInfo?.[8]?.value ?? 0));
     const cntOfferSumReg =
       Number(convertToLatinDigits(colsInfo?.[4]?.value ?? 0)) +
       Number(convertToLatinDigits(colsInfo?.[5]?.value ?? 0));
     const cntOfferSumOrder =
       Number(convertToLatinDigits(colsInfo?.[16]?.value ?? 0)) +
       Number(convertToLatinDigits(colsInfo?.[17]?.value ?? 0));
-    if (
+    if ((columnId === "oCnt" || columnId === "offerNo") && !isEqualOfferNo) {
+      return colors.red200;
+    } else if (
       cntOfferSumReg !== cntOfferSumOrder &&
       (columnId === "cupCode" ||
         columnId === "cupEDate" ||

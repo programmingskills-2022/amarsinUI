@@ -24,7 +24,7 @@ type Props = {
   salesPrice: DefaultOptionType | null;
   warehouse: DefaultOptionType | null;
   salesPricesSearchResponse: SearchItem[];
-  warehouseSearchResponse: WarehouseSearchResponse
+  warehouseSearchResponse: WarehouseSearchResponse;
   setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
   setWarehouseSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
@@ -49,7 +49,7 @@ const OrderRegShowHeader = ({
   setSalesPriceSearch,
   setWarehouseSearch,
   changeSalesPrice,
-  changeWarehouse
+  changeWarehouse,
 }: Props) => {
   const { systemId, yearId } = useGeneralContext();
   const { customers } = useCustomers();
@@ -81,34 +81,44 @@ const OrderRegShowHeader = ({
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-        <AutoCompleteSearch
-          label="خریدار"
-          labelWidth="w-16"
-          setField={setCustomerField}
-          fieldValues={[
-            { field: "systemIdCustomerSearch", value: systemId },
-            { field: "yearIdCustomerSearch", value: yearId },
-          ]}
-          fieldSearch="search"
-          selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
-          setSelectedOption={(newValue: DefaultOptionType | null) => {
-            if (newValue) {
-              setCustomer({
-                id: newValue.id,
-                title: newValue.title,
-              });
-            } else {
-              setCustomer(null);
+        <div className="w-full md:w-3/4 flex justify-center items-center">
+          <AutoCompleteSearch
+            label="خریدار"
+            labelWidth="w-16"
+            setField={setCustomerField}
+            fieldValues={[
+              { field: "systemIdCustomerSearch", value: systemId },
+              { field: "yearIdCustomerSearch", value: yearId },
+            ]}
+            fieldSearch="search"
+            selectedOption={
+              {
+                id: customer?.id ?? 0,
+                title: customer?.title ?? "",
+              } as DefaultOptionType
             }
-          }}
-          options={customers.map((b) => ({
-            id: b.id,
-            text: b.text,
-          }))}
-          isEntered={isCustomerEntered}
-          setIsEntered={setIsCustomerEntered}
-          disabled={!canEditForm1Mst1}
-        />
+            setSelectedOption={(newValue: DefaultOptionType | null) => {
+              if (newValue) {
+                setCustomer({
+                  id: newValue.id,
+                  title: newValue.title,
+                });
+              } else {
+                setCustomer(null);
+              }
+            }}
+            options={customers.map((b) => ({
+              id: b.id,
+              text: b.text,
+            }))}
+            isEntered={isCustomerEntered}
+            setIsEntered={setIsCustomerEntered}
+            disabled={!canEditForm1Mst1}
+          />
+          {orderRegShowResponse.data.result.orderMst?.blackList ? (
+            <p className="text-red-500 w-20 p-1">لیست سیاه</p>
+          ) : null}
+        </div>
         {/*<div className="w-full md:w-3/4 flex justify-center items-center">
           <label className="p-1 w-20 text-left">خریدار:</label>
           <div className="bg-slate-50 flex w-full rounded-md">

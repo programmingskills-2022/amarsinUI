@@ -87,7 +87,7 @@ const AutoCompleteSearch = ({
             title: convertToFarsiDigits(selectedOption?.title ?? ""),
           }}
           handleChange={
-            handleChange !== undefined
+            handleChange !== undefined && setSelectedOption === undefined
               ? (_event, newValue) =>
                   handleChange(_event, newValue as DefaultOptionType | null)
               : (_event, newValue) => {

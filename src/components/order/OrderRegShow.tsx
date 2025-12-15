@@ -149,6 +149,7 @@ const OrderRegShow = ({
           accessor: "offerNo",
           width: "5%",
           backgroundColor: colors.orang100,
+          except: true,
         },
         {
           Header: "موجودی پخش",

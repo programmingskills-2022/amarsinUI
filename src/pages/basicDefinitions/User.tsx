@@ -1,7 +1,7 @@
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PageTitle from "../../components/layout/PageTitle";
-import UserHeader from "../../components/user/UserHeader";
-import UserInfo from "../../components/user/UserInfo";
+import UserHeader from "../../components/user/userMainForm/UserHeader";
+import UserInfo from "../../components/user/userMainForm/UserInfo";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import useUserList from "../../hooks/useUser";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../../types/user";
 import { useUserStore } from "../../store/userStore";
 import { useGeneralContext } from "../../context/GeneralContext";
-import UserPermissions from "../../components/user/UserPermissions";
+import UserPermissions from "../../components/user/userMainForm/UserPermissions";
 import { v4 as uuidv4 } from "uuid";
 
 type Props = {
@@ -57,12 +57,17 @@ export default function User({ definitionInvironment }: Props) {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDisableEnableModalOpen, setIsDisableEnableModalOpen] =
     useState(false);
+  const [isSelectUserModalOpen, setIsSelectUserModalOpen] = useState(false);
+  const [isCloseSelectUserModal, setIsCloseSelectUserModal] = useState(false);
   ////////////////////////////////////////////////////////
   // api/User/userPerms?SystemId=4&DestUsrId=0
   useEffect(() => {
-    setPermissionField("systemId", systemId);
-    setPermissionField("destUsrId", selectedUser?.id || usrId);
-  }, [systemId, usrId, selectedUser]);
+    if (!isSelectUserModalOpen && !isCloseSelectUserModal) { // if not show select user form
+      console.log("set permission field");
+      setPermissionField("systemId", systemId);
+      setPermissionField("destUsrId", selectedUser?.id || usrId);
+    }
+  }, [systemId, usrId, selectedUser, isSelectUserModalOpen, isCloseSelectUserModal]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
     const tempData1: any[] = userListResponse.data.result.users.map(
@@ -113,7 +118,7 @@ export default function User({ definitionInvironment }: Props) {
     );
     setUsrChartsPerms(tempData3);
     setSalesPriceUserPerms(userPermsResponse.data.result.salesPriceUserPerms);
-  }, [isLoadingUserPerms, errorUserPerms, userPermsResponse,userListResponse]);
+  }, [isLoadingUserPerms, errorUserPerms, userPermsResponse, userListResponse]);
   ////////////////////////////////////////////////////////
   const handleUserActiveChange = async (
     userId: number,
@@ -168,43 +173,70 @@ export default function User({ definitionInvironment }: Props) {
           users={users}
           refetchUserList={refetchUserList}
           refetchUserPerms={refetchUserPerms}
+          isLoadingUserList={isLoadingUserList}
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+          handleUserActiveChange={handleUserActiveChange}
+          isLoadingDisableEnable={isLoadingDisableEnable}
+          disableEnableResponse={disableEnableResponse}
+          isDisableEnableModalOpen={isDisableEnableModalOpen}
+          setIsDisableEnableModalOpen={setIsDisableEnableModalOpen}
+          isSelectUserModalOpen={isSelectUserModalOpen} // true for show select user form, false for show user info form
+          setIsSelectUserModalOpen={setIsSelectUserModalOpen}
+          setIsCloseSelectUserModal={setIsCloseSelectUserModal}//to control not sending systemId and destUsrId when close select user modal
         />
       </header>
       {/* Sub-header */}
 
       {/* Main content */}
       <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-start md:gap-2 text-xs md:text-sm">
-        <UserInfo
-          users={users}
-          isLoading={isLoadingUserList}
-          setSelectedUser={setSelectedUser}
-          onUserActiveChange={handleUserActiveChange}
-          isLoadingDisableEnable={isLoadingDisableEnable}
-          disableEnableResponse={disableEnableResponse}
-          isDisableEnableModalOpen={isDisableEnableModalOpen}
-          setIsDisableEnableModalOpen={setIsDisableEnableModalOpen}
-          //CheckAndReturnActiveToFormerState={CheckAndReturnActiveToFormerState}
-        />
-        <UserPermissions
-          permissions={permissions}
-          systemUserPerms={systemUserPerms}
-          usrChartsPerms={usrChartsPerms}
-          salesPriceUserPerms={salesPriceUserPerms}
-          isLoading={isLoadingUserPerms}
-          isLoadingAddRemovePermission={isLoadingAddRemovePermission}
-          addRemovePermission={addRemovePermission}
-          selectedUser={selectedUser}
-          addRemovePermissionResponse={addRemovePermissionResponse}
-          isLoadingAddRemoveChartPermission={isLoadingAddRemoveChartPermission}
-          addRemoveChartPermission={addRemoveChartPermission}
-          addRemoveChartPermissionResponse={addRemoveChartPermissionResponse}
-          isLoadingAddRemoveSystemPermission={isLoadingAddRemoveSystemPermission}
-          addRemoveSystemPermission={addRemoveSystemPermission}
-          addRemoveSystemPermissionResponse={addRemoveSystemPermissionResponse}
-          isLoadingAddRemoveSalesPricePermission={isLoadingAddRemoveSalesPricePermission}
-          addRemoveSalesPricePermission={addRemoveSalesPricePermission}
-          addRemoveSalesPricePermissionResponse={addRemoveSalesPricePermissionResponse}
-        />
+        <div className="w-1/2 h-full">
+          <UserInfo
+            users={users}
+            isLoading={isLoadingUserList}
+            setSelectedUser={setSelectedUser}
+            onUserActiveChange={handleUserActiveChange}
+            isLoadingDisableEnable={isLoadingDisableEnable}
+            disableEnableResponse={disableEnableResponse}
+            isDisableEnableModalOpen={isDisableEnableModalOpen}
+            setIsDisableEnableModalOpen={setIsDisableEnableModalOpen}
+            isShowSelectUserForm={false}
+            //setIsShowSelectUserForm={setIsSelectUserModalOpen}
+            //setIsCloseSelectUserModal={setIsCloseSelectUserModal}//to control not sending systemId and destUsrId when close select user modal
+          />
+        </div>
+        <div className="w-1/2 h-full flex flex-col">
+          <UserPermissions
+            permissions={permissions}
+            systemUserPerms={systemUserPerms}
+            usrChartsPerms={usrChartsPerms}
+            salesPriceUserPerms={salesPriceUserPerms}
+            isLoading={isLoadingUserPerms}
+            isLoadingAddRemovePermission={isLoadingAddRemovePermission}
+            addRemovePermission={addRemovePermission}
+            selectedUser={selectedUser}
+            addRemovePermissionResponse={addRemovePermissionResponse}
+            isLoadingAddRemoveChartPermission={
+              isLoadingAddRemoveChartPermission
+            }
+            addRemoveChartPermission={addRemoveChartPermission}
+            addRemoveChartPermissionResponse={addRemoveChartPermissionResponse}
+            isLoadingAddRemoveSystemPermission={
+              isLoadingAddRemoveSystemPermission
+            }
+            addRemoveSystemPermission={addRemoveSystemPermission}
+            addRemoveSystemPermissionResponse={
+              addRemoveSystemPermissionResponse
+            }
+            isLoadingAddRemoveSalesPricePermission={
+              isLoadingAddRemoveSalesPricePermission
+            }
+            addRemoveSalesPricePermission={addRemoveSalesPricePermission}
+            addRemoveSalesPricePermissionResponse={
+              addRemoveSalesPricePermissionResponse
+            }
+          />
+        </div>
       </main>
 
       {/* Footer */}

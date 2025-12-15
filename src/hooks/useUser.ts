@@ -66,7 +66,7 @@ export function useUserList() {
         systemId,
         destUsrId,
       };
-
+      console.log(params, "params");
       const url: string = `/api/User/userPerms?SystemId=${params.systemId}&DestUsrId=${params.destUsrId}`;
       console.log(url, "url");
       const response = await api.get(url);

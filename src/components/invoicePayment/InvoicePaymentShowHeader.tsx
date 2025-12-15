@@ -8,6 +8,7 @@ import {
   convertToPersianDate,
   currencyStringToNumber,
   handleCurrencyInputChange,
+  parsePersianDateString,
 } from "../../utilities/general";
 import {
   InvoicePaymentResponse,
@@ -109,14 +110,15 @@ const InvoicePaymentShowHeader = ({
   const { setField: setCusomerField } = useCustomerStore();
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
   const [isCustomerEntered, setIsCustomerEntered] = useState(false);
-  const [dat, setDat] = useState<string>("");
+  const [dat, setDat] = useState<Date | null>(null);
   const [payKind, setPayKind] = useState<number>(0);
   const [dsc, setDsc] = useState<string>(""); // توضیحات
   const [amnt, setAmnt] = useState<string>("");
   //برای نحوه پرداخت
-  const [paymentKind, setPaymentKind] = useState<DefaultOptionType | null>(
-    null
-  );
+  const [paymentKind, setPaymentKind] = useState<DefaultOptionType | null>({
+    id: 9,
+    title: "واریز به/ برداشت از حساب",
+  });
   const [isPaymentKindEntered, setIsPaymentKindEntered] = useState(false);
   const { setField: setBankAccountField } = useBankAccountStore();
   const { paymentKinds } = usePayment();
@@ -135,7 +137,7 @@ const InvoicePaymentShowHeader = ({
       id: invoicePaymentResponse.data.result.customerId,
       title: invoicePaymentResponse.data.result.srName,
     });
-    setDat(invoicePaymentResponse.data.result.dat);
+    setDat(parsePersianDateString(invoicePaymentResponse.data.result.dat) ?? null);
     const findPaymentKind = paymentKinds.find((b) => b.id === 9);
     if (findPaymentKind)
       setPaymentKind({
@@ -225,12 +227,11 @@ const InvoicePaymentShowHeader = ({
   }, [systemId, cashPosSystemSearchString]); */
   //initial payment kind search params for api/Payment/KindSearch?search=%D8%B3&page=1&lastId=0
   //برای نحوه پرداخت
-  /*useEffect(() => {
-    console.log(paymentKindSearch, "paymentKindSearch");
-    setPaymentField("paymentKindSearch", paymentKindSearch);
+  useEffect(() => {
+    setPaymentField("paymentKindSearch", "");
     setPaymentField("paymentKindSearchPage", 1);
     setPaymentField("paymentKindSearchLastId", 0);
-  }, [paymentKindSearch]);*/
+  }, []);
 
   //for api/Customer/search?search=search&page=1&lastId=0
   //برای طرف حساب
@@ -317,6 +318,7 @@ const InvoicePaymentShowHeader = ({
       cash_Pos = bankAccount?.id ?? 0;
     }
     request = {
+      dat: dat !== null ? convertToPersianDate(dat) : "",
       customerId: customer?.id ?? 0,
       invoiceId,
       paymentId: 0,
@@ -702,13 +704,14 @@ const InvoicePaymentShowHeader = ({
           />
           <label htmlFor="payKind">پرداخت</label>
         </div>
-        <div className="w-full md:w-1/4 flex">
+        <div className="w-full md:w-1/4 flex justify-center items-center">
           <label className="p-1 w-20 md:w-12 text-left">تاریخ:</label>
-          <input
-            type="text"
-            value={convertToFarsiDigits(dat)}
-            disabled={!canEditForm}
-            className="text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md"
+          <PersianDatePicker
+            name="fDate"
+            label="تا:"
+            value={dat}
+            fontSize="text-sm"
+            onChange={(event) => setDat(event.target.value as Date | null)}
           />
         </div>
       </div>
