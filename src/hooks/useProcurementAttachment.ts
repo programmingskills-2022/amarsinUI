@@ -77,13 +77,16 @@ export function useProcurementAttachment() {
       formData: FormData;
       params: URLSearchParams;
     }) => {
+      console.log(payload, "payload");
       const response = await api.post(
         `/api/ProcurementAttachment/upload?${payload.params.toString()}`,
-        payload.formData
+        payload.formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-      //queryClient.refetchQueries({
-      //  queryKey: ["attachments", { formId, prefix, GUID }],
-      //});
       return response.data;
     },
     onSuccess: (data: any) => {

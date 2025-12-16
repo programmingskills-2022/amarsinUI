@@ -241,18 +241,7 @@ const PreProcurementAttachment = ({
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        console.error("Invalid file type. Please select an image.");
-        return;
-      }
-
-      // Create preview (optional)
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        console.log("Preview URL:", event.target?.result);
-      };
-      reader.readAsDataURL(file);
-
+      console.log(file, "file in handleFileChange");  
       // Upload logic
       const formData = new FormData();
       formData.append("img", file); // Keep file in FormData
@@ -299,7 +288,6 @@ const PreProcurementAttachment = ({
           multiple
           style={{ display: "none" }}
           onChange={handleFileChange}
-          accept="image/*"
         />
         <div
           className="flex flex-col items-center cursor-pointer border-2 hover:font-bold hover:bg-gray-300 rounded-md p-1"

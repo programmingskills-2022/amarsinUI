@@ -64,6 +64,7 @@ interface ProductPermListItem extends ProductItem {
   np: boolean; //primary value
   npo: boolean;
   npCk: JSX.Element | null;
+  npoCk: JSX.Element | null;
 }
 
 export interface ProductPermListItemTable extends ProductPermListItem {

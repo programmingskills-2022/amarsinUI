@@ -7,6 +7,7 @@ import {
   InventoryDetailResponse,
   InventoryUpdateIssueRequest,
   InventoryUpdateCostRequest,
+  InventoryProductFlowResponse,
 } from "../types/inventory";
 
 export function useInventory() {
@@ -16,9 +17,11 @@ export function useInventory() {
     brandId,
     setInventoryList,
     id,
-    setInventoryDetailResponse,//for api/Inventory/detail
-    setInventoryUpdateIssueResponse,//for api/Inventory/updateIssue
+    dId,//for api/Inventory/productFlow
+    setInventoryDetailResponse, //for api/Inventory/detail
+    setInventoryUpdateIssueResponse, //for api/Inventory/updateIssue
     setInventoryUpdateCostResponse, //for api/Inventory/updateCost
+    setInventoryProductFlowResponse, //for api/Inventory/productFlow
   } = useInventoryStore();
 
   const query = useQuery<InventoryList, Error, InventoryList, unknown[]>({
@@ -34,7 +37,7 @@ export function useInventory() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: accSystem!==-1  && accYear!==-1 && brandId!==-1, // Only fetch if params are available
+    enabled: accSystem !== -1 && accYear !== -1 && brandId !== -1, // Only fetch if params are available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
@@ -56,7 +59,7 @@ export function useInventory() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: id!==-1,
+    enabled: id !== -1,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     onSuccess: (data: any) => {
@@ -87,6 +90,27 @@ export function useInventory() {
       setInventoryUpdateCostResponse(data);
     },
   });
+  // for api/Inventory/productFlow?DId=5267
+  const inventoryProductFlowQuery = useQuery<
+    InventoryProductFlowResponse,
+    Error,
+    InventoryProductFlowResponse,
+    unknown[]
+  >({
+    queryKey: ["inventoryProductFlow", dId],
+    queryFn: async () => {
+      const url: string = `/api/Inventory/productFlow?DId=${dId}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      return response.data;
+    },
+    enabled: dId !== -1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    onSuccess: (data: any) => {
+      setInventoryProductFlowResponse(data);
+    },
+  } as UseQueryOptions<InventoryProductFlowResponse, Error, InventoryProductFlowResponse, unknown[]>);
   return {
     //getInventoryList: () => query.refetch(), // Optional manual trigger
     isLoading: query.isLoading,
@@ -124,7 +148,7 @@ export function useInventory() {
     inventoryUpdateIssue: InventoryUpdateIssue.mutateAsync,
     isLoadingInventoryUpdateIssue: InventoryUpdateIssue.isPending,
     errorInventoryUpdateIssue: InventoryUpdateIssue.error,
-    inventoryUpdateIssueResponse: InventoryUpdateIssue.data ?? {  
+    inventoryUpdateIssueResponse: InventoryUpdateIssue.data ?? {
       meta: { errorCode: 0, message: "", type: "" },
       data: { result: { id: 0, err: 0, msg: "", hasFlow: false, systemId: 0 } },
     },
@@ -133,9 +157,17 @@ export function useInventory() {
     inventoryUpdateCost: InventoryUpdateCost.mutateAsync,
     isLoadingInventoryUpdateCost: InventoryUpdateCost.isPending,
     errorInventoryUpdateCost: InventoryUpdateCost.error,
-    inventoryUpdateCostResponse: InventoryUpdateCost.data ?? {  
+    inventoryUpdateCostResponse: InventoryUpdateCost.data ?? {
       meta: { errorCode: 0, message: "", type: "" },
       data: { result: { id: 0, err: 0, msg: "", hasFlow: false, systemId: 0 } },
+    },
+    //for api/Inventory/productFlow
+    inventoryProductFlow: inventoryProductFlowQuery.refetch,
+    isLoadingInventoryProductFlow: inventoryProductFlowQuery.isLoading,
+    errorInventoryProductFlow: inventoryProductFlowQuery.error,
+    inventoryProductFlowResponse: inventoryProductFlowQuery.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [] },
     },
   };
 }

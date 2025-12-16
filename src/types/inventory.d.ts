@@ -83,12 +83,35 @@ interface InventoryUpdateCostRequest {
   cost: string;
 }
 //response is in line 76
+
+//api/Inventory/productFlow?DId=5267
+export interface InventoryProductFlowResponse {
+  meta: Meta;
+  data: InventoryProductFlowData;
+}
+export interface InventoryProductFlowData {
+  result: InventoryProductFlowItem[];
+}
+export interface InventoryProductFlowItem {
+  id: number;
+  strFrm: string;
+  code: string;
+  dat: string;      // date in format "YYYY/MM/DD" or "YYYY/MM/DD" with Persian calendar
+  srName: string;
+  iocId: number;
+  cupCode: string;
+  cnt: number;
+  cost: number;
+  tCost: number;
+}
 export interface InventoryState extends InventoryGoodListRequest {
+  dId: number; //for api/Inventory/productFlow
   inventoryList: InventoryList;
   id: number; // for Inventory/detail
   inventoryDetailResponse: InventoryDetailResponse; //for Inventory/detail
   inventoryUpdateIssueResponse: InventoryUpdateResponse; //for api/Inventory/updateIssue
   inventoryUpdateCostResponse: InventoryUpdateResponse; //for api/Inventory/updateCost
+  inventoryProductFlowResponse: InventoryProductFlowResponse; //for api/Inventory/productFlow
   setField: (field: string, value: any) => void;
   setInventoryList: (inventoryList: InventoryList) => void;
   setInventoryDetailResponse: (
@@ -100,4 +123,7 @@ export interface InventoryState extends InventoryGoodListRequest {
   setInventoryUpdateCostResponse: (
     inventoryUpdateCostResponse: InventoryUpdateResponse
   ) => void; //for api/Inventory/updateCost
+  setInventoryProductFlowResponse: (
+    inventoryProductFlowResponse: InventoryProductFlowResponse
+  ) => void; //for api/Inventory/productFlow
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaCircle } from "react-icons/fa";
 import {
   InventoryDetailResponse,
+  InventoryProductFlowResponse,
   InventoryUpdateCostRequest,
   InventoryUpdateIssueRequest,
 } from "../../../types/inventory";
@@ -18,6 +19,9 @@ import Card from "../../controls/Card";
 import { InputElement } from "../../controls/InputElement";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import Ok from "../../../assets/images/GrayThem/ok16.png";
+import ModalForm from "../../layout/ModalForm";
+import InventoryProductFlowShow from "./InventoryProductFlowShow";
+import { useInventoryStore } from "../../../store/inventoryStore";
 
 type Props = {
   inventoryDetailShowResponse: InventoryDetailResponse;
@@ -35,6 +39,8 @@ type Props = {
   >;
   setIsModalOpenCost: (value: boolean) => void;
   setIsModalOpenIssue: (value: boolean) => void;
+  inventoryProductFlowResponse: InventoryProductFlowResponse;
+  isLoading: boolean; //is loading inventory product flow
 };
 
 const InventoryDetailShowHeader = ({
@@ -43,7 +49,10 @@ const InventoryDetailShowHeader = ({
   inventoryUpdateCost,
   setIsModalOpenCost,
   setIsModalOpenIssue,
+  inventoryProductFlowResponse,
+  isLoading,
 }: Props) => {
+  const {setField:setInventoryProductFlowField}=useInventoryStore();
   const [uidTextColor, setUidTextColor] = useState<string>("");
   const [uidBatchTextColor, setUidBatchTextColor] = useState<string>("");
 
@@ -51,6 +60,7 @@ const InventoryDetailShowHeader = ({
   const [cost, setCost] = useState<string>("0");
   const [isCostUpdated, setIsCostUpdated] = useState<boolean>(false);
   const [isIssueUpdated, setIsIssueUpdated] = useState<boolean>(false);
+  const [isShowInventoryProductFlow, setIsShowInventoryProductFlow] = useState<boolean>(false);
 
   const issueOptions = [
     { label: "اختلاف بچ", value: "1" },
@@ -127,6 +137,12 @@ const InventoryDetailShowHeader = ({
     inventoryDetailShowResponse.data.result.status,
     inventoryDetailShowResponse.data.result.statusOther,
   ]);
+  /////////////////////////////////////////////////////////////////////////
+  const showInventoryProductFlow = () => {
+    console.log(inventoryDetailShowResponse.data.result.id, "inventoryDetailShowResponse.data.result.id");
+    setInventoryProductFlowField("dId", inventoryDetailShowResponse.data.result.id);
+    setIsShowInventoryProductFlow(true);
+  };
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       {/*first row of the header*/}
@@ -287,7 +303,7 @@ const InventoryDetailShowHeader = ({
             backgroundColorHover="bg-blue-600"
             colorHover="text-white"
             variant="border border-blue-500 shadow-lg w-32"
-            onClick={() => {}} //{handleSubmitSave}
+            onClick={showInventoryProductFlow} 
           />
         </div>
       </div>
@@ -317,6 +333,14 @@ const InventoryDetailShowHeader = ({
           />
         </Card>
       </div>
+      <ModalForm
+        isOpen={isShowInventoryProductFlow}
+        onClose={() => setIsShowInventoryProductFlow(false)}
+        title="لیست ورودی کالا"
+        width="1/2"
+      >
+        <InventoryProductFlowShow inventoryProductFlowResponse={inventoryProductFlowResponse} isLoading={isLoading} />
+      </ModalForm>
     </div>
   );
 };

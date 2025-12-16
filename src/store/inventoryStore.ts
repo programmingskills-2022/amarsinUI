@@ -42,6 +42,12 @@ export const useInventoryStore = create<InventoryState>()((set) => ({
     meta: { errorCode: 0, message: "", type: "" },
     data: { result: { id: 0, err: 0, msg: "", hasFlow: false, systemId: 0 } },
   },
+  //for api/Inventory/productFlow?DId=5267
+  dId: -1, //for api/Inventory/productFlow
+  inventoryProductFlowResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: [] },
+  },
   setField: (field: string, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setInventoryList: (inventoryList) => set({ inventoryList }),
@@ -51,4 +57,6 @@ export const useInventoryStore = create<InventoryState>()((set) => ({
     set({ inventoryUpdateIssueResponse }), //for api/Inventory/updateIssue
   setInventoryUpdateCostResponse: (inventoryUpdateCostResponse) =>
     set({ inventoryUpdateCostResponse }), //for api/Inventory/updateCost
+  setInventoryProductFlowResponse: (inventoryProductFlowResponse) =>
+    set({ inventoryProductFlowResponse }), //for api/Inventory/productFlow
 }));

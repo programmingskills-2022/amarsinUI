@@ -175,7 +175,7 @@ export const headCells = [
     Header: "شرح",
     accessor: "dtlDsc",
     width: "10%",
-    type: "inputText",
+    type: "textArea",
     Cell: EditableInput,
   },
   {

@@ -27,6 +27,8 @@ const InventoryDetailShow = ({
     inventoryUpdateIssueResponse,
     inventoryUpdateCostResponse,
     refetchInventoryDetail,
+    inventoryProductFlowResponse,
+    isLoadingInventoryProductFlow,
   } = useInventory();
 
   const [isModalOpenCost, setIsModalOpenCost] = useState(false);
@@ -73,6 +75,8 @@ const InventoryDetailShow = ({
         inventoryUpdateCost={inventoryUpdateCost}
         setIsModalOpenCost={setIsModalOpenCost}
         setIsModalOpenIssue={setIsModalOpenIssue}
+        inventoryProductFlowResponse={inventoryProductFlowResponse}
+        isLoading={isLoadingInventoryProductFlow}
       />
       {!isLoadingInventoryUpdateIssue && (
         <ModalMessage

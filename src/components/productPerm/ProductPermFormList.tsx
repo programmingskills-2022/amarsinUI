@@ -206,6 +206,7 @@ const ProductPermFormList = ({
     const response = await handleSubmit(undefined, request);
     let productOfferProducts: ProductPermListItem[] | undefined =
       response?.data.result;
+      console.log(productOfferProducts, "productOfferProducts in updateMyRow");
     setOriginalData((old) =>
       old.map((row, index) => {
         if (index === rowIndex && productOfferProducts) {
@@ -217,6 +218,9 @@ const ProductPermFormList = ({
             pId: productOfferProducts[0].pId,
             lastDate: productOfferProducts[0].lastDate,
             npo: productOfferProducts[0].npo,
+            npoCk: productOfferProducts[0].npo ? (
+              <img src={Accept} alt="Accept" className="w-4 h-4" />
+            ) : null,
             npCk: productOfferProducts[0].np ? (
               <img src={Accept} alt="Accept" className="w-4 h-4" />
             ) : null,

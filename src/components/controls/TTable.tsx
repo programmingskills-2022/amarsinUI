@@ -194,7 +194,7 @@ export function EditableInput<T extends object>({
     <>
       <input
         disabled={!canEditForm}
-        className="text-inherit p-0 m-0 border-0 w-full focus:outline-none"
+        className="text-inherit p-0 m-0 border-0 w-full focus:outline-none whitespace-pre-wrap text-wrap"
         style={{
           backgroundColor:
             isFocused || selectedRowIndex === index

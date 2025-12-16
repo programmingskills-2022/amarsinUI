@@ -317,7 +317,9 @@ const PaymentInvoiceShowTable = ({
   /////////////////////////////////////////////////////
   // Custom cell click handler for Table
   const handleCellColorChange = (row: any, columnId: string): string | null => {
-    if (row.original.check && (columnId === "rem" || columnId === "amnt")) {
+    const colsInfo = row.cells;
+    console.log(colsInfo?.[14]?.value, colsInfo?.[15]?.value, "colsInfo");
+    if (row.original.check && (columnId === "rem" || columnId === "amnt")&&(Number(convertToLatinDigits(colsInfo?.[14]?.value ?? 0)) === Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0)))) {
       return colors.green50;
     }
     return null;

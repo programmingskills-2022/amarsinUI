@@ -146,7 +146,7 @@ const OrderRegShow = ({
         },
         {
           Header: "سقف آفر",
-          accessor: "offerNo",
+          accessor: "offer",
           width: "5%",
           backgroundColor: colors.orang100,
           except: true,
@@ -395,7 +395,7 @@ const OrderRegShow = ({
           needPerm: item.needPerm ? (
             <FaCheck className="text-green-500" />
           ) : null,
-          offerNo: convertToFarsiDigits(item.offerNo),
+          offer: convertToFarsiDigits(item.offer),
           stock: convertToFarsiDigits(Math.floor(item.stock)),
           tax: item.tax,
           historyIcon: (
@@ -492,21 +492,22 @@ const OrderRegShow = ({
         oCnt: Number(convertToLatinDigits(item.roCnt)),
         cost: convertToLatinDigits(item.salePrice),
       });
-      //console.log(item);
-      const cupCnt = parsePersianNumerals(item.cupCnt);
-      const cupOCnt = parsePersianNumerals(item.cupOCnt);
-      const cupIds = parsePersianNumerals(item.cupId);
-      const sumCupCnt = cupCnt.reduce((acc, curr) => {
-        return acc + curr;
-      }, 0);
-      const sumCupOCnt = cupOCnt.reduce((acc, curr) => {
-        return acc + curr;
-      }, 0);
-      inOuts.push({
-        id: cupIds[0],
-        otId: item.otId,
-        cnt: sumCupCnt,
-        oCnt: sumCupOCnt,
+      const cupIds = item.cupId
+        .split("\n")
+        .map((id: string) => Number(convertToLatinDigits(id)));
+      const cupCnts = item.cupCnt
+        .split("\n")
+        .map((cnt: string) => Number(convertToLatinDigits(cnt)));
+      const cupOCnts = item.cupOCnt
+        .split("\n")
+        .map((oCnt: string) => Number(convertToLatinDigits(oCnt)));
+      cupIds.forEach((id: number, index: number) => {
+        inOuts.push({
+          id: id,
+          otId: item.otId,
+          cnt: cupCnts[index],
+          oCnt: cupOCnts[index],
+        });
       });
     });
 
@@ -637,9 +638,7 @@ const OrderRegShow = ({
       <ModalMessage
         isOpen={isModalOpen}
         backgroundColor={
-          orderRegResponse?.meta?.errorCode <=0
-            ? "bg-green-200"
-            : "bg-red-200"
+          orderRegResponse?.meta?.errorCode <= 0 ? "bg-green-200" : "bg-red-200"
         }
         color="text-white"
         onClose={() => setIsModalOpen(false)}
@@ -711,7 +710,7 @@ const OrderRegShow = ({
       <ModalMessage
         isOpen={showMessageModal}
         backgroundColor={
-          orderRegShowResponse?.meta?.errorCode <=0
+          orderRegShowResponse?.meta?.errorCode <= 0
             ? "bg-green-200"
             : "bg-red-200"
         }

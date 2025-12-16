@@ -93,7 +93,7 @@ export const headCells = [
   },
   {
     Header: "نیاز به مجوز",
-    accessor: "npo",
+    accessor: "npoCk",
     width: "5%",
     Cell: ({ value }: any) => value,
   },
@@ -280,6 +280,7 @@ const ProductPermForm = ({
     product: "",
     lastDate: "",
     npo: false,
+    npoCk: null,
     np: false,
     npCk: null,
     dtlDsc: "",
@@ -329,6 +330,7 @@ const ProductPermForm = ({
           bName: item.bName,
           product: item.product,
           lastDate: item.lastDate,
+          npoCk: null,
           np: item.np,
           npCk: item.np ? (
             <img src={Accept} alt="Accept" className="w-4 h-4" />
@@ -376,7 +378,6 @@ const ProductPermForm = ({
   ): Promise<ProductPermListResponse | undefined> => {
     if (e) e.preventDefault();
     if (!request) return;
-
     console.log(request, "request");
     try {
       return await addProductList(request);
@@ -416,7 +417,10 @@ const ProductPermForm = ({
               bName: product.bName,
               product: product.product,
               lastDate: product.lastDate,
-              npo: false,
+              npo: product.npo,
+              npoCk: product.npo ? (
+                <img src={Accept} alt="Accept" className="w-4 h-4" />
+              ) : null,
               np: product.np,
               npCk: product.np ? (
                 <img src={Accept} alt="Accept" className="w-4 h-4" />
