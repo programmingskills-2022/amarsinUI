@@ -38,6 +38,7 @@ export type Column = {
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  isBold?:boolean;
 };
 export type ColumnGroup = {
   Header: string;

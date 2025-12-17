@@ -537,7 +537,7 @@ const OrderRegShow = ({
 
   const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
   const [warehouseSearch, setWarehouseSearch] = useState<string>("");
-  const { setField: setSalesPriceField, setField: setWarehouseField } =
+  const { setField: setSalesPriceField } =
     useOrderStore();
   const { salesPricesSearchResponse } = useProducts();
   const { warehouseSearchResponse } = useWarehouse();
@@ -550,7 +550,7 @@ const OrderRegShow = ({
   }, [salesPriceSearch]);
 
   // for api/Warehouse/Search?search=%D8%A7&page=1&pageSize=30&lastId=0&CustomerTypeId=-1
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(convertToLatinDigits(warehouseSearch), "warehouseSearch");
     setWarehouseField(
       "search",
@@ -561,7 +561,7 @@ const OrderRegShow = ({
     setWarehouseField("lastId", 0);
     setWarehouseField("CustomerTypeId", -1);
     setWarehouseField("PartKey", 0);
-  }, [warehouseSearch]);
+  }, [warehouseSearch]);*/
   //change order sales price
   const changeSalesPrice = (newValue: DefaultOptionType) => {
     //console.log(newValue);
@@ -575,7 +575,7 @@ const OrderRegShow = ({
   };
   //change warehouse
   const changeWarehouse = (newValue: DefaultOptionType) => {
-    //console.log(newValue);
+    console.log(warehouseSearch);
     setWarehouse(newValue);
     setWarehouseSearch(newValue?.title ?? "ا");
   };
@@ -595,7 +595,6 @@ const OrderRegShow = ({
         salesPrice={salesPrice}
         warehouse={warehouse}
         setSalesPriceSearch={setSalesPriceSearch}
-        setWarehouseSearch={setWarehouseSearch}
         canEditForm1Mst1={canEditForm1Mst1}
         salesPricesSearchResponse={salesPricesSearchResponse}
         warehouseSearchResponse={warehouseSearchResponse}
@@ -614,7 +613,6 @@ const OrderRegShow = ({
           salesPrice={salesPrice}
           columns={columns}
           setSalesPriceSearch={setSalesPriceSearch}
-          setWarehouseSearch={setWarehouseSearch}
           changeSalesPrice={changeSalesPrice}
           changeWarehouse={changeWarehouse}
           salesPricesSearchResponse={salesPricesSearchResponse}

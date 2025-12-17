@@ -72,7 +72,7 @@ export const useWarehouseStore = create<WarehouseState>()((set) => ({
   },
   //for api/Warehouse/Search?search=%D8%A7&page=1&pageSize=30&lastId=0&CustomerTypeId=-1
   search: "ا",
-  page: 1,
+  page: -1,
   pageSize: 30,
   lastId: 0,
   CustomerTypeId: -1,

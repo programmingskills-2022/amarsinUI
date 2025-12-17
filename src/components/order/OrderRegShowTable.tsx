@@ -18,7 +18,6 @@ type Props = {
   salesPrice: DefaultOptionType | null;
   columns: TableColumns;
   setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
-  setWarehouseSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
   salesPricesSearchResponse: SearchItem[];
@@ -32,7 +31,6 @@ const OrderRegShowTable = ({
   salesPrice,
   columns,
   setSalesPriceSearch,
-  setWarehouseSearch,
   changeSalesPrice,
   changeWarehouse,
   salesPricesSearchResponse,
@@ -42,14 +40,16 @@ const OrderRegShowTable = ({
   //////////////////////////////////////////////////////////////
   const handleCellColorChange = (row: any, columnId: string): string | null => {
     const colsInfo = row.cells;
-    const isEqualOffer = Number(convertToLatinDigits(colsInfo?.[5]?.value ?? 0)) === Number(convertToLatinDigits(colsInfo?.[8]?.value ?? 0));
+    //colsInfo?.[5]?.value : تعداد آفر
+    //colsInfo?.[8]?.value : سقف آفر
+    const isLessEqualOffer = Number(convertToLatinDigits(colsInfo?.[5]?.value ?? 0)) <= Number(convertToLatinDigits(colsInfo?.[8]?.value ?? 0));
     const cntOfferSumReg =
       Number(convertToLatinDigits(colsInfo?.[4]?.value ?? 0)) +
       Number(convertToLatinDigits(colsInfo?.[5]?.value ?? 0));
     const cntOfferSumOrder =
       Number(convertToLatinDigits(colsInfo?.[16]?.value ?? 0)) +
       Number(convertToLatinDigits(colsInfo?.[17]?.value ?? 0));
-    if ((columnId === "oCnt" || columnId === "offer") && !isEqualOffer) {
+    if ((columnId === "oCnt" || columnId === "offer") && !isLessEqualOffer) {
       return colors.red200;
     } else if (
       cntOfferSumReg !== cntOfferSumOrder &&
@@ -78,7 +78,6 @@ const OrderRegShowTable = ({
         salesPrice={salesPrice}
         warehouse={warehouse}
         setSalesPriceSearch={setSalesPriceSearch}
-        setWarehouseSearch={setWarehouseSearch}
         changeSalesPrice={changeSalesPrice}
         changeWarehouse={changeWarehouse}
         salesPricesSearchResponse={salesPricesSearchResponse}

@@ -108,7 +108,7 @@ const InvoiceReceipShowHeader = ({
               title: fields.customer?.title ?? "",
             } as DefaultOptionType
           }
-          setSelectedOption={(newValue: DefaultOptionType | null) => {
+          setSelectedOption={(newValue: any) => {
             if (newValue) {
               setFields((prev: Fields) => ({
                 ...prev,

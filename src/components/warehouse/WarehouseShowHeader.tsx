@@ -88,7 +88,7 @@ const WarehouseShowHeader = ({
               title: customer?.title ?? "",
             } as DefaultOptionType
           }
-          setSelectedOption={(newValue: DefaultOptionType | null) => {
+          setSelectedOption={(newValue: any) => {
             if (newValue) {
               setCustomer({
                 id: String(newValue.id),

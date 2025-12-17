@@ -290,7 +290,7 @@ const ProductGraceForm = ({
       Header: "شرح",
       accessor: "dtlDsc",
     },
-  ];  
+  ];
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
@@ -298,7 +298,7 @@ const ProductGraceForm = ({
       setShowHistory(true);
     }
   };
-////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////
   const updateToDeleted = (row: any) => {
     setOriginalData((old) =>
       old.map((origRow) => {
@@ -369,31 +369,47 @@ const ProductGraceForm = ({
       productGraceDtls !== undefined
     ) {
       //for edit
-      setAddList(
-        productGraceDtls.map((item) => {
-          //console.log(item, "item");
-          return {
-            ...item,
-            id: item.id,
-            pId: item.pId,
-            bName: item.bName,
-            product: item.product,
-            lastDate: item.lastDate,
-            gd: item.gd,
-            sc: item.sc,
-            cc: item.cc,
-            ec: item.ec,
-            gdo: item.gdo > 0 ? item.gdo : 0,
-            sco: item.sco > 0 ? item.sco : 0,
-            cco: item.cco > 0 ? item.cco : 0,
-            eco: item.eco > 0 ? item.eco : 0,
-            dtlDsc: item.dtlDsc,
-            deleted: item.deleted,
-            isDeleted: false,
-            index: productGraceDtls.length + 1,
-          };
-        })
-      );
+      const loadData = async () => {
+        const results = await Promise.all(
+          productGraceDtls.map(async (item) => {
+            const request = {
+              id: 0,
+              productId: item.pId,
+              acc_Year: yearId,
+              brands: brand?.map((b) => Number(b.id)) ?? [],
+            };
+            const res = await handleSubmit(undefined, request);
+            console.log(res, "res");
+            console.log(item, "item");
+            return {
+              ...item,
+              id: item.id,
+              pId: item.pId,
+              bName: item.bName,
+              product: item.product,
+              lastDate: res?.data.result.productGraceProducts[0].lastDate ?? item.lastDate,
+              gd: item.gd,
+              sc: item.sc,
+              cc: item.cc,
+              ec: item.ec,
+              gdo:
+                res?.data.result.productGraceProducts[0].gdo ?? 0, //item.gdo > 0 ? item.gdo : 0,
+              sco:
+                res?.data.result.productGraceProducts[0].sco ?? 0, //item.sco > 0 ? item.sco : 0,
+              cco:
+                res?.data.result.productGraceProducts[0].cco ?? 0, //item.cco > 0 ? item.cco : 0,
+              eco:
+                res?.data.result.productGraceProducts[0].eco ?? 0, //item.eco > 0 ? item.eco : 0,
+              dtlDsc: item.dtlDsc,
+              deleted: item.deleted,
+              isDeleted: false,
+              index: productGraceDtls.length + 1,
+            };
+          })
+        );
+        setAddList(results);
+      };
+      loadData();
     }
   }, [selectedProductGrace, productGraceDtls]);
   ////////////////////////////////////////////////////////
@@ -469,11 +485,11 @@ const ProductGraceForm = ({
                 bName: product.bName,
                 product: product.product,
                 lastDate: product.lastDate,
-                gd: product.gdo > 0 ? product.gdo : 0,//مقادیر جدید
+                gd: product.gdo > 0 ? product.gdo : 0, //مقادیر جدید
                 sc: product.sco > 0 ? product.sco : 0,
                 cc: product.cco > 0 ? product.cco : 0,
                 ec: product.eco > 0 ? product.eco : 0,
-                gdo: product.gdo > 0 ? product.gdo : 0,//مقادیر قدیمی
+                gdo: product.gdo > 0 ? product.gdo : 0, //مقادیر قدیمی
                 sco: product.sco > 0 ? product.sco : 0,
                 cco: product.cco > 0 ? product.cco : 0,
                 eco: product.eco > 0 ? product.eco : 0,
@@ -524,7 +540,7 @@ const ProductGraceForm = ({
           dtlDsc: item.dtlDsc,
           deleted: item.isDeleted,
         };
-        
+
         if (
           Number(convertToLatinDigits(item.gd.toString())) === 0 ||
           Number(convertToLatinDigits(item.sc.toString())) !== 0 ||

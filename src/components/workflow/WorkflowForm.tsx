@@ -62,7 +62,7 @@ const WorkflowForm = ({
   const { setField } = useWorkflowStore();
   
   const handleSelectedIdChange = (id: number) => {
-    console.log(id, "id in WorkflowForm");
+    console.log(id, "id in WorkflowForm when clicked on each row");
     if (id!==0 && id!==-1) {
       setField("workTableId", id);
       setField("workTableIdTrigger", Date.now());

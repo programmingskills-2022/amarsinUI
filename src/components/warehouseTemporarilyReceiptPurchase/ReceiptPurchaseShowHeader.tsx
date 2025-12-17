@@ -87,7 +87,7 @@ const ReceiptPurchaseShowHeader = ({
           ]}
           fieldSearch="search"
           selectedOption={ {id: customer?.id ?? 0, title: customer?.title ?? ""} as DefaultOptionType }
-          setSelectedOption={(newValue: DefaultOptionType | null) => {
+          setSelectedOption={(newValue: any) => {
             if (newValue) {
               setCustomer({
                 id: newValue.id,

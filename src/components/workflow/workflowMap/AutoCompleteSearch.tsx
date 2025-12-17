@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect, useState } from "react";
-import { DefaultOptionType } from "../../../types/general";
+import { DefaultOptionType, DefaultOptionTypeStringId } from "../../../types/general";
 import { debounce } from "lodash";
 import AutoComplet from "../../controls/AutoComplet";
 import { convertToFarsiDigits } from "../../../utilities/general";
@@ -15,8 +15,8 @@ type Props = {
   setField: (field: string, value: string | number) => void;
   fieldValues: FieldValues[];
   fieldSearch: string;
-  selectedOption: DefaultOptionType;
-  setSelectedOption?: (option: DefaultOptionType | null) => void;
+  selectedOption: DefaultOptionType | DefaultOptionTypeStringId;
+  setSelectedOption?: (option: DefaultOptionType | DefaultOptionTypeStringId | null) => void;
   options: { id: string | number; text: string }[];
   disabled?: boolean;
   isEntered?: boolean;
@@ -25,6 +25,7 @@ type Props = {
     event: React.ChangeEvent<HTMLInputElement>,
     newValue: DefaultOptionType | null
   ) => void;
+  textAlign?: "left" | "center" | "right";
 };
 
 const AutoCompleteSearch = ({
@@ -40,6 +41,7 @@ const AutoCompleteSearch = ({
   isEntered = false,
   setIsEntered = () => {},
   handleChange = () => {},
+  textAlign = "right",
 }: Props) => {
   const [search, setSearch] = useState("");
   //for api search
@@ -107,6 +109,7 @@ const AutoCompleteSearch = ({
           showClearIcon={false}
           setIsEntered={setIsEntered}
           disabled={disabled}
+          textAlign={textAlign}
         />
       </div>
     </div>

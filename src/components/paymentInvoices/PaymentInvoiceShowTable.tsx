@@ -181,6 +181,7 @@ const PaymentInvoiceShowTable = ({
             Header: "مانده",
             accessor: "rem",
             width: "7%",
+            isBold: true,
             Cell: ({ value }: any) =>
               convertToFarsiDigits(formatNumberWithCommas(value)),
           },
@@ -188,6 +189,7 @@ const PaymentInvoiceShowTable = ({
             Header: "تسویه",
             accessor: "amnt",
             width: "7%",
+            isBold: true,
             Cell: ({ value }: any) =>
               convertToFarsiDigits(formatNumberWithCommas(value)),
           },
@@ -292,7 +294,7 @@ const PaymentInvoiceShowTable = ({
       let initialData = invoiceOutStandingResponse.data.invoiceOutstandings.map(
         (dtl) => ({
           ...dtl,
-          check: dtl.settlement>0 ? true : false,//dtl.checked,
+          check: dtl.settlement > 0 ? true : false, //dtl.checked,
           amnt: dtl.settlement,
           index: i++,
         })
@@ -318,8 +320,20 @@ const PaymentInvoiceShowTable = ({
   // Custom cell click handler for Table
   const handleCellColorChange = (row: any, columnId: string): string | null => {
     const colsInfo = row.cells;
+    const isEqualRemAmnt =
+      Number(convertToLatinDigits(colsInfo?.[14]?.value ?? 0)) ===
+      Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0));
     console.log(colsInfo?.[14]?.value, colsInfo?.[15]?.value, "colsInfo");
-    if (row.original.check && (columnId === "rem" || columnId === "amnt")&&(Number(convertToLatinDigits(colsInfo?.[14]?.value ?? 0)) === Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0)))) {
+    if (
+      row.original.check &&
+      (columnId === "rem" || columnId === "amnt") &&
+      isEqualRemAmnt
+    ) {
+      return colors.green150;
+    } else if (
+      row.original.check && Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0))>0 &&
+      (columnId === "rem" || columnId === "amnt") 
+    ) {
       return colors.green50;
     }
     return null;

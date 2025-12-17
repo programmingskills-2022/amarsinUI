@@ -630,6 +630,7 @@ export default function TTable<T extends object>({
                       whiteSpace: "pre-wrap",
                       textWrap: !wordWrap && width > 768 ? "nowrap" : "wrap",
                       overflow: !wordWrap && width > 768 ? "hidden" : "visible",
+                      fontWeight: cell.column.isBold ? "bold" : "normal",
                       userSelect: "text",
                       WebkitUserSelect: "text",
                       ...(hasSumRow && i === rows.length - 1

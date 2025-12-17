@@ -32,6 +32,7 @@ const DeliveryShow = ({ workFlowRowSelectResponse, refetchSwitch, setRefetchSwit
   ////////////////////////////////////////////////////////////////////////
   // for Delivery/:id
   if (id !== workFlowRowSelectResponse.workTableRow.formId) {
+    console.log(workFlowRowSelectResponse.workTableRow.formId,"workFlowRowSelectResponse.workTableRow.formId");
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
     setWarehouseField("formIdWarehouseTemporaryReceipt",-1)
     setTTacField("ttacRequestId", -1);
@@ -40,6 +41,7 @@ const DeliveryShow = ({ workFlowRowSelectResponse, refetchSwitch, setRefetchSwit
   }
   /*useEffect(() => {
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
+    setWarehouseField("formIdWarehouseTemporaryReceipt",-1)
     setTTacField("ttacRequestId", -1);
     setTTacField("systemId", -1);
     setTTacField("yearId", -1);

@@ -7,13 +7,16 @@ import {
 } from "../../types/general";
 import AutoComplete from "../controls/AutoComplete";
 import { WarehouseSearchResponse } from "../../types/warehouse";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { convertToFarsiDigits } from "../../utilities/general";
+import { useWarehouseStore } from "../../store/warehouseStore";
+import { useState } from "react";
 
 type Props = {
   columns: TableColumns;
   salesPrice: DefaultOptionType | null;
   warehouse: DefaultOptionType | null;
   setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
-  setWarehouseSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
   salesPricesSearchResponse: SearchItem[];
@@ -25,13 +28,13 @@ const OrderRegShowTableHeader = ({
   salesPrice,
   warehouse,
   setSalesPriceSearch,
-  setWarehouseSearch,
   changeSalesPrice,
   changeWarehouse,
   salesPricesSearchResponse,
   warehouseSearchResponse,
 }: Props) => {
-
+  const { setField: setWarehouseField } = useWarehouseStore();
+  const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
   const calculateMergedWidth = (columnGroup: ColumnGroup) => {
     const mergedColumns = [
       "cupCode",
@@ -100,7 +103,33 @@ const OrderRegShowTableHeader = ({
                           backgroundColor: column.backgroundColor,
                         }}
                       >
-                        <AutoComplete
+                        <AutoCompleteSearch
+                          label=""
+                          labelWidth="w-16"
+                          setField={setWarehouseField}
+                          fieldValues={[
+                            { field: "page", value: 1 },
+                            { field: "pageSize", value: 30 },
+                            { field: "lastId", value: 0 },
+                            { field: "CustomerTypeId", value: -1 },
+                            { field: "PartKey", value: 0 },
+                          ]}
+                          fieldSearch="search"
+                          options={warehouseSearchResponse.data.result.searchResults.map(
+                            (b) => ({
+                              id: b.id,
+                              text: convertToFarsiDigits(b.text),
+                            })
+                          )}
+                          selectedOption={warehouse as DefaultOptionType}
+                          isEntered={isWarehouseEntered}
+                          setIsEntered={setIsWarehouseEntered}
+                          handleChange={(_event, newValue) => {
+                            changeWarehouse(newValue as DefaultOptionType);
+                          }}
+                          textAlign="center"
+                        />
+                        {/*<AutoComplete
                           disabled={false}
                           options={warehouseSearchResponse.data.result.searchResults.map(
                             (b) => ({
@@ -121,7 +150,7 @@ const OrderRegShowTableHeader = ({
                           textAlign="center"
                           desktopfontsize="12px"
                           placeholder="انبار را انتخاب کنید..."
-                        />
+                        />*/}
                       </div>
                     );
                   }

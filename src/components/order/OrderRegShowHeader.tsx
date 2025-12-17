@@ -9,6 +9,7 @@ import { DefaultOptionType, SearchItem } from "../../types/general";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { WarehouseSearchResponse } from "../../types/warehouse";
 import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { useWarehouseStore } from "../../store/warehouseStore";
 
 type Props = {
   orderRegShowResponse: OrderRegShowResponse;
@@ -26,7 +27,6 @@ type Props = {
   salesPricesSearchResponse: SearchItem[];
   warehouseSearchResponse: WarehouseSearchResponse;
   setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
-  setWarehouseSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
 };
@@ -47,24 +47,24 @@ const OrderRegShowHeader = ({
   salesPricesSearchResponse,
   warehouseSearchResponse,
   setSalesPriceSearch,
-  setWarehouseSearch,
   changeSalesPrice,
   changeWarehouse,
 }: Props) => {
   const { systemId, yearId } = useGeneralContext();
+  const { setField: setWarehouseField } = useWarehouseStore();
   const { customers } = useCustomers();
   const { setField: setCustomerField } = useCustomerStore();
   //const [search, setSearch] = useState<string>("");
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
-
-  /*useEffect(() => {
+  const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
+  useEffect(() => {
     setCustomerField("systemIdCustomerSearch", systemId);
     setCustomerField("yearIdCustomerSearch", yearId);
-    setCustomerField("search", search);
+    setCustomerField("search", "ا");
     setCustomerField("page", 1);
     setCustomerField("lastId", 0);
     setCustomerField("centerType", 0);
-  }, [search, systemId, yearId]);*/
+  }, [systemId, yearId]);
 
   useEffect(() => {
     setCash1(orderRegShowResponse.data.result.orderMst?.cash);
@@ -97,7 +97,7 @@ const OrderRegShowHeader = ({
                 title: customer?.title ?? "",
               } as DefaultOptionType
             }
-            setSelectedOption={(newValue: DefaultOptionType | null) => {
+            setSelectedOption={(newValue: any) => {
               if (newValue) {
                 setCustomer({
                   id: newValue.id,
@@ -253,7 +253,33 @@ const OrderRegShowHeader = ({
               placeholder="قیمت را انتخاب کنید..."
             />
           </div>
-          <div className="flex items-center justify-between w-full">
+          <AutoCompleteSearch
+            label="انبار"
+            labelWidth="w-16"
+            setField={setWarehouseField}
+            fieldValues={[
+              { field: "page", value: 1 },
+              { field: "pageSize", value: 30 },
+              { field: "lastId", value: 0 },
+              { field: "CustomerTypeId", value: -1 },
+              { field: "PartKey", value: 0 },
+            ]}
+            fieldSearch="search"
+            options={warehouseSearchResponse.data.result.searchResults.map(
+              (b) => ({
+                id: b.id,
+                text: convertToFarsiDigits(b.text),
+              })
+            )}
+            selectedOption={warehouse as DefaultOptionType}
+            isEntered={isWarehouseEntered}
+            setIsEntered={setIsWarehouseEntered}
+            handleChange={(_event, newValue) => {
+              changeWarehouse(newValue as DefaultOptionType);
+            }}
+            textAlign="center"
+          />
+          {/*<div className="flex items-center justify-between w-full">
             <label className="p-1 w-20 text-left">انبار:</label>
             <AutoComplete
               disabled={false}
@@ -277,7 +303,7 @@ const OrderRegShowHeader = ({
               desktopfontsize="12px"
               placeholder="انبار را انتخاب کنید..."
             />
-          </div>
+          </div>*/}
         </>
       ) : null}
     </div>

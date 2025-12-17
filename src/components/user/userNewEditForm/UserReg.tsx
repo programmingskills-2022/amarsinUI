@@ -257,7 +257,7 @@ const UserReg = ({
           fieldValues={[]}
           fieldSearch="nam"
           selectedOption={user.user as DefaultOptionType}
-          setSelectedOption={(option) => setUser({ ...user, user: option })}
+          setSelectedOption={(option: any) => setUser({ ...user, user: option as DefaultOptionType })}
           options={users.map((user) => ({
             id: user.id,
             text: user.nam,

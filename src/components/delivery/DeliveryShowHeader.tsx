@@ -3,11 +3,12 @@ import { useWarehouse } from "../../hooks/useWarehouse";
 import { useOrderStore } from "../../store/orderStore";
 import { ResultDeliveryShow } from "../../types/delivery";
 import { convertToFarsiDigits } from "../../utilities/general";
-import AutoComplete from "../controls/AutoComplete";
 import { FaCircle } from "react-icons/fa";
 import { useTTacStore } from "../../store/ttacStore";
 import { useTtac } from "../../hooks/useTtac";
 import { colors } from "../../utilities/color";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { DefaultOptionType } from "../../types/general";
 
 type Props = {
   deliveryShowResponse: ResultDeliveryShow;
@@ -17,25 +18,29 @@ type Props = {
 const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
   const { warehouseSearchResponse } = useWarehouse();
   const { titacResponse } = useTtac();
+  const [warehouse, setWarehouse] = useState<DefaultOptionType | null>(null);
   const { setField: setTTacField } = useTTacStore();
   const { setField: setWarehouseField } = useOrderStore();
-  const [warehouseSearch, setWarehouseSearch] = useState<string>("");
+  const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
   const [ttacTextColor, setTtacTextColor] = useState<string>("");
   const [isTitacClick, setIsTitacClick] = useState<boolean>(false);
+  const [deliveryMstId, setDeliveryMstId] = useState<number>(0);
 
-  useEffect(() => {
-    //console.log(convertToLatinDigits(warehouseSearch),"warehouseSearch");
+  /*useEffect(() => {
     setWarehouseField("search", "ا");
     setWarehouseField("page", 1);
     setWarehouseField("pageSize", 30);
     setWarehouseField("lastId", 0);
     setWarehouseField("CustomerTypeId", -1);
     setWarehouseField("PartKey", 0);
-  }, []);
+  }, []);*/
 
   useEffect(() => {
-    console.log(warehouseSearch);
     setIsTitacClick(false);
+    setWarehouse({
+      id: deliveryShowResponse.wId,
+      title: convertToFarsiDigits(deliveryShowResponse.wName) ?? "",
+    });
     switch (
       deliveryShowResponse.deliveryMst &&
       deliveryShowResponse.deliveryMst?.status
@@ -56,10 +61,7 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
   }, [deliveryShowResponse]);
 
   useEffect(() => {
-    switch (
-      titacResponse.data.result &&
-      titacResponse.data.result?.status
-    ) {
+    switch (titacResponse.data.result && titacResponse.data.result?.status) {
       case 0:
         setTtacTextColor(colors.blue500);
         break;
@@ -74,10 +76,14 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
         break;
     }
   }, [titacResponse]);
+  useEffect(() => {
+    console.log(deliveryShowResponse.deliveryMst.id, "deliveryMstId");
+    setDeliveryMstId(deliveryShowResponse.deliveryMst.id);
+  }, [deliveryShowResponse]);
   //for /api/TTAC/Titac?Id=1123156
   const ttacClick = () => {
     setIsTitacClick(true);
-    setTTacField("ttacRequestId", deliveryShowResponse.deliveryMst.id);
+    setTTacField("ttacRequestId", deliveryMstId);
   };
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
@@ -103,7 +109,33 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
           />
         </div>
         <div className="w-1/3 flex">
-          <div className="flex items-center justify-between w-full">
+          <AutoCompleteSearch
+            label="انبار"
+            labelWidth="w-16"
+            setField={setWarehouseField}
+            fieldValues={[
+              { field: "page", value: 1 },
+              { field: "pageSize", value: 30 },
+              { field: "lastId", value: 0 },
+              { field: "CustomerTypeId", value: -1 },
+              { field: "PartKey", value: 0 },
+            ]}
+            fieldSearch="search"
+            options={warehouseSearchResponse.data.result.searchResults.map(
+              (b) => ({
+                id: b.id,
+                text: convertToFarsiDigits(b.text),
+              })
+            )}
+            selectedOption={warehouse as DefaultOptionType}
+            setSelectedOption={(newValue) => {
+              setWarehouse(newValue as DefaultOptionType);
+            }}
+            isEntered={isWarehouseEntered}
+            setIsEntered={setIsWarehouseEntered}
+            disabled={!canEditForm}
+          />
+          {/*<div className="flex items-center justify-between w-full">
             <label className="p-1 w-24 text-left">انبار:</label>
             <AutoComplete
               disabled={!canEditForm}
@@ -129,7 +161,7 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
               desktopfontsize="12px"
               placeholder="انبار را انتخاب کنید..."
             />
-          </div>
+          </div>*/}
         </div>
       </div>
       <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-2">
@@ -162,12 +194,15 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
         />
       </div>
       <div className="flex items-center justify-center">
-        <div className="flex items-center justify-right w-24" onClick={ttacClick}>
+        <div
+          className="flex items-center justify-right w-24"
+          onClick={ttacClick}
+        >
           <label className="p-1 w-full text-left cursor-pointer hover:font-bold hover:underline">
             تیتک:
           </label>
           <div>
-            <FaCircle style={{color:ttacTextColor}} size={10} />
+            <FaCircle style={{ color: ttacTextColor }} size={10} />
           </div>
         </div>
         <input
@@ -179,7 +214,7 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
               : convertToFarsiDigits(deliveryShowResponse.deliveryMst.msg)
           }
           className={`text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md bg-transparent`}
-          style={{color:ttacTextColor}}
+          style={{ color: ttacTextColor }}
         />
       </div>
     </div>
