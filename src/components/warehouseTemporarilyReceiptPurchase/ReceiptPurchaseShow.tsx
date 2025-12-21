@@ -45,6 +45,8 @@ const ReceiptPurchaseShow = ({
   }, [refetchSwitch]);
   ////////////////////////////////////////////////////////////////////////
   if (receiptPurchaseId !== workFlowRowSelectResponse?.workTableRow.formId) {
+    setWarehouseField("formIdWarehouseTemporaryReceiptTitac",-1)
+    setWarehouseField("formIdWarehouseTemporaryReceipt",-1)
     setWarehouseField(
       "receiptPurchaseId",
       workFlowRowSelectResponse?.workTableRow.formId
@@ -52,6 +54,7 @@ const ReceiptPurchaseShow = ({
   }
   /*useEffect(() => {
     console.log(workFlowRowSelectResponse?.workTableRow.formId);
+    setWarehouseField("formIdWarehouseTemporaryReceiptTitac",-1)
     setWarehouseField(
       "receiptPurchaseId",
       workFlowRowSelectResponse?.workTableRow.formId

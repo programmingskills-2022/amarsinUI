@@ -35,9 +35,12 @@ const WarehouseShow = ({
   // Set formId BEFORE useWarehouse hook runs to prevent stale queries
   if (formIdWarehouseTemporaryReceipt !== workFlowRowSelectResponse.workTableRow.formId) {
     setField("formIdWarehouseTemporaryReceipt", workFlowRowSelectResponse.workTableRow.formId);
+    setField("formIdWarehouseTemporaryReceiptTitac", -1);
+    setField("receiptPurchaseId", -1);
     setField("idProductCatalogRequest", -1);
   }
 
+  //console.log("jskdjskjd")
   const {
     warehouseShowIdResponse,
     isLoadingWarehouseShowId,

@@ -40,7 +40,8 @@ const DeliveryShow = ({
     isLoadingWarehouseTemporaryReceiptTitacShow,
   } = useWarehouse();
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm2;
-  const isLoading = isLoadingDeliveryShowQuery || isLoadingWarehouseTemporaryReceiptTitacShow;
+  const isLoading =
+    isLoadingDeliveryShowQuery || isLoadingWarehouseTemporaryReceiptTitacShow;
   const [response, setResponse] = useState<DeliveryShowResponse>({
     meta: { errorCode: 0, message: "", type: "" },
     data: {
@@ -99,10 +100,15 @@ const DeliveryShow = ({
       workFlowRowSelectResponse.workTableRow.formId &&
     !isDeliveryForm
   ) {
+    console.log(
+      workFlowRowSelectResponse.workTableRow.formId,
+      "formIdWarehouseTemporaryReceiptTitac"
+    );
     setWarehouseField(
       "formIdWarehouseTemporaryReceiptTitac",
       workFlowRowSelectResponse.workTableRow.formId
     );
+    setWarehouseField("receiptPurchaseId", -1);
     setWarehouseField("formIdWarehouseTemporaryReceipt", -1); // Disable indentShow query
     setTTacField("ttacRequestId", -1);
     setTTacField("systemId", -1);
@@ -134,10 +140,19 @@ const DeliveryShow = ({
 
   // Update response when warehouse data loads
   useEffect(() => {
-    if (!isDeliveryForm && !isLoadingWarehouseTemporaryReceiptTitacShow && warehouseTemporaryReceiptTitacShowResponse?.data?.result?.warehouseTemporaryReceiptMst) {
-      const wtrMst = warehouseTemporaryReceiptTitacShowResponse.data.result.warehouseTemporaryReceiptMst;
-      const wtrDtls = warehouseTemporaryReceiptTitacShowResponse.data.result.warehouseTemporaryReceiptDtls;
-      
+    if (
+      !isDeliveryForm &&
+      !isLoadingWarehouseTemporaryReceiptTitacShow &&
+      warehouseTemporaryReceiptTitacShowResponse?.data?.result
+        ?.warehouseTemporaryReceiptMst
+    ) {
+      const wtrMst =
+        warehouseTemporaryReceiptTitacShowResponse.data.result
+          .warehouseTemporaryReceiptMst;
+      const wtrDtls =
+        warehouseTemporaryReceiptTitacShowResponse.data.result
+          .warehouseTemporaryReceiptDtls;
+
       const responseTemp: DeliveryShowResponse = {
         meta: warehouseTemporaryReceiptTitacShowResponse.meta,
         data: {
@@ -162,17 +177,17 @@ const DeliveryShow = ({
               msg: wtrMst.msg,
             },
             deliveryDtls: wtrDtls.map((dtl) => ({
-                  id: dtl.id,
-                  iocId: dtl.iocId,
-                  pCode: dtl.pCode,
-                  pName: dtl.pName,
-                  cnt: dtl.cnt,
-                  cost: 0,
-                  hasUID: false,
-                  uid: "",
-                  statusCode: 0,
-                  code: dtl.code,
-                  expire: dtl.expire,
+              id: dtl.id,
+              iocId: dtl.iocId,
+              pCode: dtl.pCode,
+              pName: dtl.pName,
+              cnt: dtl.cnt,
+              cost: 0,
+              hasUID: false,
+              uid: "",
+              statusCode: 0,
+              code: dtl.code,
+              expire: dtl.expire,
             })),
           },
         },
@@ -180,7 +195,11 @@ const DeliveryShow = ({
       //console.log(responseTemp, "responseTemp");
       setResponse(responseTemp);
     }
-  }, [ isLoadingWarehouseTemporaryReceiptTitacShow, warehouseTemporaryReceiptTitacShowResponse?.data?.result?.warehouseTemporaryReceiptMst?.id]);
+  }, [
+    isLoadingWarehouseTemporaryReceiptTitacShow,
+    warehouseTemporaryReceiptTitacShowResponse?.data?.result
+      ?.warehouseTemporaryReceiptMst?.id,
+  ]);
   return (
     <div>
       <DeliveryShowHeader
