@@ -417,6 +417,7 @@ const ProductGraceForm = ({
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
   useEffect(() => {
     if (canEditForm1) {
+      setProductField("salesPricesSearchPage",-1)
       setProductField("productSearchAccSystem", systemId);
       setProductField("productSearchAccYear", yearId);
       handleDebounceFilterChange("productSearchSearch", search);
