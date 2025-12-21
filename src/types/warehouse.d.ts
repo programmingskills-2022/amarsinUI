@@ -53,7 +53,7 @@ export interface WarehouseTemporaryReceiptIndentDtlTable {
 }
 
 
-interface WarehouseTemporaryReceiptMst {
+interface WarehouseTemporaryReceiptMstOriginal {
   id: number;
   formId: number;
   code: string;
@@ -62,11 +62,14 @@ interface WarehouseTemporaryReceiptMst {
   cId: number;
   srName: string;
   gln: string;
-  blackList: boolean;
   exp: string;
   guid: string;
   status: number;
   msg: string;
+}
+
+interface WarehouseTemporaryReceiptMst extends WarehouseTemporaryReceiptMstOriginal {
+  blackList: boolean;
 }
 
 interface WarehouseResponse {
@@ -85,7 +88,7 @@ interface Result {
 interface Data {
   result: Result;
 }
-
+//api/WarehouseTemporaryReceipt/indentShow/1135730
 export interface WarehouseShowIdResponse {
   meta: Meta;
   data: Data;
@@ -289,12 +292,47 @@ export interface WarehouseTemporaryReceiptPurchaseRegResponse {
   meta: Meta;
   data: DataWarehouseTemporaryReceiptPurchaseReg;
 };
+
+//api/WarehouseTemporaryReceipt/Show/1135730
+export interface WarehouseTemporaryReceiptTitacShowResponse {
+  meta: Meta;
+  data: DataWarehouseTemporaryReceiptTitacShow;
+}
+
+type DataWarehouseTemporaryReceiptTitacShow = {
+  result: ResultWarehouseTemporaryReceiptTitacShow;
+  total_count: number;
+}
+type ResultWarehouseTemporaryReceiptTitacShow = {
+  wId: number;
+  wName: string;
+  warehouseTemporaryReceiptMst: WarehouseTemporaryReceiptMstOriginal;
+  warehouseTemporaryReceiptDtls: WarehouseTemporaryReceiptDtl[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
+export interface WarehouseTemporaryReceiptDtl {
+  id: number;
+  iocId: number;
+  pCode: string;
+  pName: string;
+  cnt: number;
+  cost: number;
+  hasUID: boolean;
+  statusCode: number;
+  uid: string;
+  code: string;
+  expire: string;
+}
+
 export interface WarehouseState extends WarehouseSearchRequest {
-  formIdWarehouseTemporaryReceipt: number;
+  formIdWarehouseTemporaryReceipt: number;//for api/WarehouseTemporaryReceipt/indentShow/1135730
+  formIdWarehouseTemporaryReceiptTitac: number;//for api/WarehouseTemporaryReceipt/Show/1135730
   productId: number;
   iocId: number;
   receiptPurchaseId:number;
-  warehouseShowIdResponse: WarehouseShowIdResponse;
+  warehouseShowIdResponse: WarehouseShowIdResponse;///api/WarehouseTemporaryReceipt/indentShow/1135730 
   warehouseTemporaryReceiptPurchaseShowResponse: WarehouseTemporaryReceiptPurchaseShowResponse;///api/WarehouseTemporaryReceipt/purchaseShow/1107390
   warehouseIndentListResponse: WarehouseIndentListResponse;
   warehouseSearchResponse: WarehouseSearchResponse;
@@ -304,6 +342,7 @@ export interface WarehouseState extends WarehouseSearchRequest {
   salesPriceIdReg: number; //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
   warehouseTemporaryReceiptSalesPricesResponse: WarehouseTemporaryReceiptSalesPricesResponse;//for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
   warehouseTemporaryReceiptPurchaseRegResponse: WarehouseTemporaryReceiptPurchaseRegResponse;//for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
+  warehouseTemporaryReceiptTitacShowResponse: WarehouseTemporaryReceiptTitacShowResponse;//for api/WarehouseTemporaryReceipt/Show/1135730
   setField: (field: string, value: any) => void;
   setWarehouseShowIdResponse: (
     warehouseShowIdResponse: WarehouseShowIdResponse
@@ -329,4 +368,7 @@ export interface WarehouseState extends WarehouseSearchRequest {
   setWarehouseTemporaryReceiptPurchaseRegResponse: (
     warehouseTemporaryReceiptPurchaseRegResponse: WarehouseTemporaryReceiptPurchaseRegResponse
   ) => void;
+  setWarehouseTemporaryReceiptTitacShowResponse: (
+    warehouseTemporaryReceiptTitacShowResponse: WarehouseTemporaryReceiptTitacShowResponse
+  ) => void; ///api/WarehouseTemporaryReceipt/Show/1135730
 }

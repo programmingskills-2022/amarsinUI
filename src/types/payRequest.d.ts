@@ -5,8 +5,8 @@ import { Meta, SearchItem, UpdateResult } from "./general";
 interface PayRequest {
   id: number;
   guid: string;
-  systemId: number;
   systemTitle: string;
+  systemId: number;
   yearId: number;
   yearName: string;
   ordr: number;
@@ -78,6 +78,8 @@ interface PayRequestResponse {
 export interface PayRequestRequest extends ProductOperationRequest {
   yearId: number;
   systemId: number;
+  yearIdDtl: number;
+  systemIdDtl: number;
   srchSrName: string;
   srchAmount: number;
   sortSrName: number;

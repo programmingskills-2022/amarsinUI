@@ -32,6 +32,7 @@ import { useProducts } from "../../hooks/useProducts";
 import ProductOfferFormListHistory from "../productOffer/ProductOfferFormListHistory";
 import { useProductOfferStore } from "../../store/productOfferStore";
 import { useProductOffer } from "../../hooks/useProductOffer";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -537,8 +538,8 @@ const OrderRegShow = ({
 
   const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
   const [warehouseSearch, setWarehouseSearch] = useState<string>("");
-  const { setField: setSalesPriceField } =
-    useOrderStore();
+  const { setField: setSalesPriceField } = useProductStore(); 
+  const { setField: setSalesPriceFieldInOrder } = useOrderStore(); 
   const { salesPricesSearchResponse } = useProducts();
   const { warehouseSearchResponse } = useWarehouse();
   // for /api/Product/salesPricesSearch?
@@ -565,11 +566,11 @@ const OrderRegShow = ({
   //change order sales price
   const changeSalesPrice = (newValue: DefaultOptionType) => {
     //console.log(newValue);
-    setSalesPriceField(
+    setSalesPriceFieldInOrder(
       "orderIdForSalesPrice",
       orderRegShowResponse.data.result.orderMst.id
     );
-    setSalesPriceField("salesPriceId", newValue.id);
+    setSalesPriceFieldInOrder("salesPriceId", newValue.id);
     setSalesPrice(newValue);
     setSalesPriceSearch(newValue.title);
   };

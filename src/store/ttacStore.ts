@@ -104,6 +104,7 @@ export const useTTacStore = create<ttacState>()((set) => ({
   },
   //for /api/TTAC/Titac?Id=1123156
   ttacRequestId: -1,
+  ttacRequestIdTrigger:0,
   ttacResponse: {
     meta: { errorCode: 0, message: "", type: "" },
     data: {

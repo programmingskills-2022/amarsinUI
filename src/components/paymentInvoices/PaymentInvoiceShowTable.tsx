@@ -323,7 +323,6 @@ const PaymentInvoiceShowTable = ({
     const isEqualRemAmnt =
       Number(convertToLatinDigits(colsInfo?.[14]?.value ?? 0)) ===
       Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0));
-    console.log(colsInfo?.[14]?.value, colsInfo?.[15]?.value, "colsInfo");
     if (
       row.original.check &&
       (columnId === "rem" || columnId === "amnt") &&

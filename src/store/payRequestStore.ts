@@ -6,6 +6,8 @@ export const usePayRequestStore = create<PayRequestState>()((set) => ({
   id: -1,
   yearId: -1,
   systemId: -1,
+  yearIdDtl: -1, // for detail table
+  systemIdDtl: -1,//for detail table
   state: -1,
   regFDate: "",
   regTDate: "",

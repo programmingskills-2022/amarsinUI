@@ -13,7 +13,7 @@ import {
 } from "../../utilities/general";
 import { debounce } from "lodash";
 import TTable from "../controls/TTable";
-import {  DefaultOptionTypeStringId, TableColumns } from "../../types/general";
+import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
 import { TablePaginationActions } from "../controls/TablePaginationActions";
 import { WorkflowResponse } from "../../types/workflow";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
@@ -62,7 +62,7 @@ export default function WorkflowParent({
     fChartName: 10,
     dsc: 20,
   });
-  
+
   const columns: TableColumns = useMemo(() => {
     // Note: columnWidths contains percentages, TTable will convert them to pixels
     return [
@@ -115,18 +115,21 @@ export default function WorkflowParent({
       },
     ];
   }, [columnWidths]);
-  
+
   // Convert pixels back to percentages when saving (only for visible columns)
-  const handleColumnResize = useCallback((pixelWidths: Record<string, number>) => {
-    if (tableWidth > 0) {
-      const percentageWidths = convertPixelWidthsToPercentages(
-        pixelWidths,
-        columns,
-        columnWidths
-      );
-      setColumnWidths(percentageWidths);
-    }
-  }, [tableWidth, columns, columnWidths]);
+  const handleColumnResize = useCallback(
+    (pixelWidths: Record<string, number>) => {
+      if (tableWidth > 0) {
+        const percentageWidths = convertPixelWidthsToPercentages(
+          pixelWidths,
+          columns,
+          columnWidths
+        );
+        setColumnWidths(percentageWidths);
+      }
+    },
+    [tableWidth, columns, columnWidths]
+  );
 
   useEffect(() => {
     if (error) {
@@ -203,13 +206,13 @@ export default function WorkflowParent({
       });
     } else if (
       flowMapIdStore?.toString() === "-1" &&
-      workFlowResponse.totalCount === 0
+      workFlowResponse?.totalCount === 0
     )
       setFlowMapTitle({
         id: "-1",
         title: "",
       });
-  }, [chartId, flowMapIdStore, workFlowResponse.totalCount]);
+  }, [chartId, flowMapIdStore, workFlowResponse?.totalCount]);
 
   const handleDebounceFilterChange = useCallback(
     debounce((field: string, value: string | number) => {
@@ -265,21 +268,22 @@ export default function WorkflowParent({
   const [skipPageReset, setSkipPageReset] = useState(false);
 
   useEffect(() => {
-    setData(
-      workFlowResponse.workTables.map((item, idx) => ({
-        ...item,
-        index: convertToFarsiDigits((pageNumber - 1) * pageSize + idx + 1),
-        id: convertToFarsiDigits(item.id),
-        regDateTime: convertToFarsiDigits(item.regDateTime),
-        formTitle: convertToFarsiDigits(item.formTitle),
-        formCode: convertToFarsiDigits(item.formCode),
-        formCost: convertToFarsiDigits(formatNumberWithCommas(item.formCost)),
-        flowMapTitle: convertToFarsiDigits(item.flowMapTitle),
-        fChartName: convertToFarsiDigits(item.fChartName),
-        dsc: convertToFarsiDigits(item.dsc),
-      }))
-    );
-  }, [workFlowResponse.workTables]);
+    if (workFlowResponse.workTables)
+      setData(
+        workFlowResponse.workTables.map((item, idx) => ({
+          ...item,
+          index: convertToFarsiDigits((pageNumber - 1) * pageSize + idx + 1),
+          id: convertToFarsiDigits(item.id),
+          regDateTime: convertToFarsiDigits(item.regDateTime),
+          formTitle: convertToFarsiDigits(item.formTitle),
+          formCode: convertToFarsiDigits(item.formCode),
+          formCost: convertToFarsiDigits(formatNumberWithCommas(item.formCost)),
+          flowMapTitle: convertToFarsiDigits(item.flowMapTitle),
+          fChartName: convertToFarsiDigits(item.fChartName),
+          dsc: convertToFarsiDigits(item.dsc),
+        }))
+      );
+  }, [workFlowResponse?.workTables]);
 
   useEffect(() => {
     setSkipPageReset(false);
@@ -304,7 +308,7 @@ export default function WorkflowParent({
               setDateTime(convertToLatinDigits(e.target.value));
             }}
             className={`border p-1 text-sm rounded-sm`}
-            style={{width:columnWidths.regDateTime + "%"}}
+            style={{ width: columnWidths.regDateTime + "%" }}
           />
           <input
             name="title"
@@ -314,7 +318,7 @@ export default function WorkflowParent({
               setTitle(e.target.value);
             }}
             className={`border p-1 text-sm rounded-sm`}
-            style={{width:columnWidths.formTitle + "%"}}
+            style={{ width: columnWidths.formTitle + "%" }}
           />
           <input
             name="code"

@@ -10,6 +10,7 @@ import {
   WarehouseTemporaryReceiptPurchaseShowResponse,
   WarehouseTemporaryReceiptSalesPricesResponse,
   WarehouseTemporaryReceiptPurchaseRegResponse,
+  WarehouseTemporaryReceiptTitacShowResponse,
 } from "../types/warehouse";
 
 export function useWarehouse() {
@@ -30,6 +31,7 @@ export function useWarehouse() {
     idReg, //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
     salesPriceIdReg, //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
     //end of api/Product/productInstanceCatalog?Id=166717&UID=0&IRC=0
+    formIdWarehouseTemporaryReceiptTitac, //for api/WarehouseTemporaryReceipt/Show/1135730
     setWarehouseTemporaryReceiptPurchaseShowResponse, //for api/WarehouseTemporaryReceipt/purchaseShow/1107390
     setWarehouseShowIdResponse,
     setWarehouseIndentListResponse,
@@ -38,10 +40,12 @@ export function useWarehouse() {
     setWarehouseSearchResponse,
     setWarehouseTemporaryReceiptSalesPricesResponse, //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
     setWarehouseTemporaryReceiptPurchaseRegResponse, //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
+    setWarehouseTemporaryReceiptTitacShowResponse, //for api/WarehouseTemporaryReceipt/Show/1135730
   } = useWarehouseStore();
   //const { url: apiUrl } = useGeneralContext();
   //console.log("[useWarehouse] Setting formId to", formId)
   // for warehouseShowIdResponse
+  //api/WarehouseTemporaryReceipt/indentShow/1135730
   const warehouseShowIdQuery = useQuery<
     WarehouseShowIdResponse,
     Error,
@@ -50,7 +54,7 @@ export function useWarehouse() {
   >({
     queryKey: ["warehouseShowId", formIdWarehouseTemporaryReceipt],
     queryFn: async () => {
-      const url: string = `api/WarehouseTemporaryReceipt/show/${formIdWarehouseTemporaryReceipt}`;
+      const url: string = `api/WarehouseTemporaryReceipt/indentShow/${formIdWarehouseTemporaryReceipt}`;
       console.log(url, "url");
 
       const response = await api.get(url);
@@ -63,6 +67,31 @@ export function useWarehouse() {
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<WarehouseShowIdResponse, Error, WarehouseShowIdResponse, unknown[]>);
+  //for api/WarehouseTemporaryReceipt/Show/1135730
+  const warehouseTemporaryReceiptTitacShowQuery = useQuery<
+    WarehouseTemporaryReceiptTitacShowResponse,
+    Error,
+    WarehouseTemporaryReceiptTitacShowResponse,
+    unknown[]
+  >({
+    queryKey: [
+      "warehouseTemporaryReceiptTitacShow",
+      formIdWarehouseTemporaryReceiptTitac,
+    ],
+    queryFn: async () => {
+      const url: string = `api/WarehouseTemporaryReceipt/Show/${formIdWarehouseTemporaryReceiptTitac}`;
+      console.log(url, "url");
+
+      const response = await api.get(url);
+      return response.data;
+    },
+    onSuccess: (data: any) => {
+      setWarehouseTemporaryReceiptTitacShowResponse(data);
+    },
+    enabled: formIdWarehouseTemporaryReceiptTitac !== -1, // Only fetch if param is available
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
+  } as UseQueryOptions<WarehouseTemporaryReceiptTitacShowResponse, Error, WarehouseTemporaryReceiptTitacShowResponse, unknown[]>);
 
   //for warehouseSearchResponse
   const warehouseSearchQuery = useQuery<
@@ -111,7 +140,7 @@ export function useWarehouse() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: iocId !== -1 && iocId!==undefined, // Only fetch if param is available
+    enabled: iocId !== -1 && iocId !== undefined, // Only fetch if param is available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
@@ -136,7 +165,7 @@ export function useWarehouse() {
     onSuccess: (data: any) => {
       setWarehouseTemporaryReceiptPurchaseShowResponse(data);
     },
-    enabled: receiptPurchaseId !== -1 && receiptPurchaseId!==undefined, // Only fetch if param is available
+    enabled: receiptPurchaseId !== -1 && receiptPurchaseId !== undefined, // Only fetch if param is available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<WarehouseTemporaryReceiptPurchaseShowResponse, Error, WarehouseTemporaryReceiptPurchaseShowResponse, unknown[]>);
@@ -158,9 +187,9 @@ export function useWarehouse() {
     onSuccess: (data: any) => {
       setWarehouseTemporaryReceiptSalesPricesResponse(data);
     },
-    enabled: id !== 0 && salesPriceId!==0, // Only fetch if param is available
+    enabled: id !== 0 && salesPriceId !== 0, // Only fetch if param is available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
-    refetchOnReconnect: false, // Refetch data when the network reconnects    
+    refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<WarehouseTemporaryReceiptSalesPricesResponse, Error, WarehouseTemporaryReceiptSalesPricesResponse, unknown[]>);
 
   //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
@@ -217,7 +246,7 @@ export function useWarehouse() {
         result: { total_count: 0, err: 0, msg: "", searchResults: [] },
       },
     },
-    // output for warehouseShowId
+    // output for warehouseShowId /api/WarehouseTemporaryReceipt/indentShow/1135730
     refetchWarehouseShowId: () => warehouseShowIdQuery.refetch(),
     isLoadingWarehouseShowId: warehouseShowIdQuery.isLoading,
     errorWarehouseShowId: warehouseShowIdQuery.error,
@@ -250,6 +279,41 @@ export function useWarehouse() {
         },
       },
     },
+    //output for warehouseTemporaryReceiptTitacShowResponse /api/WarehouseTemporaryReceipt/Show/1135730
+    refetchWarehouseTemporaryReceiptTitacShow: () =>
+      warehouseTemporaryReceiptTitacShowQuery.refetch(),
+    isLoadingWarehouseTemporaryReceiptTitacShow:
+      warehouseTemporaryReceiptTitacShowQuery.isLoading,
+    errorWarehouseTemporaryReceiptTitacShow:
+      warehouseTemporaryReceiptTitacShowQuery.error,
+    warehouseTemporaryReceiptTitacShowResponse:
+      warehouseTemporaryReceiptTitacShowQuery.data ?? {
+        meta: { errorCode: 0, message: "", type: "" },
+        data: {
+          result: {
+            wId: 0,
+            wName: "",
+            warehouseTemporaryReceiptMst: {
+              id: 0,
+              formId: 0,
+              code: "",
+              dat: "",
+              tim: "",
+              cId: 0,
+              srName: "",
+              gln: "",
+              exp: "",
+              guid: "",
+              status: 0,
+              msg: "",
+            },
+            warehouseTemporaryReceiptDtls: [],
+            totalCount: 0,
+            hasMore: false,
+          },
+          total_count: 0,
+        },
+      },
     //output for WarehouseTemporaryReceiptIndentList
     //getWarehouseIndentList: () => warehouseIndentListQuery.refetch(), // Optional manual trigger
     isLoadingWarehouseIndentList: warehouseIndentListQuery.isLoading,

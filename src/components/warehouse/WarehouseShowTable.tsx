@@ -97,13 +97,13 @@ const WarehouseShowTable = ({
           {
             Header: "بچ",
             accessor: "code",
-            width: "5%",
+            width: "6%",
             Cell: ({ value }: any) => convertToFarsiDigits(value),
           },
           {
             Header: "کد",
             accessor: "pCode",
-            width: "5%",
+            width: "4%",
             Cell: ({ value }: any) => convertToFarsiDigits(value),
           },
           {

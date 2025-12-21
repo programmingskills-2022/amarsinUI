@@ -585,6 +585,7 @@ export default function TTable<T extends object>({
                     const itemId = Number(
                       convertToLatinDigits(row.original["id" as keyof T])
                     );
+                    console.log("selected id in ttable",itemId)
                     setSelectedId?.(itemId);
                   }
                   //setRowSelect(i);

@@ -163,6 +163,7 @@ export interface ttacState
   importTTacStatusLtId: number; //for api/TTAC/ImportTTacStatus
   importTTacStatusTrigger: number; //for api/TTAC/ImportTTacStatus - triggers refetch
   ttacRequestId:number; // for /api/TTAC/Titac?Id=1123156
+  ttacRequestIdTrigger:number;// for /api/TTAC/Titac?Id=1123156
   getInventoryBalanceResponse: GetInventoryBalanceResponse;
   flowProductsSendAllResponse: FlowProductsSendAllResponse;
   cupboardCaptureResponse: CupboardCaptureResponse; //for api/TTAC/CupboardCapture

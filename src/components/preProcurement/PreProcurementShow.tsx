@@ -6,8 +6,6 @@ import { usePreProcurement } from "../../hooks/usePreProcurement";
 import PreProcurementShowHeader from "./PreProcurementShowHeader";
 import ModalForm from "../layout/ModalForm";
 import PreProcurementShowTable from "./PreProcurementShowTable";
-import { useGeneralContext } from "../../context/GeneralContext";
-import { useAttachmentStore } from "../../store/attachmentStore";
 import { v4 as uuidv4 } from "uuid";
 import PreProcurementAttachment from "./PreProcurementAttachment";
 
@@ -28,8 +26,6 @@ const PreProcurementShow = ({
     isLoadingPreProcurement,
   } = usePreProcurement();
   const { setField, id } = usePreProcurementStore();
-  const { setField: setAttachmentField } = useAttachmentStore();
-  const { systemId, yearId } = useGeneralContext();
   const [showAttachment, setShowAttachment] = useState(false);
   const [cnt, setCnt] = useState(0);
   const [guid, setGuid] = useState<string>("");
@@ -68,7 +64,7 @@ const PreProcurementShow = ({
   }, []);
   ////////////////////////////////////////////////////////
   //for initializing attachment fields for api/Attachment/list
-  useEffect(() => {
+  /*useEffect(() => {
     //console.log("give attachment fields");
     setAttachmentField("systemId", systemId);
     setAttachmentField("yearId", yearId);
@@ -76,13 +72,15 @@ const PreProcurementShow = ({
     setAttachmentField("prefix", "PreProcurement");
     setAttachmentField("GUID", guid);
   }, [workFlowRowSelectResponse.workTableRow.formId, systemId, yearId, guid]);
-
+*/
   return (
     <div>
       <PreProcurementShowHeader
         preProcurementResponse={preProcurementResponse}
         canEditForm={false}
         setShowAttachment={setShowAttachment}
+        guid={guid}
+        formId={workFlowRowSelectResponse.workTableRow.formId}
       />
       <div className="flex items-center w-full justify-between gap-2 py-1">
         <p className="px-2 text-sm">اقلام</p>

@@ -36,8 +36,8 @@ import ShowMessages from "../controls/ShowMessages";
 import { colors } from "../../utilities/color";
 import ModalMessage from "../layout/ModalMessage";
 import { v4 as uuidv4 } from "uuid";
-import { useAttachments } from "../../hooks/useAttachments";
-import { useAttachmentStore } from "../../store/attachmentStore";
+//import { useAttachments } from "../../hooks/useAttachments";
+//import { useAttachmentStore } from "../../store/attachmentStore";
 import AttachmentShowTableTabs from "../attachment/AttachmentShowTableTabs";
 import {
   DefinitionDateTime,
@@ -65,6 +65,7 @@ const PayRequestShow = ({
   const {
     setField: setPayRequestField,
     payRequestSaveResponse: payRequestSaveResponseStore,
+    id: payRequestId,
   } = usePayRequestStore();
   const { authApiResponse } = useAuthStore();
   const initData = authApiResponse?.data.result.initData;
@@ -146,8 +147,8 @@ const PayRequestShow = ({
     rpCustomerBillsResponse,
     isLoadingRpCustomerBills,
   } = usePayRequest();
-  const { attachments } = useAttachments();
-  const { setField: setAttachmentField } = useAttachmentStore();
+  //const { attachments } = useAttachments();
+  //const { setField: setAttachmentField } = useAttachmentStore();
 
   ////////////////////////////////////////////////////////
   useEffect(() => {
@@ -171,11 +172,20 @@ const PayRequestShow = ({
   //for /api/PayRequest?Id=..
   useEffect(() => {
     setActiveTab(2);
-    if (!isNew)
-      setPayRequestField("id", workFlowRowSelectResponse?.workTableRow.formId);
-    setPayRequestField("yearId", yearId);
-    setPayRequestField("systemId", systemId);
-  }, [workFlowRowSelectResponse?.workTableRow.formId, yearId, systemId]);
+  }, [workFlowRowSelectResponse?.workTableRow.formId]);
+
+  if (
+    payRequestId !== workFlowRowSelectResponse.workTableRow.formId &&
+    !isNew
+  ) {
+    //console.log(payRequestId, workFlowRowSelectResponse.workTableRow.formId);
+    setPayRequestField("id", workFlowRowSelectResponse?.workTableRow.formId);
+    setPayRequestField("yearIdDtl", yearId);
+    setPayRequestField("systemIdDtl", systemId);
+    setPayRequestField("yearId", -1);
+    setPayRequestField("systemId", -1);
+  }
+
   //initializing tab 0
   useEffect(() => {
     const tempData: PayRequestInvoicesTable[] =
@@ -244,7 +254,7 @@ const PayRequestShow = ({
   }, [isNew, payRequestResponse.data.result.payRequest.payRequests?.[0]?.guid]);
 
   /////////////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setAttachmentField("systemId", systemId);
     setAttachmentField("yearId", yearId);
     setAttachmentField(
@@ -262,14 +272,14 @@ const PayRequestShow = ({
     guid,
     isNew,
     workFlowRowSelectResponse.msg,
-  ]);
+  ]);*/
   /////////////////////////////////////////////////////////////for defining cnt
   useEffect(() => {
     let tempCnt = 0;
-    if (isNew && attachments.data.result.length === 0) {
+    if (isNew) {
       tempCnt = 0;
-    } else if (attachments.data.result.length !== 0) {
-      tempCnt = attachments.data.result.length ?? 0;
+      //} else if (attachments.data.result.length !== 0) {
+      //  tempCnt = attachments.data.result.length ?? 0;
     } else {
       tempCnt =
         payRequestResponse.data.result.payRequest.payRequests?.[0]
@@ -277,13 +287,13 @@ const PayRequestShow = ({
     }
     setCnt(tempCnt);
   }, [
-    attachments.data.result.length,
+    //attachments.data.result.length,
     isNew,
     payRequestResponse.data.result.payRequest.payRequests?.[0]?.attachCount,
   ]);
   /////////////////////////////////////////////////////////////
   useEffect(() => {
-    const invcs = payRequestResponse.data.result.invcs; 
+    const invcs = payRequestResponse.data.result.invcs;
     setDataInTab2(
       isNew
         ? []
@@ -396,7 +406,7 @@ const PayRequestShow = ({
       0
     );
     if (settleSum === 0) {
-      setNewPay(pay); 
+      setNewPay(pay);
     }
   }, [pay]);
   ////////////////////////////////////////////////////////////////////////////
@@ -406,22 +416,9 @@ const PayRequestShow = ({
     setField("customerIdRpCustomerBills", customer?.id ?? 0);
     setField("systemIdRpCustomerBills", systemId);
     setField("yearIdRpCustomerBills", yearId);
-    setField(
-      "fDateRpCustomerBills",
-      fDate ? convertToPersianDate(fDate) : ""
-    );
-    setField(
-      "tDateRpCustomerBills",
-      tDate ? convertToPersianDate(tDate) : ""
-    );
-  }, [
-    systemId,
-    yearId,
-    id,
-    customer?.id,
-    fDate,
-    tDate,
-  ]);
+    setField("fDateRpCustomerBills", fDate ? convertToPersianDate(fDate) : "");
+    setField("tDateRpCustomerBills", tDate ? convertToPersianDate(tDate) : "");
+  }, [systemId, yearId, id, customer?.id, fDate, tDate]);
   ////////////////////////////////////////////////////////////////////////////
   const handleSubmitSave = async (
     e?: React.MouseEvent<HTMLButtonElement>
@@ -479,9 +476,9 @@ const PayRequestShow = ({
       customerId: customer?.id ?? 0,
       dat: convertToLatinDigits(dat),
       tim: convertToLatinDigits(tim),
-      fDate: fDate ? convertToPersianDate(fDate) : "", 
-      tDate: tDate ? convertToPersianDate(tDate) : "", 
-      dueDate: dueDate ? convertToPersianDate(dueDate) : "", 
+      fDate: fDate ? convertToPersianDate(fDate) : "",
+      tDate: tDate ? convertToPersianDate(tDate) : "",
+      dueDate: dueDate ? convertToPersianDate(dueDate) : "",
       settleAmnt: convertToLatinDigits(settleAmnt),
       providerAmnt: convertToLatinDigits(providerAmnt),
       dsc,
@@ -531,6 +528,7 @@ const PayRequestShow = ({
     setShowInvoices(false);
   };
 
+  //console.log(isFromWorkflow, "isFromWorkflow")
   return (
     <div>
       <PayRequestShowHeader
@@ -638,7 +636,7 @@ const PayRequestShow = ({
       )}
       <ModalForm
         isOpen={showInvoices}
-        onClose={() => handleConfirm()} 
+        onClose={() => handleConfirm()}
         title="فاکتورهای تسویه نشده"
         width="2/3"
       >
@@ -663,7 +661,7 @@ const PayRequestShow = ({
       >
         <PayRequestAttachment
           formId={
-            isNew || workFlowRowSelectResponse.msg === "PayRequestOperationForm" 
+            isNew || workFlowRowSelectResponse.msg === "PayRequestOperationForm"
               ? 0
               : workFlowRowSelectResponse.workTableRow.formId
           }

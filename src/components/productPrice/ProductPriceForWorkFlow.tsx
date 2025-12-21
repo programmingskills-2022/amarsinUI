@@ -33,6 +33,8 @@ const ProductPriceForWorkFlow = ({ workFlowRowSelectResponse,definitionDateTime,
   
   const {yearId, systemId  }=useGeneralContext() 
   if (id!==workFlowRowSelectResponse.workTableRow.formId){
+    setField("yearId", -1);
+    setField("systemId", -1);
     setField("yearIdDtl", yearId);
     setField("systemIdDtl", systemId);
     setField("id", workFlowRowSelectResponse.workTableRow.formId);

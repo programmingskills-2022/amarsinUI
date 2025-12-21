@@ -23,6 +23,7 @@ import {
   convertToLatinDigits,
   currencyStringToNumber,
   formatNumberWithCommas,
+  normalizeInputForSearch,
 } from "../../utilities/general";
 import { useProductStore } from "../../store/productStore";
 import { useGeneralContext } from "../../context/GeneralContext";
@@ -423,19 +424,22 @@ const InvoiceReceiptShowTable = ({
   ////////////////////////////////////////////////////////
   // Filter data based on search terms
   useEffect(() => {
+    const normalizedProductSearch = normalizeInputForSearch(productSearch);
+    const normalizedBrandSearch = normalizeInputForSearch(brandSearch);
+    const normalizedDtlDscSearch = normalizeInputForSearch(dtlDscSearch);
+    
     if (originalData.length > 0) {
       const filtered = originalData
         .filter(
           (dtl) =>
-            dtl.bName.includes(brandSearch) &&
-            dtl.product.includes(productSearch) &&
-            dtl.dtlDsc.includes(dtlDscSearch)
+            normalizeInputForSearch(dtl.bName).includes(normalizedBrandSearch) &&
+            normalizeInputForSearch(dtl.product).includes(normalizedProductSearch) &&
+            normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
         )
         .map((row, idx) => ({ ...row, index: idx + 1 }));
 
       setData(filtered);
     }
-    //console.log(originalData)
   }, [brandSearch, productSearch, dtlDscSearch, originalData]);
   //////////////////////////////////////////////////////
   useEffect(() => {

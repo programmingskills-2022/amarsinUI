@@ -6,6 +6,7 @@ import {
   FlowDescription,
   WorkFlowDoFlowRequest,
   WorkFlowDoFlowResponse,
+  WorkflowResponse,
   WorkflowRowSelectResponse,
 } from "../../types/workflow";
 import { convertToFarsiDigits } from "../../utilities/general";
@@ -38,6 +39,8 @@ type Props = {
   cashPosSystemSearch: SearchItem[];
   showPathMessage: boolean;
   setShowPathMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 const WorkflowRowSelectHeader = ({
@@ -56,7 +59,9 @@ const WorkflowRowSelectHeader = ({
   cashPosSystemSearch,
   showPathMessage,
   setShowPathMessage,
-}: Props) => {
+  setWorkFlowResponse,
+}: //setWorkFlowRowSelectResponse,
+Props) => {
   const {
     title,
     page: pageNumber,
@@ -84,6 +89,7 @@ const WorkflowRowSelectHeader = ({
   const [flowMapId, setFlowMapId] = useState(-1); // for DocumentChangeDate param
   const [newWorkFlowRowSelectResponse, setNewWorkFlowRowSelectResponse] =
     useState(workFlowRowSelectResponse);
+  const [currentWorkTableRowId, setCurrentWorkTableRowId] = useState(0);
 
   // Actual timeout for showPathMessage
   useEffect(() => {
@@ -91,6 +97,7 @@ const WorkflowRowSelectHeader = ({
     if (showPathMessage) {
       timeoutId = setTimeout(() => {
         setShowPathMessage(false);
+        setIsFormAfterClickOpen(false);
       }, 3000);
     }
     return () => {
@@ -112,9 +119,14 @@ const WorkflowRowSelectHeader = ({
   ) => {
     e.preventDefault();
     setFlowMapId(flowButton.id);
-
+    console.log(flowButton, "flowButton");
     if (flowButton.formAfterClick !== null) {
       setIsFormAfterClickOpen(true);
+      console.log(
+        newWorkFlowRowSelectResponse,
+        workFlowRowSelectResponse.workTableRow.id,
+        "newWorkFlowRowSelectResponse,workFlowRowSelectResponse.workTableRow.id"
+      );
       setNewWorkFlowRowSelectResponse((prev) => {
         return {
           ...prev,
@@ -157,11 +169,26 @@ const WorkflowRowSelectHeader = ({
     };
     console.log(request, "request");
     try {
-      await doFlow(request);
-      setWorkFlowField("workTableIdTrigger", Date.now());
+      const response = await doFlow(request);
+      console.log(
+        response.data.result.workTable,
+        "response.data.result.workTable"
+      );
+      setWorkFlowResponse(response.data.result.workTable); // to refresh parent table in workflowForm
+      setCurrentWorkTableRowId(workFlowRowSelectResponse.workTableRow.id); // to keep previous id of parent table to find out if next and prev come to the same cartabl
+      if (
+        workFlowRowSelectResponse.workTableRow.id ===
+        response.data.result.workTableRowSelect.workTableRow.id
+      ) {
+        console.log("come to the same کارتابل");
+        setWorkFlowField("workTableIdTrigger", Date.now());
+      }
+      //setWorkFlowRowSelectResponse(response.data.result.workTableRowSelect)
+      //setWorkFlowField("workTableIdTrigger", Date.now());
     } catch (error) {
     } finally {
       console.log("finally");
+      //setIsRefreshing(true)
     }
   };
 
@@ -213,8 +240,7 @@ const WorkflowRowSelectHeader = ({
             );
           })}
       </div>
-      {
-        //!isLoadingdoFlow &&
+      {!isLoadingdoFlow && (
         <ModalMessage
           isOpen={showPathMessage} //just for DoFlow form showPathMessage
           onClose={() => setShowPathMessage(false)}
@@ -232,7 +258,7 @@ const WorkflowRowSelectHeader = ({
           message={workFlowDoFlowResponse?.meta.message || ""}
           visibleButton={false}
         />
-      }
+      )}
       {
         //just for opening FormAfterClick
         <ModalForm
@@ -244,17 +270,21 @@ const WorkflowRowSelectHeader = ({
               workFlowRowSelectResponse={newWorkFlowRowSelectResponse}
               refetchSwitch={false}
               setRefetchSwitch={() => {}}
-              isLoadingdoFlow={isLoadingdoFlow}
+              //isLoadingdoFlow={isLoadingdoFlow}
               //refetchWorkTable={refetchWorkTable}
               //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
               dsc={dsc}
               flowMapId={flowMapId}
-              setIsModalOpen={setShowPathMessage}
+              setIsModalOpen={setIsFormAfterClickOpen} // to open/close child form
+              setIsModalOpenMessage={setShowPathMessage} // to show/not show message after doflow
               definitionInvironment={definitionInvironment}
               definitionDateTime={definitionDateTime}
               isLoadingBanks={isLoadingBanks}
               banks={banks}
               cashPosSystemSearch={cashPosSystemSearch}
+              currentWorkTableRowId={currentWorkTableRowId}//send previous workTableId
+              setWorkFlowResponse={setWorkFlowResponse}
+              //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse}
             />
           }
           title={newWorkFlowRowSelectResponse.workTableForms.form1Title}

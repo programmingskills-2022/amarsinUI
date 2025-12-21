@@ -21,6 +21,7 @@ import ModalForm from "../layout/ModalForm";
 import ShowMessages from "../controls/ShowMessages";
 import { ShowProductListRequest } from "../../types/productOperation";
 import { useGeneralContext } from "../../context/GeneralContext";
+import { normalizeInputForSearch } from "../../utilities/general";
 
 type Props = {
   setIsNew: (isNew: boolean) => void;
@@ -157,12 +158,15 @@ const ProductPriceFormList = ({
   // Filter data based on search terms
   useEffect(() => {
     if (originalData.length > 0) {
+      const normalizedBrandSearch = normalizeInputForSearch(brandSearch);
+      const normalizedProductSearch = normalizeInputForSearch(productSearch);
+      const normalizedDtlDscSearch = normalizeInputForSearch(dtlDscSearch);
       const filtered = originalData
         .filter(
           (dtl) =>
-            dtl.bName.includes(brandSearch) &&
-            dtl.product.includes(productSearch) &&
-            dtl.dtlDsc.includes(dtlDscSearch)
+            normalizeInputForSearch(dtl.bName).includes(normalizedBrandSearch) &&
+            normalizeInputForSearch(dtl.product).includes(normalizedProductSearch) &&
+            normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
         )
         .map((row, idx) => ({ ...row, index: idx + 1 }));
 

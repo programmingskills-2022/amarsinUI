@@ -27,7 +27,7 @@ export const useProductStore = create<ProductState>()((set) => ({
   page: 1,
   //for salesPricesSearch req
   salesPricesSearchSearch: "",
-  salesPricesSearchPage: 1,
+  salesPricesSearchPage: -1,
   salesPricesSearchLastId: 0,
   //for indent/showProductList req
   mrsId: -1,

@@ -6,21 +6,29 @@ import { useCustomers } from "../../hooks/useCustomers";
 import { convertToFarsiDigits } from "../../utilities/general";
 import { colors } from "../../utilities/color";
 import Button from "../controls/Button";
+import { useAttachmentStore } from "../../store/attachmentStore";
+import { useGeneralContext } from "../../context/GeneralContext";
 
 type Props = {
   preProcurementResponse: PreProcurementResponse;
   canEditForm: boolean;
   setShowAttachment: React.Dispatch<React.SetStateAction<boolean>>;
+  guid:string;
+  formId:number
 };
 
 const PreProcurementShowHeader = ({
   preProcurementResponse,
   canEditForm,
   setShowAttachment,
+  guid,
+  formId
 }: Props) => {
   const { customers } = useCustomers();
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
   const [search, setSearch] = useState<string>("");
+  const { setField: setAttachmentField } = useAttachmentStore();
+  const { systemId, yearId } = useGeneralContext();
 
   useEffect(() => {
     console.log(search);
@@ -34,6 +42,19 @@ const PreProcurementShowHeader = ({
     preProcurementResponse.data.result.mst.customerId,
     preProcurementResponse.data.result.mst.customerName,
   ]);
+
+  const handleAttachmentClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAttachmentField("systemId", systemId);
+    setAttachmentField("yearId", yearId);
+    setAttachmentField("formId", formId);
+    setAttachmentField("prefix", "PreProcurement");
+    setAttachmentField("GUID", guid);
+    setShowAttachment(true);
+  };
 
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
@@ -90,9 +111,7 @@ const PreProcurementShowHeader = ({
           backgroundColor={colors.blue_400}
           backgroundColorHover={colors.blue_500}
           variant="w-32"
-          onClick={() => {
-            setShowAttachment(true);
-          }}
+          onClick={handleAttachmentClick}
         />
       </div>
     </div>

@@ -153,8 +153,8 @@ interface ResultWorkFlowDoFlow {
   err: number;
   msg: string;
   formAfterClick: FormAfterClick;
-  workTable: WorkTable;
-  workTableRowSelect: WorkTableRowSelect;
+  workTable: WorkflowResponse;
+  workTableRowSelect: WorkflowRowSelectResponse;
 }
 
 ///api/WFMS/flows?WorkTableId=994047&FormId=0&FlowNo=0&page=1

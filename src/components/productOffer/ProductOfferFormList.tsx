@@ -79,7 +79,6 @@ const ProductOfferFormList = ({
   );
   const [data, setData] = useState<ProductOfferProductTable2[]>([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in productOfferFormList table
-
   // Initialize data when addList changes
   useEffect(() => {
     if (addList.length > 0) {

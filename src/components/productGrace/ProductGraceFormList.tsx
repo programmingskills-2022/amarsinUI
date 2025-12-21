@@ -18,6 +18,7 @@ import ProductGraceFormListHistory from "./ProductGraceFormListHistory";
 import ProductGraceFormListHeader from "./ProductGraceFormListHeader";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { ShowProductListRequest } from "../../types/productOperation";
+import { normalizeInputForSearch } from "../../utilities/general";
 
 type Props = {
   setIsNew: (isNew: boolean) => void;
@@ -144,13 +145,16 @@ const ProductGraceFormList = ({
   ////////////////////////////////////////////////////////
   // Filter data based on search terms
   useEffect(() => {
+    const normalizedBrandSearch = normalizeInputForSearch(brandSearch);
+    const normalizedProductSearch = normalizeInputForSearch(productSearch);
+    const normalizedDtlDscSearch = normalizeInputForSearch(dtlDscSearch);
     if (originalData.length > 0) {
       const filtered = originalData
         .filter(
           (dtl) =>
-            dtl.bName.includes(brandSearch) &&
-            dtl.product.includes(productSearch) &&
-            dtl.dtlDsc.includes(dtlDscSearch)
+            normalizeInputForSearch(dtl.bName).includes(normalizedBrandSearch) &&
+            normalizeInputForSearch(dtl.product).includes(normalizedProductSearch) &&
+            normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
         )
         .map((row, idx) => ({ ...row, index: idx + 1 }));
 

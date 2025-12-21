@@ -2,6 +2,7 @@ import InvoiceShow from "../invoice/InvoiceShow";
 import WarehouseShow from "../warehouse/WarehouseShow";
 import {
   WorkFlowDoFlowRequest,
+  WorkflowResponse,
   WorkflowRowSelectResponse,
 } from "../../types/workflow";
 import InvoiceReceiptShow from "../invoiceReceipt/InvoiceReceiptShow";
@@ -21,10 +22,13 @@ import InventoryDetailShow from "../inventory/inventoryDetail/InventoryDetailSho
 import PreProcurementShow from "../preProcurement/PreProcurementShow";
 import DocumentChangeDate from "../../pages/workflow/DocumentChangeDate";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
-import { useWorkflowStore } from "../../store/workflowStore";
+//import { useWorkflowStore } from "../../store/workflowStore";
 import InvoicePaymentShow from "../invoicePayment/InvoicePaymentShow";
 import InvoiceReturnRequestShow from "../invoiceReturnRequest/InvoiceReturnRequestShow";
-import { DefinitionDateTime, DefinitionInvironment } from "../../types/definitionInvironment";
+import {
+  DefinitionDateTime,
+  DefinitionInvironment,
+} from "../../types/definitionInvironment";
 import { SearchItem } from "../../types/general";
 
 type Props = {
@@ -32,17 +36,21 @@ type Props = {
   refetchSwitch: boolean;
   setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
   doFlow: UseMutateAsyncFunction<any, Error, WorkFlowDoFlowRequest, unknown>;
-  isLoadingdoFlow: boolean;
+  //isLoadingdoFlow: boolean;
   //refetchWorkTable: () => void;
   //refetchWorkTableRowSelect: () => void;
   dsc?: string; // for  هامش
   flowMapId?: number;
   setIsModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  definitionInvironment:DefinitionInvironment;
-  definitionDateTime:DefinitionDateTime
-  isLoadingBanks:boolean;
-  banks: SearchItem[]
+  setIsModalOpenMessage?: React.Dispatch<React.SetStateAction<boolean>>;
+  definitionInvironment: DefinitionInvironment;
+  definitionDateTime: DefinitionDateTime;
+  isLoadingBanks: boolean;
+  banks: SearchItem[];
   cashPosSystemSearch: SearchItem[];
+  currentWorkTableRowId?:number
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 export default function WorkflowComponent({
@@ -50,21 +58,25 @@ export default function WorkflowComponent({
   refetchSwitch,
   setRefetchSwitch,
   doFlow,
-  isLoadingdoFlow,
+  //isLoadingdoFlow,
   //refetchWorkTable,
   //refetchWorkTableRowSelect,
   dsc,
   flowMapId,
-  setIsModalOpen,
+  setIsModalOpen,//to open/close child form
+  setIsModalOpenMessage, // to show/not show message after doflow
   definitionInvironment,
   definitionDateTime,
   isLoadingBanks,
   banks,
   cashPosSystemSearch,
+  currentWorkTableRowId,
+  setWorkFlowResponse,
+  //setWorkFlowRowSelectResponse
 }: Props) {
   let componentToRender1: React.ReactNode | null = null;
   let componentToRender2: React.ReactNode | null = null;
-  const { workFlowDoFlowResponse } = useWorkflowStore();
+  //const { workFlowDoFlowResponse } = useWorkflowStore();
 
   switch (workFlowRowSelectResponse.workTableForms.form1ViewPath) {
     case "Invoice/_Show":
@@ -159,7 +171,6 @@ export default function WorkflowComponent({
           definitionDateTime={definitionDateTime}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
-          
         />
       );
       break;
@@ -195,6 +206,7 @@ export default function WorkflowComponent({
       );
       break;
     case "PreInvoiceReturn/_PreInvoiceReturnWareHouseTemporaryReceipt": //مدیر انبار / تایید و ارسال به انبار- پیش فاکتور مرجوعی
+      //case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt":
       componentToRender1 = (
         <WarehouseTemporaryReceiptShow
           workFlowRowSelectResponse={workFlowRowSelectResponse}
@@ -213,13 +225,23 @@ export default function WorkflowComponent({
       );
       break;
     case "Delivery/_Delivery": //تیتک -> ارسال به تیتک
-    case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt":
     case "DeliveryReturn/_DeliveryReturn": //بازرگانی -> ثبت حواله مرجوعی
       componentToRender1 = (
         <DeliveryShow
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
+          isDeliveryForm={true}
+        />
+      );
+      break;
+    case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt": // کارشناس خرید -> تیتک
+      componentToRender1 = (
+        <DeliveryShow
+          workFlowRowSelectResponse={workFlowRowSelectResponse}
+          refetchSwitch={refetchSwitch}
+          setRefetchSwitch={setRefetchSwitch}
+          isDeliveryForm={false}
         />
       );
       break;
@@ -258,7 +280,7 @@ export default function WorkflowComponent({
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
-          formKind="isRequest"  //for showing or hiding the "اطلاعات ثبت" column
+          formKind="isRequest" //for showing or hiding the "اطلاعات ثبت" column
         />
       );
       break;
@@ -268,7 +290,7 @@ export default function WorkflowComponent({
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
-          formKind="isPreInvoice"  //for showing or hiding the "اطلاعات ثبت" column
+          formKind="isPreInvoice" //for showing or hiding the "اطلاعات ثبت" column
         />
       );
       break;
@@ -277,13 +299,17 @@ export default function WorkflowComponent({
         <DocumentChangeDate
           flowMapId={flowMapId ?? -1}
           workFlowRowSelectResponse={workFlowRowSelectResponse}
-          isLoadingdoFlow={isLoadingdoFlow}
+          //isLoadingdoFlow={isLoadingdoFlow}
           doFlow={doFlow}
-          workFlowDoFlowResponse={workFlowDoFlowResponse}
+          //workFlowDoFlowResponse={workFlowDoFlowResponse}
           //refetchWorkTable={refetchWorkTable}
           //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
           dsc={dsc ?? ""} // for  هامش
           setIsModalOpen={setIsModalOpen ?? (() => {})}
+          setIsModalOpenMessage={setIsModalOpenMessage ?? (() => {})}
+          currentWorkTableRowId={currentWorkTableRowId ?? 0}
+          setWorkFlowResponse={setWorkFlowResponse}
+          //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse}
         />
       );
       break;
@@ -356,7 +382,7 @@ export default function WorkflowComponent({
           setRefetchSwitch={setRefetchSwitch}
           definitionInvironment={definitionInvironment}
           banks={banks}
-          isLoadingBanks={isLoadingBanks}          
+          isLoadingBanks={isLoadingBanks}
           cashPosSystemSearch={cashPosSystemSearch}
         />
       );
@@ -431,6 +457,7 @@ export default function WorkflowComponent({
       );
       break;
     case "PreInvoiceReturn/_PreInvoiceReturnWareHouseTemporaryReceipt": //مدیر انبار / تایید و ارسال به انبار- پیش فاکتور مرجوعی
+      //case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt":
       componentToRender2 = (
         <WarehouseTemporaryReceiptShow
           workFlowRowSelectResponse={workFlowRowSelectResponse}
@@ -450,12 +477,22 @@ export default function WorkflowComponent({
       break;
     case "Delivery/_Delivery": //تیتک -> ارسال به تیتک
     case "DeliveryReturn/_DeliveryReturn": //بازرگانی -> ثبت حواله مرجوعی
-    case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt":
       componentToRender2 = (
         <DeliveryShow
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
+          isDeliveryForm={true}
+        />
+      );
+      break;
+    case "WarehouseTemporaryReceipt/_WarehouseTemporaryReceipt": // کارشناس خرید -> تیتک
+      componentToRender2 = (
+        <DeliveryShow
+          workFlowRowSelectResponse={workFlowRowSelectResponse}
+          refetchSwitch={refetchSwitch}
+          setRefetchSwitch={setRefetchSwitch}
+          isDeliveryForm={false}
         />
       );
       break;
@@ -494,7 +531,7 @@ export default function WorkflowComponent({
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
-          formKind="isRequest"  //for showing or hiding the "اطلاعات ثبت" column
+          formKind="isRequest" //for showing or hiding the "اطلاعات ثبت" column
         />
       );
       break;
@@ -504,7 +541,7 @@ export default function WorkflowComponent({
           workFlowRowSelectResponse={workFlowRowSelectResponse}
           refetchSwitch={refetchSwitch}
           setRefetchSwitch={setRefetchSwitch}
-          formKind="isPreInvoice"  //for showing or hiding the "اطلاعات ثبت" column
+          formKind="isPreInvoice" //for showing or hiding the "اطلاعات ثبت" column
         />
       );
       break;
@@ -513,13 +550,17 @@ export default function WorkflowComponent({
         <DocumentChangeDate
           flowMapId={flowMapId ?? -1}
           workFlowRowSelectResponse={workFlowRowSelectResponse}
-          isLoadingdoFlow={isLoadingdoFlow}
+          //isLoadingdoFlow={isLoadingdoFlow}
           doFlow={doFlow}
-          workFlowDoFlowResponse={workFlowDoFlowResponse}
+          //workFlowDoFlowResponse={workFlowDoFlowResponse}
           //refetchWorkTable={refetchWorkTable}
           //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
           dsc={dsc ?? ""} // for  هامش
           setIsModalOpen={setIsModalOpen ?? (() => {})}
+          setIsModalOpenMessage={setIsModalOpenMessage ?? (() => {})}
+          currentWorkTableRowId={currentWorkTableRowId ?? 0}
+          setWorkFlowResponse={setWorkFlowResponse}
+          //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse}
         />
       );
       break;

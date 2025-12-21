@@ -41,6 +41,8 @@ const ProductGraceForWorkFlow = ({
   if (id !== workFlowRowSelectResponse.workTableRow.formId) {
     setField("yearIdDtl", yearId);
     setField("systemIdDtl", systemId);
+    setField("yearId", -1);
+    setField("systemId", -1);
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
   }
 

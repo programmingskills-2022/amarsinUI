@@ -77,13 +77,17 @@ const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
     }
   }, [titacResponse]);
   useEffect(() => {
-    console.log(deliveryShowResponse.deliveryMst.id, "deliveryMstId");
-    setDeliveryMstId(deliveryShowResponse.deliveryMst.id);
-  }, [deliveryShowResponse]);
+    //console.log(deliveryShowResponse.deliveryMst.id, "deliveryMstId");
+    if (deliveryShowResponse.deliveryMst.id !== 0) {
+      setDeliveryMstId(deliveryShowResponse.deliveryMst.id);
+    }
+  }, [deliveryShowResponse.deliveryMst.id]);
   //for /api/TTAC/Titac?Id=1123156
   const ttacClick = () => {
     setIsTitacClick(true);
     setTTacField("ttacRequestId", deliveryMstId);
+    // Increment trigger to force refetch even with same values
+    setTTacField("ttacRequestIdTrigger", Date.now());
   };
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">

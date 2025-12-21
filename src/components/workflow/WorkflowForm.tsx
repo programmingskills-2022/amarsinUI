@@ -34,6 +34,8 @@ type Props = {
   setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
   definitionInvironment: DefinitionInvironment;
   definitionDateTime: DefinitionDateTime;
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 const WorkflowForm = ({
@@ -54,6 +56,8 @@ const WorkflowForm = ({
   setRefetchSwitch,
   definitionInvironment,
   definitionDateTime,
+  setWorkFlowResponse,
+  //setWorkFlowRowSelectResponse,
 }: Props) => {
   const [selectedId, setSelectedId] = useState<number>(-1);
   const { banks, isLoading: isLoadingBanks } = useBanks();
@@ -62,8 +66,8 @@ const WorkflowForm = ({
   const { setField } = useWorkflowStore();
   
   const handleSelectedIdChange = (id: number) => {
-    console.log(id, "id in WorkflowForm when clicked on each row");
-    if (id!==0 && id!==-1) {
+    if (id!==0 && id!==-1 ) {
+      console.log(id, "id in WorkflowForm when clicked on each row");
       setField("workTableId", id);
       setField("workTableIdTrigger", Date.now());
     }
@@ -103,6 +107,8 @@ const WorkflowForm = ({
         isLoadingBanks={isLoadingBanks}
         banks={banks}
         cashPosSystemSearch={cashPosSystemSearch}
+        setWorkFlowResponse={setWorkFlowResponse}
+        //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
       />
     </div>
   );

@@ -6,11 +6,12 @@ import {
   Column,
   DefaultOptionType,
 } from "../../types/general";
-import AutoComplete from "../controls/AutoComplete";
 import { convertToFarsiDigits } from "../../utilities/general";
 import { WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
 import HistoryIcon from "../../assets/images/GrayThem/history_gray_16.png";
 import { useWarehouseStore } from "../../store/warehouseStore";
+import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   warehouseTemporaryReceiptPurchaseShowResponse: WarehouseTemporaryReceiptPurchaseShowResponse;
@@ -43,13 +44,15 @@ const ReceiptPurchaseShowTableHeader = ({
 }: Props) => {
   const { salesPricesSearchResponse } = useProducts();
   const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
-  const { setField: setSalesPriceField } = useWarehouseStore();
-//for api/Product/salesPricesSearch req
-  useEffect(() => {
+  const { setField: setSalesPriceField } = useProductStore();//useWarehouseStore()
+  const {setField:setSalesPriceFieldInWarehouse}= useWarehouseStore()
+  const [isSalesPricesEntered, setIsSalesPricesEntered] = useState(false);
+  //for api/Product/salesPricesSearch req
+  /*useEffect(() => {
     setSalesPriceField("salesPricesSearch", salesPriceSearch); 
     setSalesPriceField("salesPricesSearchPage", 1);
     setSalesPriceField("lastId", 0);
-  }, [salesPriceSearch]);
+  }, [salesPriceSearch]);*/
 
   useEffect(() => {
     setSalesPrice({
@@ -58,12 +61,12 @@ const ReceiptPurchaseShowTableHeader = ({
         warehouseTemporaryReceiptPurchaseShowResponse.data.result.result.spTitle
       ),
     });
-    setSalesPriceField(
+    setSalesPriceFieldInWarehouse(
       "id",
       warehouseTemporaryReceiptPurchaseShowResponse.data.result.result
         .warehouseTemporaryReceiptMst.id
     );
-    setSalesPriceField(
+    setSalesPriceFieldInWarehouse(
       "salesPriceId",
       warehouseTemporaryReceiptPurchaseShowResponse.data.result.result.spId
     );
@@ -76,12 +79,13 @@ const ReceiptPurchaseShowTableHeader = ({
 
   //change purchase sales price
   const changeSalesPrice = (newValue: DefaultOptionType) => {
-    setSalesPriceField(
+    console.log(salesPriceSearch)
+    setSalesPriceFieldInWarehouse(
       "id",
       warehouseTemporaryReceiptPurchaseShowResponse.data.result.result
         .warehouseTemporaryReceiptMst.id
     );
-    setSalesPriceField("salesPriceId", newValue?.id ?? 1);
+    setSalesPriceFieldInWarehouse("salesPriceId", newValue?.id ?? 1);
     setSalesPrice(newValue);
     setSalesPriceSearch(newValue?.title ?? "");
   };
@@ -141,7 +145,27 @@ const ReceiptPurchaseShowTableHeader = ({
                           backgroundColor: column.backgroundColor,
                         }}
                       >
-                        <AutoComplete
+                        <AutoCompleteSearch
+                          label=""
+                          labelWidth="w-16"
+                          setField={setSalesPriceField}
+                          fieldValues={[
+                            { field: "lastId", value: 0 },
+                            { field: "salesPricesSearchPage", value: 1 },
+                          ]}
+                          fieldSearch="salesPricesSearch"
+                          selectedOption={salesPrice as DefaultOptionType}
+                          handleChange={(_event, newValue) => {
+                            changeSalesPrice(newValue as DefaultOptionType);
+                          }}
+                          options={salesPricesSearchResponse.map((b) => ({
+                            id: b.id,
+                            text: b.text,
+                          }))}
+                          isEntered={isSalesPricesEntered}
+                          setIsEntered={setIsSalesPricesEntered}
+                        />
+                        {/*<AutoComplete
                           disabled={false}
                           options={salesPricesSearchResponse.map((b) => ({
                             id: b.id,
@@ -160,7 +184,7 @@ const ReceiptPurchaseShowTableHeader = ({
                           textAlign="center"
                           desktopfontsize="12px"
                           placeholder="قیمت ..."
-                        />
+                        />*/}
                         {permissionPrice && (
                           <img
                             src={HistoryIcon}

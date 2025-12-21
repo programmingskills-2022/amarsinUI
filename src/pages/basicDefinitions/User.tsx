@@ -190,7 +190,7 @@ export default function User({ definitionInvironment }: Props) {
 
       {/* Main content */}
       <main className="px-2 w-full h-full flex flex-col md:flex-row items-start md:items-center justify-start md:gap-2 text-xs md:text-sm">
-        <div className="w-1/2 h-full">
+        <div className=" w-full md:w-1/2 h-full">
           <UserInfo
             users={users}
             isLoading={isLoadingUserList}
@@ -205,7 +205,7 @@ export default function User({ definitionInvironment }: Props) {
             //setIsCloseSelectUserModal={setIsCloseSelectUserModal}//to control not sending systemId and destUsrId when close select user modal
           />
         </div>
-        <div className="w-1/2 h-full flex flex-col">
+        <div className="w-full md:w-1/2 h-full flex flex-col">
           <UserPermissions
             permissions={permissions}
             systemUserPerms={systemUserPerms}

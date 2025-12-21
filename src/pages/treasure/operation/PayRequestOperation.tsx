@@ -215,6 +215,8 @@ const PayRequestOperation = ({ definitionInvironment, definitionDateTime }: Prop
     console.log("yearId in PayRequestOperation", yearId);
     setField("yearId", yearId);
     setField("systemId", systemId);
+    setField("yearIdDtl", yearId);
+    setField("systemIdDtl", systemId);
     setField("state", state);
 
     setField(

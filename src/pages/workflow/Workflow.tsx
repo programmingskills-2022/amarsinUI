@@ -6,7 +6,7 @@ import Refresh32 from "../../assets/images/GrayThem/rfrsh32.png";
 //import { useWorkflow } from "../hooks/useWorkflow";
 import WorkflowForm from "../../components/workflow/WorkflowForm";
 import { useWorkflow } from "../../hooks/useWorkflow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DefinitionDateTime,
   DefinitionInvironment,
@@ -14,6 +14,7 @@ import {
 import ModalForm from "../../components/layout/ModalForm";
 import WorkFlowFlows from "../../components/workflow/WorkFlowFlows";
 import { useWorkflowStore } from "../../store/workflowStore";
+import { WorkflowResponse } from "../../types/workflow";
 
 type Props = {
   definitionInvironment: DefinitionInvironment;
@@ -25,11 +26,11 @@ export default function Workflow({
   definitionDateTime,
 }: Props) {
   const {
-    workFlowResponse,
+    workFlowResponse:workFlowResponseFromHook,
     error,
     isLoading,
     isLoadingRowSelect,
-    workFlowRowSelectResponse,
+    workFlowRowSelectResponse,//:workFlowRowSelectResponseFromHook,
     errorRowSelect,
     doFlow,
     workFlowDoFlowResponse,
@@ -48,7 +49,17 @@ export default function Workflow({
 
   const [refetchSwitch, setRefetchSwitch] = useState(false);
   const [flowClicked, setFlowClicked] = useState(false);
+  const [workFlowResponse,setWorkFlowResponse] = useState<WorkflowResponse>(workFlowResponseFromHook);
+  //const [workFlowRowSelectResponse,setWorkFlowRowSelectResponse] = useState<WorkflowRowSelectResponse>(workFlowRowSelectResponseFromHook);
   //const { definitionInvironment } = useDefinitionInvironment();
+
+  useEffect(() => {
+    setWorkFlowResponse(workFlowResponseFromHook);
+  }, [workFlowResponseFromHook]);
+
+  /*useEffect(() => {
+    setWorkFlowRowSelectResponse(workFlowRowSelectResponseFromHook);
+  }, [workFlowRowSelectResponseFromHook]);*/
 
   const refetchWorkTables = () => {
     refetchWorkTable();
@@ -114,6 +125,8 @@ export default function Workflow({
           workFlowDoFlowResponse={workFlowDoFlowResponse}
           definitionInvironment={definitionInvironment}
           definitionDateTime={definitionDateTime}
+          setWorkFlowResponse={setWorkFlowResponse} // for updating workFlowResponse in WorkflowRowSelectHeader.tsx
+          //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
         />
         {/*open WorkFlowFlows if flowClicked is true*/}
         <ModalForm

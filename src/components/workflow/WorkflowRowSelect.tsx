@@ -3,6 +3,7 @@ import { Skeleton } from "@mui/material";
 import {
   WorkFlowDoFlowRequest,
   WorkFlowDoFlowResponse,
+  WorkflowResponse,
   WorkflowRowSelectResponse,
 } from "../../types/workflow";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
@@ -26,7 +27,8 @@ type Props = {
   isLoadingBanks:boolean;
   banks: SearchItem[]
   cashPosSystemSearch: SearchItem[];
-  
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 const WorkflowRowSelect = ({
@@ -44,7 +46,9 @@ const WorkflowRowSelect = ({
   definitionDateTime,
   isLoadingBanks,
   banks,
-  cashPosSystemSearch
+  cashPosSystemSearch,
+  setWorkFlowResponse,
+  //setWorkFlowRowSelectResponse,
 }: Props) => {
   const [showPathMessage, setShowPathMessage] = useState(false);
   if (error) return <div>Error: {error.message} </div>;
@@ -74,6 +78,8 @@ const WorkflowRowSelect = ({
             cashPosSystemSearch={cashPosSystemSearch}
             showPathMessage={showPathMessage}
             setShowPathMessage={setShowPathMessage}
+            setWorkFlowResponse={setWorkFlowResponse}
+            //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
           />
         </div>
       )}

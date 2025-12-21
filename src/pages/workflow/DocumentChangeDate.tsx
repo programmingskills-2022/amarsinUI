@@ -1,44 +1,52 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import Button from "../../components/controls/Button";
 import PersianDatePicker from "../../components/controls/PersianDatePicker";
 import { convertToPersianDate } from "../../utilities/general";
 import {
   WorkFlowDoFlowRequest,
-  WorkFlowDoFlowResponse,
+  WorkflowResponse,
   WorkflowRowSelectResponse,
 } from "../../types/workflow";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useGeneralContext } from "../../context/GeneralContext";
-import ModalMessage from "../../components/layout/ModalMessage";
+//import ModalMessage from "../../components/layout/ModalMessage";
 import { useWorkflowStore } from "../../store/workflowStore";
 
 type Props = {
   doFlow: UseMutateAsyncFunction<any, Error, WorkFlowDoFlowRequest, unknown>;
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
   flowMapId: number;
-  isLoadingdoFlow: boolean;
-  workFlowDoFlowResponse: WorkFlowDoFlowResponse;
+  //isLoadingdoFlow: boolean;
+  //workFlowDoFlowResponse: WorkFlowDoFlowResponse;
   //refetchWorkTable: () => void;
   //refetchWorkTableRowSelect: () => void;
   dsc: string;
-  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>; //to show DocumentChangeDate form or not
+  setIsModalOpenMessage: React.Dispatch<React.SetStateAction<boolean>>; //to show DocumentChangeDate form or not
+  currentWorkTableRowId: number;
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 const DocumentChangeDate = ({
   doFlow,
   workFlowRowSelectResponse,
   flowMapId,
-  isLoadingdoFlow,
-  workFlowDoFlowResponse,
+  //isLoadingdoFlow,
+  //workFlowDoFlowResponse,
   //refetchWorkTable,
   //refetchWorkTableRowSelect,
   dsc,
   setIsModalOpen,
-}: Props) => {
+  setIsModalOpenMessage,
+  currentWorkTableRowId,
+  setWorkFlowResponse,
+}: //setWorkFlowRowSelectResponse
+Props) => {
   const { setField: setWorkFlowField } = useWorkflowStore();
   const { chartId, systemId, yearId } = useGeneralContext();
-  const [isModalOpenMessage, setIsModalOpenMessage] = useState(false);
+  //const [isModalOpenMessage, setIsModalOpenMessage] = useState(false);// to show modal messages
   const [date, setDate] = useState<Date | null>(new Date());
   const {
     page: pageNumber,
@@ -51,10 +59,11 @@ const DocumentChangeDate = ({
     title,
   } = useWorkflowStore();
   /////////////////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (isModalOpenMessage) {
       timeoutId = setTimeout(() => {
+        console.log("come to setTimeout,", isModalOpenMessage);
         setIsModalOpenMessage(false); //close ModalMessage
         setIsModalOpen(false); // close DocumentChangeDate form
       }, 3000);
@@ -64,7 +73,7 @@ const DocumentChangeDate = ({
         clearTimeout(timeoutId);
       }
     };
-  }, [isModalOpenMessage]);
+  }, [isModalOpenMessage]);*/
   ////////////////////////////////////////////////////////////
   const handleDoFlow = async (
     e: React.MouseEvent<HTMLButtonElement>,
@@ -73,6 +82,7 @@ const DocumentChangeDate = ({
     e.preventDefault();
     //setIsModalOpen(false);
     setIsModalOpen(true);
+    console.log(workFlowRowSelectResponse);
     const request: WorkFlowDoFlowRequest = {
       chartId,
       systemId,
@@ -102,9 +112,21 @@ const DocumentChangeDate = ({
     try {
       const response = await doFlow(request);
       setIsModalOpenMessage(true); // to show message
-      setWorkFlowField("workTableIdTrigger", Date.now());
+      if (response.meta.errorCode <= 0) {
+        setWorkFlowResponse(response.data.result.workTable); // to refresh parent table in workflowForm
+      } 
+      if (
+        currentWorkTableRowId ===
+          response.data.result.workTableRowSelect.workTableRow.id &&
+        response.meta.errorCode <= 0
+      ){
+        console.log(response.data.result.workTableRowSelect.workTableRow.id,"response.data.result.workTableRowSelect.workTableRow.id")
+        setWorkFlowField("workTableIdTrigger", Date.now());
+      }
       //refetchWorkTableRowSelect();
-      console.log(response, "response");
+      //setWorkFlowResponse(response.data.result.workTable);
+      //setWorkFlowRowSelectResponse(response.data.result.workTableRowSelect)
+      console.log(response, "response for doFlow");
     } catch (error) {
     } finally {
       console.log("succeed");
@@ -132,10 +154,13 @@ const DocumentChangeDate = ({
         />
       </div>
       {/*{isModalOpenMessage && <p>dhsjdhj</p>}*/}
-      {!isLoadingdoFlow && (
+      {/*!isLoadingdoFlow && (
         <ModalMessage
           isOpen={isModalOpenMessage}
-          onClose={() => setIsModalOpenMessage(false)}
+          onClose={() => {
+            setIsModalOpenMessage(false);
+            setIsModalOpen(false);
+          }}
           backgroundColor={
             workFlowDoFlowResponse?.meta.errorCode <= 0
               ? "bg-green-200"
@@ -150,7 +175,7 @@ const DocumentChangeDate = ({
           message={workFlowDoFlowResponse?.meta.message || ""}
           visibleButton={false}
         />
-      )}
+      )*/}
     </>
   );
 };

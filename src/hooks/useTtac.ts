@@ -74,6 +74,7 @@ export function useTtac() {
     importTTacStatusTrigger, //for api/TTAC/ImportTTacStatus
     setImportTTacStatusResponse, //for api/TTAC/ImportTTacStatus
     ttacRequestId, //for  /api/TTAC/Titac?Id=1123156
+    ttacRequestIdTrigger,
     setTTacResponse, //for  /api/TTAC/Titac?Id=1123156
   } = useTTacStore();
   //for /api/TTAC/GetInventoryBalance?SystemId=4&YearId=15&SortId=0&SortIRC=0&SortLotNumber=0&SortWStock=0&SortCnt=0&SortNotSent=0&SortTCnt=0&PageNumber=1
@@ -340,13 +341,8 @@ export function useTtac() {
   } as UseQueryOptions<ImportTTacStatusResponse, Error, ImportTTacStatusResponse, unknown[]>);
 
   //for  /api/TTAC/Titac?Id=1123156
-  const titacQuery = useQuery<
-    TTacResponse,
-    Error,
-    TTacResponse,
-    unknown[]
-  >({
-    queryKey: ["titac", ttacRequestId],
+  const titacQuery = useQuery<TTacResponse, Error, TTacResponse, unknown[]>({
+    queryKey: ["titac", ttacRequestId, ttacRequestIdTrigger],
     queryFn: async () => {
       const url: string = `/api/TTAC/Titac?Id=${ttacRequestId}`;
       console.log(url, "url");
@@ -426,9 +422,8 @@ export function useTtac() {
     },
     //output for ImportTitac
     refetchImportTitac: () => titacQuery.refetch(),
-    isFetchingTitac: titacQuery.isFetching, 
-    isLoadingTitac:
-      titacQuery.isLoading || titacQuery.isPending,
+    isFetchingTitac: titacQuery.isFetching,
+    isLoadingTitac: titacQuery.isLoading || titacQuery.isPending,
     errorTitac: titacQuery.error,
     titacResponse: titacQuery.data ?? {
       meta: { errorCode: 0, message: "", type: "" },

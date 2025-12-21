@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { WarehouseState } from "../types/warehouse";
 
 export const useWarehouseStore = create<WarehouseState>()((set) => ({
+  // api/WarehouseTemporaryReceipt/indentShow/1135730
   warehouseShowIdResponse: {
     meta: { errorCode: 0, message: "", type: "" },
     data: {
@@ -125,6 +126,35 @@ export const useWarehouseStore = create<WarehouseState>()((set) => ({
     meta: { errorCode: 0, message: "", type: "" },
     data: { result: { id: 0, err: 0, msg: "", dtlErrMsgs: [] } },
   },
+  //for api/WarehouseTemporaryReceipt/Show/1135730
+  formIdWarehouseTemporaryReceiptTitac: -1,
+  warehouseTemporaryReceiptTitacShowResponse: {
+    meta: { errorCode: 0, message: "", type: "" },
+    data: {
+      result: {
+        wId: 0,
+        wName: "",
+        warehouseTemporaryReceiptMst: {
+          id: 0,
+          formId: 0,
+          code: "",
+          dat: "",
+          tim: "",
+          cId: 0,
+          srName: "",
+          gln: "",
+          exp: "",
+          guid: "",
+          status: 0,
+          msg: "",
+        },
+        warehouseTemporaryReceiptDtls: [],
+        totalCount: 0,
+        hasMore: false,
+      },
+      total_count: 0,
+    },
+  },
   setField: (field: string, value: any) => {
     set((state) => ({ ...state, [field]: value }));
   },
@@ -137,13 +167,20 @@ export const useWarehouseStore = create<WarehouseState>()((set) => ({
   setRegResponse: (regResponse) => set({ regResponse }),
   setWarehouseSearchResponse: (warehouseSearchResponse) =>
     set({ warehouseSearchResponse }),
-  setWarehouseTemporaryReceiptPurchaseShowResponse: ( //for api/WarehouseTemporaryReceipt/purchaseShow/1107390
+  setWarehouseTemporaryReceiptPurchaseShowResponse: (
+    //for api/WarehouseTemporaryReceipt/purchaseShow/1107390
     warehouseTemporaryReceiptPurchaseShowResponse
   ) => set({ warehouseTemporaryReceiptPurchaseShowResponse }),
-  setWarehouseTemporaryReceiptSalesPricesResponse: ( //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
+  setWarehouseTemporaryReceiptSalesPricesResponse: (
+    //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
     warehouseTemporaryReceiptSalesPricesResponse
   ) => set({ warehouseTemporaryReceiptSalesPricesResponse }),
-  setWarehouseTemporaryReceiptPurchaseRegResponse: ( //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
+  setWarehouseTemporaryReceiptPurchaseRegResponse: (
+    //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
     warehouseTemporaryReceiptPurchaseRegResponse
   ) => set({ warehouseTemporaryReceiptPurchaseRegResponse }),
+  setWarehouseTemporaryReceiptTitacShowResponse: (
+    //for api/WarehouseTemporaryReceipt/Show/1135730
+    warehouseTemporaryReceiptTitacShowResponse
+  ) => set({ warehouseTemporaryReceiptTitacShowResponse }),
 }));

@@ -162,6 +162,7 @@ const InvoiceReturnRequestShow = ({
         width="1/2"
       >
         <InvoiceReturnRequestInvoiceList
+          invoiceReturnRequestDtls={invoiceReturnRequestShowResponse.data.result.invoiceReturnRequestDtls}
           invoiceReturnRequestInvoiceListResponse={
             invoiceReturnRequestInvoiceListResponse
           }

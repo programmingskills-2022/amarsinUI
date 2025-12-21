@@ -36,6 +36,8 @@ type Props = {
   isLoadingBanks: boolean;
   banks: SearchItem[];
   cashPosSystemSearch: SearchItem[];
+  setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
+ //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 export const WorkflowChild = ({
@@ -58,6 +60,8 @@ export const WorkflowChild = ({
   isLoadingBanks,
   banks,
   cashPosSystemSearch,
+  setWorkFlowResponse,
+  //setWorkFlowRowSelectResponse, // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
 }: Props) => {
   //const [currentSelectedId, setCurrentSelectedId] = useState(selectedId);
   const { chartId, systemId } = useGeneralContext();
@@ -75,8 +79,8 @@ export const WorkflowChild = ({
   } = useWorkflowStore();
 
   useEffect(() => {
-    setField("workTableId", -1);
     console.log(isLoading, "isLoading in child");
+    setField("workTableId", -1);
   }, []);
 
   useEffect(() => {
@@ -85,14 +89,20 @@ export const WorkflowChild = ({
     // 1. If selectedId is provided and valid, use it
     // 2. If workflow parameters changed and no valid selection, use first record
     // 3. If no data available, use 0
-    /*console.log(
-      chartId,
-      workTableId,
-      selectedId,
-      workFlowResponse.workTables[0]?.id,
-      isLoading,
+    console.log(
+    selectedId,
+    chartId,
+    systemId,
+    page,
+    pageSize,
+    dateTime,
+    code,
+    cost,
+    flowMapId,
+    name,
+    dsc,
       "selectedId in child"
-    );*/
+    );
     if (selectedId === workTableId) {
       console.log("enter 0","workTableId", selectedId);
       return;
@@ -108,7 +118,7 @@ export const WorkflowChild = ({
       console.log("enter 3", "workTableId", -1);
     }
   }, [
-    selectedId,
+    //selectedId,
     chartId,
     systemId,
     page,
@@ -141,11 +151,13 @@ export const WorkflowChild = ({
           isLoadingBanks={isLoadingBanks}
           banks={banks}
           cashPosSystemSearch={cashPosSystemSearch}
+          setWorkFlowResponse={setWorkFlowResponse}
+          //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
         />
       )}
       <WorkflowComponent
         doFlow={doFlow}
-        isLoadingdoFlow={isLoadingdoFlow}
+        //isLoadingdoFlow={isLoadingdoFlow}
         workFlowRowSelectResponse={workFlowRowSelectResponse}
         refetchSwitch={refetchSwitch}
         setRefetchSwitch={setRefetchSwitch}
@@ -156,6 +168,8 @@ export const WorkflowChild = ({
         isLoadingBanks={isLoadingBanks}
         banks={banks}
         cashPosSystemSearch={cashPosSystemSearch}
+        setWorkFlowResponse={setWorkFlowResponse}
+        //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating 
       />
     </>
   );

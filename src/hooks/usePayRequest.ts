@@ -12,7 +12,6 @@ import {
   ChequeBookSearchResponse,
   PayRequestDoFirstFlowRequest,
   PayRequestInvoicesResponse,
-  PayRequestRequest,
   PayRequestResponse,
   PayRequestSaveRequest,
 } from "../types/payRequest";
@@ -23,6 +22,8 @@ export function usePayRequest() {
     id,
     yearId,
     systemId,
+    yearIdDtl,
+    systemIdDtl,
     state,
     regFDate,
     regTDate,
@@ -240,8 +241,8 @@ export function usePayRequest() {
     queryKey: [
       "payRequestDtl",
       id,
-      yearId,
-      systemId,
+      yearIdDtl,
+      systemIdDtl,
       state,
       regFDate,
       regTDate,
@@ -268,10 +269,10 @@ export function usePayRequest() {
       sortAmount,
     ],
     queryFn: async () => {
-      const params: PayRequestRequest = {
+      const params = {
         id,
-        yearId,
-        systemId,
+        yearIdDtl,
+        systemIdDtl,
         state,
         regFDate,
         regTDate,
@@ -298,8 +299,8 @@ export function usePayRequest() {
         sortAmount,
       };
       const url = `/api/PayRequest?Id=${params.id}&YearId=${
-        params.yearId
-      }&SystemId=${params.systemId}&State=${
+        params.yearIdDtl
+      }&SystemId=${params.systemIdDtl}&State=${
         params.state
       }&RegFDate=${encodeURIComponent(
         params.regFDate ?? ""
@@ -340,7 +341,7 @@ export function usePayRequest() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: id !== -1 && yearId !== -1 && systemId !== -1,
+    enabled: id !== -1 && yearIdDtl !== -1 && systemIdDtl !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

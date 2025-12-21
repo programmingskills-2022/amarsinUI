@@ -18,6 +18,7 @@ import { useGeneralContext } from "../../context/GeneralContext";
 import {
   convertToFarsiDigits,
   convertToLatinDigits,
+  formatNumberWithCommas,
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/productStore";
@@ -46,7 +47,6 @@ import { colors } from "../../utilities/color";
 import ModalForm from "../layout/ModalForm";
 import PayRequestAttachment from "../payRequest/PayRequestAttachment";
 import { useAttachmentStore } from "../../store/attachmentStore";
-import { useAttachments } from "../../hooks/useAttachments";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 
 type Props = {
@@ -88,7 +88,7 @@ export const headCells = [
   {
     Header: "کالا",
     accessor: "product",
-    width: "28%",
+    width: "26%",
     type: "autoComplete",
     placeholder: "کالا را انتخاب کنید...",
     Cell: EditableInput,
@@ -102,7 +102,7 @@ export const headCells = [
   {
     Header: "مالیات",
     accessor: "tax",
-    width: "4%",
+    width: "2%",
     Cell: ({ value }: any) => convertToFarsiDigits(value),
   },
   {
@@ -114,25 +114,28 @@ export const headCells = [
   {
     Header: "پخش",
     accessor: "p1O",
-    width: "3%",
-    Cell: ({ value }: any) => convertToFarsiDigits(value),
+    width: "4%",
+    Cell: ({ value }: any) =>
+      convertToFarsiDigits(formatNumberWithCommas(value ?? 0)),
   },
   {
     Header: "داروخانه",
     accessor: "p2O",
-    width: "3%",
-    Cell: ({ value }: any) => convertToFarsiDigits(value),
+    width: "4%",
+    Cell: ({ value }: any) =>
+      convertToFarsiDigits(formatNumberWithCommas(value ?? 0)),
   },
   {
     Header: "مصرف کننده",
     accessor: "p3O",
-    width: "3%",
-    Cell: ({ value }: any) => convertToFarsiDigits(value),
+    width: "4%",
+    Cell: ({ value }: any) =>
+      convertToFarsiDigits(formatNumberWithCommas(value ?? 0)),
   },
   {
     Header: "مشتری",
     accessor: "p4O",
-    width: "3%",
+    width: "4%",
     Cell: ({ value }: any) => convertToFarsiDigits(value),
   },
   {
@@ -252,7 +255,7 @@ const ProductPriceForm = ({
   const [isModalRegOpen, setIsModalRegOpen] = useState(false);
   const [isModalEmptyOpen, setIsModalEmptyOpen] = useState(false);
   //for attachment
-  const { attachments } = useAttachments();
+  //const { attachments } = useAttachments();
   const { setField: setAttachmentField } = useAttachmentStore();
   const [showAttachment, setShowAttachment] = useState<boolean>(false);
   const [guid, setGuid] = useState<string>("");
@@ -342,7 +345,7 @@ const ProductPriceForm = ({
       Header: "شرح",
       accessor: "dtlDsc",
     },
-  ]; 
+  ];
   ////////////////////////////////////////////////////////
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
@@ -526,13 +529,13 @@ const ProductPriceForm = ({
               lastDate: product.lastDate,
               lastBuyPrice: product.lastBuyPrice,
               tax: product.tax,
-              p1O: product.p1O>0 ? product.p1O : 0,
-              p2O: product.p2O>0 ? product.p2O : 0,
-              p3O: product.p3O>0 ? product.p3O : 0,
-              p4O: product.p4O>0 ? product.p4O : 0,
-              p5O: product.p5O>0 ? product.p5O : 0,
+              p1O: product.p1O > 0 ? product.p1O : 0,
+              p2O: product.p2O > 0 ? product.p2O : 0,
+              p3O: product.p3O > 0 ? product.p3O : 0,
+              p4O: product.p4O > 0 ? product.p4O : 0,
+              p5O: product.p5O > 0 ? product.p5O : 0,
               dtlDsc: product.dtlDsc,
-              deleted: product.deleted,   
+              deleted: product.deleted,
               isDeleted: false,
             },
           ];
@@ -621,8 +624,8 @@ const ProductPriceForm = ({
       if (response?.meta.message === "") {
         setIsNew(false);
         setIsEdit(false);
-        setIsModalRegOpen(false)
-      } 
+        setIsModalRegOpen(false);
+      }
       return response;
     } catch (error) {
       console.error("Error ثبت :", error);
@@ -633,19 +636,19 @@ const ProductPriceForm = ({
     let tempCnt = 0;
     console.log(
       isNew,
-      attachments.data.result.length,
-      "isNew and attachments.data.result.length === 0"
+      //attachments.data.result.length,
+      "isNew"
     );
-    if (isNew && attachments.data.result.length === 0) {
+    if (isNew) {
       tempCnt = 0;
-    } else if (attachments.data.result.length !== 0) {
-      tempCnt = attachments.data.result.length ?? 0;
+      //} else if (attachments.data.result.length !== 0) {
+      //  tempCnt = attachments.data.result.length ?? 0;
     } else {
       tempCnt = selectedProductPrice?.attachCount ?? 0;
     }
     setCnt(tempCnt);
   }, [
-    attachments.data.result.length,
+    //attachments.data.result.length,
     isNew,
     selectedProductPrice?.attachCount,
   ]);
@@ -660,13 +663,28 @@ const ProductPriceForm = ({
 
   /////////////////////////////////////////////////////////////
   //initializing attachment fields for api/Attachment/list
-  useEffect(() => {
+  /*useEffect(() => {
     setAttachmentField("systemId", systemId);
     setAttachmentField("yearId", yearId);
     setAttachmentField("formId", isNew ? 0 : selectedProductPrice?.id ?? 0);
     setAttachmentField("prefix", "ProductPrice");
     setAttachmentField("GUID", guid);
-  }, [selectedProductPrice?.id, systemId, yearId, guid, isNew]);
+  }, [selectedProductPrice?.id, systemId, yearId, guid, isNew]);*/
+  const handleAttachmentClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(isNew, selectedProductPrice, "selectedProductPrice");
+    if (!isNew) {
+      setAttachmentField("systemId", systemId);
+      setAttachmentField("yearId", yearId);
+      setAttachmentField("formId", selectedProductPrice?.id);
+      setAttachmentField("prefix", "ProductPrice");
+      setAttachmentField("GUID", guid);
+    }
+    setShowAttachment(true);
+  };
   return (
     <div className="flex flex-col gap-2">
       <ProductOfferFormParams
@@ -689,12 +707,7 @@ const ProductPriceForm = ({
             backgroundColor={colors.blue_400}
             backgroundColorHover={colors.blue_500}
             variant="w-32"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log(isNew, selectedProductPrice, "selectedProductPrice");
-              setShowAttachment(true);
-            }}
+            onClick={handleAttachmentClick}
           />
         }
       />
@@ -773,7 +786,7 @@ const ProductPriceForm = ({
       <ModalForm
         isOpen={showAttachment}
         onClose={() => setShowAttachment(false)}
-        title="ضمائم  لیست قیمت"
+        title="ضمائم لیست قیمت"
         width="1/2"
         height="90vh"
       >
