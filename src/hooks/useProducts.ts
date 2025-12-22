@@ -34,6 +34,7 @@ export function useProducts() {
     salesPricesSearchLastId,
     pId,
     mrsId,
+    mrsIdTrigger,
     // for indent/list
     id,
     acc_YearIndentRequest,
@@ -102,7 +103,7 @@ export function useProducts() {
 
   //for Indent/dtlHistory
   const dtlHistoryQuery = useQuery<IndentDtlHistoryResponse>({
-    queryKey: ["dtlHistory", pId, mrsId],
+    queryKey: ["dtlHistory", pId, mrsId, mrsIdTrigger],
     queryFn: async () => {
       const url: string = `api/Indent/dtlHistory?PId=${pId}&MrsId=${mrsId}`;
       console.log(url, "url");

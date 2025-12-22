@@ -12,6 +12,7 @@ export function useInvoiceReturnRequest() {
   const {
     invoiceReturnRequestId, //api/InvoiceReturnRequest/show?Id=2778
     invoiceListId, //api/InvoiceReturnRequest/invoiceList?Id=3712
+    invoiceListIdTrigger, //api/InvoiceReturnRequest/invoiceList?Id=3712
     invoiceReturnRequestDtlId, //api/InvoiceReturnRequest/registerDtl?InvoiceReturnRequestDtlId=3712
     setInvoiceReturnRequestShowResponse,
     setInvoiceReturnRequestInvoiceListResponse,
@@ -50,7 +51,7 @@ export function useInvoiceReturnRequest() {
     InvoiceReturnRequestInvoiceListResponse,
     unknown[]
   >({
-    queryKey: ["invoiceReturnRequestInvoiceList", invoiceListId],
+    queryKey: ["invoiceReturnRequestInvoiceList", invoiceListId, invoiceListIdTrigger],
     queryFn: async () => {
       const url: string = `/api/InvoiceReturnRequest/invoiceList?Id=${invoiceListId}`;
 

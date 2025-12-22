@@ -13,7 +13,7 @@ export interface SalesPricesSearchRequest {
   salesPricesSearchPage: number;
   lastId: number;
 }
-
+//for indent/showProductList
 export interface IndentDtlHistoryRequest {
   pId: number;
   mrsId: number;
@@ -332,6 +332,7 @@ export interface ProductState
   salesPricesSearchLastId: number;
   pId: number;
   mrsId: number;
+  mrsIdTrigger: number; // for history not caching
   //for /api/Product/search?search=search&page=1
   productSearchAccYear: number;
   productSearchAccSystem: number;

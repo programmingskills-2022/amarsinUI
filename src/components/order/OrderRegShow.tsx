@@ -250,6 +250,7 @@ const OrderRegShow = ({
   const handleShowHistory = (row: any) => {
     if (row.original.pId !== 0) {
       setProductOfferDtlHistoryField("pId", row.original.pId);
+      setProductOfferDtlHistoryField("pIdTrigger", Date.now());
       setShowHistory(true);
     }
   };
@@ -296,6 +297,7 @@ const OrderRegShow = ({
   useEffect(() => {
     if (editClicked2) {
       setOrderCupListField("OrderDtlId", otId);
+      setOrderCupListField("OrderDtlIdTrigger", Date.now());
       setOrderCupListField("WarehauseId", warehouse?.id ?? 0);
     }
   }, [editClicked2, otId, warehouse]);

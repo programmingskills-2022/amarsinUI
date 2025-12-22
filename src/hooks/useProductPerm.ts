@@ -45,6 +45,7 @@ export function useProductPerm() {
     sortUsrName,
     sortStep,
     pId,
+    pIdTrigger,
     //productPermResponse,
     setProductPermResponse,
     setProductPermListResponse,
@@ -285,7 +286,7 @@ export function useProductPerm() {
     ProductPermDtlHistoryResponse,
     unknown[]
   >({
-    queryKey: ["productPermDtlHistory", pId],
+    queryKey: ["productPermDtlHistory", pId, pIdTrigger],
     queryFn: async () => {
       const url = `/api/ProductPerm/dtlHistory?PId=${pId}`;
       console.log(url, "url");

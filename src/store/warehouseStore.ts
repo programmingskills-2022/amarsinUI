@@ -48,9 +48,11 @@ export const useWarehouseStore = create<WarehouseState>()((set) => ({
       result: { err: 0, msg: "", indents: [] },
     },
   },
+  ///api/WarehouseTemporaryReceipt/indentList/${iocId}
   formIdWarehouseTemporaryReceipt: -1,
   productId: -1,
   iocId: -1,
+  iocIdTrigger: 0,
   selectIndentsRequest: {
     iocId: 0,
     indents: {
@@ -113,7 +115,7 @@ export const useWarehouseStore = create<WarehouseState>()((set) => ({
     },
   },
   //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
-  id: 0,
+  id: -1,
   salesPriceId: 0,
   warehouseTemporaryReceiptSalesPricesResponse: {
     meta: { errorCode: 0, message: "", type: "" },

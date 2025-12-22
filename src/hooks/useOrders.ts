@@ -19,6 +19,7 @@ export function useOrders() {
     setOrderSalesPricesResponse,
     setOrderCupListResponse,
     OrderDtlId,
+    OrderDtlIdTrigger,
     WarehauseId,
   } = useOrderStore();
   //for Order/orderCupList
@@ -28,11 +29,12 @@ export function useOrders() {
     OrderCupListResponse,
     unknown[]
   >({
-    queryKey: ["orderCupList", OrderDtlId, WarehauseId],
+    queryKey: ["orderCupList", OrderDtlId, OrderDtlIdTrigger, WarehauseId],
     queryFn: async () => {
       const url = `/api/Order/orderCupList?OrderDtlId=${OrderDtlId}&WarehauseId=${WarehauseId}`;
       console.log(url, "url");
       const response = await api.get(url);
+      console.log(response.data)
       return response.data;
     },
     onSuccess: (data: any) => {

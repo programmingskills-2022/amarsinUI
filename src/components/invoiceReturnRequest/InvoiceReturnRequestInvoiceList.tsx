@@ -421,7 +421,6 @@ const InvoiceReturnRequestInvoiceList = ({
 
     try {
       console.log(request,"request")
-      console.log(invoiceListId, "invoiceListId");
       setField("invoiceReturnRequestDtlId", invoiceListId);
       const response = await invoiceReturnRequestRegisterDtl(request);
       console.log(response, "response in handleSubmit");

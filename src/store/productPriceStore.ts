@@ -41,6 +41,7 @@ export const useProductPriceStore = create<ProductPriceState>()((set) => ({
   sortStep: 0,
    //productPriceDtlHistory
   pId: -1,
+  pIdTrigger: 0,
   productPriceDtlHistoryResponse: {
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: [] },

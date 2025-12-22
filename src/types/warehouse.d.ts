@@ -330,11 +330,12 @@ export interface WarehouseState extends WarehouseSearchRequest {
   formIdWarehouseTemporaryReceipt: number;//for api/WarehouseTemporaryReceipt/indentShow/1135730
   formIdWarehouseTemporaryReceiptTitac: number;//for api/WarehouseTemporaryReceipt/Show/1135730
   productId: number;
-  iocId: number;
+  iocId: number; ///api/WarehouseTemporaryReceipt/indentList/${iocId}
+  iocIdTrigger: number; ///api/WarehouseTemporaryReceipt/indentList/${iocId}
   receiptPurchaseId:number;
   warehouseShowIdResponse: WarehouseShowIdResponse;///api/WarehouseTemporaryReceipt/indentShow/1135730 
   warehouseTemporaryReceiptPurchaseShowResponse: WarehouseTemporaryReceiptPurchaseShowResponse;///api/WarehouseTemporaryReceipt/purchaseShow/1107390
-  warehouseIndentListResponse: WarehouseIndentListResponse;
+  warehouseIndentListResponse: WarehouseIndentListResponse;///api/WarehouseTemporaryReceipt/indentList/${iocId}
   warehouseSearchResponse: WarehouseSearchResponse;
   id: number; //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1
   salesPriceId: number; //for api/WarehouseTemporaryReceipt/salesPrices?id=1106779&salesPriceId=1

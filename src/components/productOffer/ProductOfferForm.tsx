@@ -366,6 +366,7 @@ const ProductOfferForm = ({
     if (row.original.pId !== 0) {
       console.log(row.original, "row in product offer form");
       setProductOfferDtlHistoryField("pId", row.original.pId);
+      setProductOfferDtlHistoryField("pIdTrigger", Date.now());
       setShowHistory(true);
     }
   };

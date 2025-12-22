@@ -82,6 +82,7 @@ export const useOrderStore = create<OrderState>()((set) => ({
     },
   },
   OrderDtlId: -1,
+  OrderDtlIdTrigger: 0,
   WarehauseId: -1,
   //end for Order/orderCupList
   setField: (field: string | number | symbol, value: any) =>

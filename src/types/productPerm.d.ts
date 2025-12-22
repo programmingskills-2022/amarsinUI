@@ -156,6 +156,7 @@ interface ProductPermDelResponse {
 }
 export interface ProductPermState extends ProductPermRequest {
   pId: number; //for productPerm/dtlHistory
+  pIdTrigger: number; //for productPerm/dtlHistory
   productPermDoFirstFlowResponse: ProductPermDoFirstFlowResponse; //for productPerm/doFirstFlow
   setProductPermDoFirstFlowResponse: (
     productPermDoFirstFlowResponse: ProductPermDoFirstFlowResponse

@@ -46,6 +46,7 @@ import { ShowProductListRequest } from "../types/productOperation";
       sortUsrName,
       sortStep,
       pId,
+      pIdTrigger,
       //productGraceResponse,
       setProductGraceResponse,
       setProductGraceListResponse,
@@ -287,7 +288,7 @@ import { ShowProductListRequest } from "../types/productOperation";
       ProductGraceDtlHistoryResponse,
       unknown[]
     >({
-      queryKey: ["productGraceDtlHistory", pId],
+      queryKey: ["productGraceDtlHistory", pId, pIdTrigger],
       queryFn: async () => {
         const url = `/api/ProductGrace/dtlHistory?PId=${pId}`;
         console.log(url, "url");

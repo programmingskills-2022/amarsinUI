@@ -211,6 +211,7 @@ interface ProductPriceDelResponse {
 }
 export interface ProductPriceState extends ProductPriceRequest {
   pId: number; //for productPrice/dtlHistory
+  pIdTrigger: number; //for productPrice/dtlHistory
   productPriceDoFirstFlowResponse: ProductPriceDoFirstFlowResponse; //for productPrice/doFirstFlow
   setProductPriceDoFirstFlowResponse: (
     productPriceDoFirstFlowResponse: ProductPriceDoFirstFlowResponse

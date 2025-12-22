@@ -180,6 +180,7 @@ const InvoiceReturnRequestShowTable = ({
     setEditClicked(true);
     console.log(row.original.id, "row");
     setField("invoiceListId", row.original.id);
+    setField("invoiceListIdTrigger", Date.now());
   };
 
   useEffect(() => {

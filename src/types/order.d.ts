@@ -187,6 +187,7 @@ interface OrderSalesPricesResponse {
 //http://apitest.dotis.ir/api/Order/orderCupList?OrderDtlId=4172334&WarehauseId=8
 interface OrderCupListRequest {
   OrderDtlId: number;
+  OrderDtlIdTrigger: number;
   WarehauseId: number;
 }
 

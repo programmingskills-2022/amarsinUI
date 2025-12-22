@@ -42,6 +42,7 @@ export const useProductGraceStore = create<ProductGraceState>()((set) => ({
   sortStep: 0,
   //productOfferDtlHistory
   pId: -1,
+  pIdTrigger: 0,
   productGraceDtlHistoryResponse: {
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: [] },

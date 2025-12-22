@@ -31,6 +31,7 @@ export const useProductStore = create<ProductState>()((set) => ({
   salesPricesSearchLastId: 0,
   //for indent/showProductList req
   mrsId: -1,
+  mrsIdTrigger: 0,
   pId: -1,
   productId: 0,
   acc_Year: 0,

@@ -351,6 +351,7 @@ const ProductPriceForm = ({
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
       setProductPriceDtlHistoryField("pId", row.original.pId);
+      setProductPriceDtlHistoryField("pIdTrigger", Date.now());
       setShowHistory(true);
     }
   };

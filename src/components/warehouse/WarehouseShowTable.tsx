@@ -223,6 +223,7 @@ const WarehouseShowTable = ({
 
   const handleEditClick = (dtl: any) => {
     setField("iocId", dtl.original.iocId);
+    setField("iocIdTrigger", Date.now());
     setIocId(dtl.original.iocId);
     console.log(dtl, "dtl");
     setEditClicked(true);

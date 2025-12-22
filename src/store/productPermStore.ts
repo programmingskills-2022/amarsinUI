@@ -59,6 +59,7 @@ export const useProductPermStore = create<ProductPermState>()((set) => ({
   },
   ////////////
   pId: -1,
+  pIdTrigger: 0,
   //productPermSaveResponse
   productPermSaveResponse: {
     meta: { errorCode: 0, message: null, type: "" },

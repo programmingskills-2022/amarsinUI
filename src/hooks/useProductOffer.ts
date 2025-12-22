@@ -44,6 +44,7 @@ export function useProductOffer() {
     sortUsrName,
     sortStep,
     pId,
+    pIdTrigger,//for history not cashing
     //for productOffer/productOfferDoFirstFlow
     chartIdProductOfferDoFirstFlow,
     acc_SystemProductOfferDoFirstFlow,
@@ -273,7 +274,7 @@ export function useProductOffer() {
     ProductOfferDtlHistoryResponse,
     unknown[]
   >({
-    queryKey: ["productOfferDtlHistory", pId],
+    queryKey: ["productOfferDtlHistory", pId, pIdTrigger],
     queryFn: async () => {
       const url = `/api/ProductOffer/dtlHistory?PId=${pId}`;
       console.log("productOfferDtlHistory url", url);

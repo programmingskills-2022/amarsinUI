@@ -46,6 +46,7 @@ export const useInvoiceReturnRequestStore = create<InvoiceReturnRequestState>()(
       },
     },
     invoiceListId: -1,
+    invoiceListIdTrigger: 0,
     //api/InvoiceReturnRequest/registerDtl?InvoiceReturnRequestDtlId=3712
     invoiceReturnRequestDtlId: -1,
     invoiceReturnRequestRegisterDtlResponse: {

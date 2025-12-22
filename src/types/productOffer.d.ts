@@ -268,6 +268,7 @@ export interface ProductOfferState
     ShowProductListRequest,
     ProductOfferDoFirstFlowRequest {
   pId: number; //for product offer dtl history request
+  pIdTrigger: number; //for product offer dtl history request
   productOfferDtlHistoryResponse: ProductOfferDtlHistoryResponse; //for product offer dtl history
   showProductListResponse: ShowProductListResponse; //for show product list
   productOfferResponse: ProductOfferResponse; //for product offer

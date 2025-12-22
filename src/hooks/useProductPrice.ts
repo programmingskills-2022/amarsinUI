@@ -45,6 +45,7 @@ import { ShowProductListRequest } from "../types/productOperation";
       sortUsrName,
       sortStep,
       pId,
+      pIdTrigger,
       //productPriceResponse,
       setProductPriceResponse,
       setProductPriceListResponse,
@@ -285,7 +286,7 @@ import { ShowProductListRequest } from "../types/productOperation";
       ProductPriceDtlHistoryResponse,
       unknown[]
     >({
-      queryKey: ["productPriceDtlHistory", pId],
+      queryKey: ["productPriceDtlHistory", pId, pIdTrigger],
       queryFn: async () => {
         const url = `/api/ProductPrice/history/${pId}`;
         console.log(url, "url");

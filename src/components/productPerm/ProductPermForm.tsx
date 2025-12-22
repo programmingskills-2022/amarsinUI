@@ -250,6 +250,7 @@ const ProductPermForm = ({
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
       setProductPermDtlHistoryField("pId", row.original.pId);
+      setProductPermDtlHistoryField("pIdTrigger", Date.now());
       setShowHistory(true);
     }
   };

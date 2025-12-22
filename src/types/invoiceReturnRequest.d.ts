@@ -113,6 +113,7 @@ interface InvoiceReturnRequestRegisterDtlResponse {
 ///////////////////////////////////////////////////////////////
 export interface InvoiceReturnRequestState {
   invoiceListId: number;
+  invoiceListIdTrigger: number;
   invoiceReturnRequestId: number;//api/InvoiceReturnRequest/show?Id=2778
   invoiceReturnRequestDtlId: number;//api/InvoiceReturnRequest/registerDtl?InvoiceReturnRequestDtlId=3712
   invoiceReturnRequestShowResponse: InvoiceReturnRequestShowResponse;

@@ -44,6 +44,7 @@ export const useProductOfferStore = create<ProductOfferState>()((set) => ({
   },
   //productOfferDtlHistory
   pId: -1,
+  pIdTrigger: 0,
   productOfferDtlHistoryResponse: {
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: [] },

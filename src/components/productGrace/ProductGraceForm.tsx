@@ -295,6 +295,7 @@ const ProductGraceForm = ({
     if (row.original.pId !== 0) {
       console.log(row.original.pId, "row.original.pId");
       setProductGraceDtlHistoryField("pId", row.original.pId);
+      setProductGraceDtlHistoryField("pIdTrigger", Date.now());
       setShowHistory(true);
     }
   };
@@ -372,14 +373,14 @@ const ProductGraceForm = ({
       const loadData = async () => {
         const results = await Promise.all(
           productGraceDtls.map(async (item) => {
-            const request = {
+            /*const request = {
               id: 0,
               productId: item.pId,
               acc_Year: yearId,
               brands: brand?.map((b) => Number(b.id)) ?? [],
-            };
-            const res = await handleSubmit(undefined, request);
-            console.log(res, "res");
+            };*/
+            //const res = await handleSubmit(undefined, request);
+            //console.log(res, "res");
             console.log(item, "item");
             return {
               ...item,
@@ -387,19 +388,19 @@ const ProductGraceForm = ({
               pId: item.pId,
               bName: item.bName,
               product: item.product,
-              lastDate: res?.data.result.productGraceProducts[0].lastDate ?? item.lastDate,
+              lastDate: "",//res?.data.result.productGraceProducts[0].lastDate ?? item.lastDate,
               gd: item.gd,
               sc: item.sc,
               cc: item.cc,
               ec: item.ec,
-              gdo:
-                res?.data.result.productGraceProducts[0].gdo ?? 0, //item.gdo > 0 ? item.gdo : 0,
-              sco:
-                res?.data.result.productGraceProducts[0].sco ?? 0, //item.sco > 0 ? item.sco : 0,
-              cco:
-                res?.data.result.productGraceProducts[0].cco ?? 0, //item.cco > 0 ? item.cco : 0,
-              eco:
-                res?.data.result.productGraceProducts[0].eco ?? 0, //item.eco > 0 ? item.eco : 0,
+              gdo:0,
+                //res?.data.result.productGraceProducts[0].gdo ?? 0, //item.gdo > 0 ? item.gdo : 0,
+              sco:0,
+                //res?.data.result.productGraceProducts[0].sco ?? 0, //item.sco > 0 ? item.sco : 0,
+              cco:0,
+                //res?.data.result.productGraceProducts[0].cco ?? 0, //item.cco > 0 ? item.cco : 0,
+              eco:0,
+                //es?.data.result.productGraceProducts[0].eco ?? 0, //item.eco > 0 ? item.eco : 0,
               dtlDsc: item.dtlDsc,
               deleted: item.deleted,
               isDeleted: false,
@@ -466,6 +467,7 @@ const ProductGraceForm = ({
       acc_Year: yearId,
       brands: brand?.map((b) => Number(b.id)) ?? [],
     };
+    console.log("come to handleSubmitAndAddToTable")
     const res = await handleSubmit(e, request);
     if (res && res.data.result) {
       // Map through the new products

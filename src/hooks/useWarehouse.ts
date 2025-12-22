@@ -1,4 +1,8 @@
-import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import api from "../api/axios";
 import { useWarehouseStore } from "../store/warehouseStore";
 import {
@@ -17,6 +21,7 @@ export function useWarehouse() {
   const {
     formIdWarehouseTemporaryReceipt,
     iocId,
+    iocIdTrigger,
     //for api/Warehouse/Search?search=%D8%A7&page=1&pageSize=30&lastId=0&CustomerTypeId=-1
     search,
     page,
@@ -42,9 +47,7 @@ export function useWarehouse() {
     setWarehouseTemporaryReceiptPurchaseRegResponse, //for api/WarehouseTemporaryReceipt/purchaseReg?id=1106779&salesPriceId=1
     setWarehouseTemporaryReceiptTitacShowResponse, //for api/WarehouseTemporaryReceipt/Show/1135730
   } = useWarehouseStore();
-  //const { url: apiUrl } = useGeneralContext();
-  //console.log("[useWarehouse] Setting formId to", formId)
-  // for warehouseShowIdResponse
+
   //api/WarehouseTemporaryReceipt/indentShow/1135730
   const warehouseShowIdQuery = useQuery<
     WarehouseShowIdResponse,
@@ -132,7 +135,7 @@ export function useWarehouse() {
     WarehouseIndentListResponse,
     unknown[]
   >({
-    queryKey: ["warehouseIndentList", iocId],
+    queryKey: ["warehouseIndentList", iocId, iocIdTrigger],
     queryFn: async () => {
       const url: string = `/api/WarehouseTemporaryReceipt/indentList/${iocId}`;
       console.log(url, "url");
@@ -187,7 +190,7 @@ export function useWarehouse() {
     onSuccess: (data: any) => {
       setWarehouseTemporaryReceiptSalesPricesResponse(data);
     },
-    enabled: id !== 0 && salesPriceId !== 0, // Only fetch if param is available
+    enabled: id !== -1 && salesPriceId !== 0, // Only fetch if param is available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<WarehouseTemporaryReceiptSalesPricesResponse, Error, WarehouseTemporaryReceiptSalesPricesResponse, unknown[]>);
@@ -315,7 +318,7 @@ export function useWarehouse() {
         },
       },
     //output for WarehouseTemporaryReceiptIndentList
-    //getWarehouseIndentList: () => warehouseIndentListQuery.refetch(), // Optional manual trigger
+    RefetchWarehouseIndentList: () => warehouseIndentListQuery.refetch(), // Optional manual trigger
     isLoadingWarehouseIndentList: warehouseIndentListQuery.isLoading,
     errorWarehouseIndentList: warehouseIndentListQuery.error,
     warehouseIndentList: warehouseIndentListQuery.data ?? {

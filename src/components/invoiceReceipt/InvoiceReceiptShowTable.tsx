@@ -371,6 +371,7 @@ const InvoiceReceiptShowTable = ({
     if (row.original.pId !== 0) {
       setProductField("pId", row.original.pId);
       setProductField("mrsId", mrsId);
+      setProductField("mrsIdTrigger", Date.now());
       setShowHistory(true);
     }
   };
