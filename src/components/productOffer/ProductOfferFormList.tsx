@@ -125,32 +125,15 @@ const ProductOfferFormList = ({
   }, [!showDeleted]);
   //////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    // We also turn on the flag to not reset the page
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    );
-    // Also update the same row in originalData
-    const rowInOriginal = data[rowIndex];
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+    
+    const rowInOriginal = originalData.find((row) => row.id === currentRow.id);
     if (rowInOriginal) {
-      setOriginalData((origOld) =>
-        origOld.map((row) => {
-          if (row.id === rowInOriginal.id && row.pId === rowInOriginal.pId) {
-            return {
-              ...row,
-              [columnId]: value,
-            };
-          }
-          return row;
-        })
-      );
+      (rowInOriginal as any)[columnId] = value;
     }
   };
   ////////////////////////////////////////////////////
@@ -159,7 +142,8 @@ const ProductOfferFormList = ({
     rowIndex: number,
     columnId: string
   ) => {
-    updateMyData(rowIndex, columnId, value);
+    console.log(value, rowIndex, columnId, "come to changeRowValues in productOfferFormList");
+    //updateMyData(rowIndex, columnId, value);
   };
   /////////////////////////////////////////////////////
   const updateMyRow = async (rowIndex: number, value: DefaultOptionType) => {
@@ -171,6 +155,7 @@ const ProductOfferFormList = ({
       acc_Year: yearId,
       brands: [],
     };
+    console.log("come to updateMyRow in productOfferFormList", request);
     const response = await handleSubmit(undefined, request);
     let productOfferProducts: ProductOfferProduct[] | undefined =
       response?.data.result;
@@ -364,6 +349,7 @@ const ProductOfferFormList = ({
             selectedRowIndex={selectedRowIndex}
             setSelectedRowIndex={setSelectedRowIndex}
             data={data}
+            originalData={originalData}
             updateMyData={updateMyData}
             fontSize="0.75rem"
             changeRowSelectColor={true}

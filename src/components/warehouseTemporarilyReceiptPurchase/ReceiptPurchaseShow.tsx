@@ -39,6 +39,7 @@ const ReceiptPurchaseShow = ({
     isLoadingWarehouseTemporaryReceiptPurchaseReg,
     warehouseTemporaryReceiptPurchaseRegResponse,
     refetchWarehouseTemporaryReceiptPurchaseShow,
+    warehouseSearchResponse,
   } = useWarehouse();
 
   const {setField: setProductField} = useProductStore()
@@ -63,9 +64,12 @@ const ReceiptPurchaseShow = ({
       "receiptPurchaseId",
       workFlowRowSelectResponse?.workTableRow.formId
     );
+    setWarehouseField("iocId",-1) // Disable indentList query
+    setWarehouseField("id",-1) // to not fetching warehouseTemporaryReceiptSalesPricesQuery
+    setWarehouseField("idReg",-1) // Disable purchaseReg query
+    setWarehouseField("page",-1) //  Disable salesPrices query
     setProductField("salesPricesSearchPage",-1)
     setProductField("productSearchAccYear",-1)
-    setWarehouseField("id",-1) // to not fetching warehouseTemporaryReceiptSalesPricesQuery
     if (!canEditForm1Mst2) setCustomerField("yearIdCustomerSearch",-1) // to not fetching CustomerSearchQuery
     setProductPermField("yearId",-1)
     setProductPermField("yearIdDtl",-1)
@@ -91,6 +95,7 @@ const ReceiptPurchaseShow = ({
         warehouseTemporaryReceiptPurchaseShowResponse={
           warehouseTemporaryReceiptPurchaseShowResponse
         }
+        warehouseSearchResponse={warehouseSearchResponse}
         canEditForm1Mst2={canEditForm1Mst2}
       />
       <div className="flex items-center w-full justify-between gap-2 py-1">

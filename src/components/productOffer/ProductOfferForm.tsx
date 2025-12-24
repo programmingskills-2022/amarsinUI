@@ -317,7 +317,7 @@ const ProductOfferForm = ({
     });
   }, [products, setSearch]);
 
-////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
   //for excel head cells
   const excelHeadCellsList: TableColumns = [
@@ -497,12 +497,7 @@ const ProductOfferForm = ({
       setProductField("productSearchAccSystem", systemId);
       setProductField("productSearchAccYear", yearId);
       handleDebounceFilterChange("productSearchSearch", search);
-      // Note: productSearchPage is no longer needed with infinite query
-      // The query automatically resets when search term changes (it's in the queryKey)
     }
-    // to not allow calling salesPricesSearch when productSearch is called
-    //console.log("salesPricesSearchPage", -1);
-    //setProductField("salesPricesSearchPage", -1);
   }, [search, systemId, yearId]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -515,7 +510,6 @@ const ProductOfferForm = ({
       }
       // Create a new AbortController for this request
       abortControllerRef.current = new AbortController();
-
       setProductField(field as keyof ProductSearchRequest, value);
     }, 500),
     [setProductField]
@@ -635,6 +629,7 @@ const ProductOfferForm = ({
   ): Promise<ProductOfferSaveResponse | undefined> => {
     if (e) e.preventDefault();
     let request: ProductOfferSaveRequest;
+    console.log(originalData, "originalData in handleSubmitSave");
     const dtls: Dtl[] = originalData
       .filter((item) => item.pId !== 0)
       .map((item) => {
@@ -681,9 +676,11 @@ const ProductOfferForm = ({
     try {
       const response = await productOfferSave(request);
       setIsModalRegOpen(true);
-      //setIsNew(false);
-      //setIsEdit(false);
-      if (setSelectedRowIndex && isNew) setSelectedRowIndex(0);
+      console.log(
+        setSelectedRowIndex,
+        "setSelectedRowIndex in handleSubmitSave"
+      );
+      //if (setSelectedRowIndex && isNew) setSelectedRowIndex(0);
       return response;
       //console.log( "request");
     } catch (error) {

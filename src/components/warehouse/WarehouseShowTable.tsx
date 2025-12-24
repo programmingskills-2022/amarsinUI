@@ -46,7 +46,6 @@ const WarehouseShowTable = ({
   isLoadingWarehouseShowId,
   reg,
 }: Props) => {
-  //const { reg } = useWarehouse();
   const { authApiResponse } = useAuthStore();
   const { setField } = useWarehouseStore();
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in warehouseShowTable table

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useWarehouse } from "../../hooks/useWarehouse";
 import { useOrderStore } from "../../store/orderStore";
 import { ResultDeliveryShow } from "../../types/delivery";
 import { convertToFarsiDigits } from "../../utilities/general";
@@ -9,14 +8,15 @@ import { useTtac } from "../../hooks/useTtac";
 import { colors } from "../../utilities/color";
 import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 import { DefaultOptionType } from "../../types/general";
+import { WarehouseSearchResponse } from "../../types/warehouse";
 
 type Props = {
   deliveryShowResponse: ResultDeliveryShow;
+  warehouseSearchResponse: WarehouseSearchResponse
   canEditForm: boolean;
 };
 
-const DeliveryShowHeader = ({ deliveryShowResponse, canEditForm }: Props) => {
-  const { warehouseSearchResponse } = useWarehouse();
+const DeliveryShowHeader = ({ deliveryShowResponse, warehouseSearchResponse, canEditForm }: Props) => {
   const { titacResponse } = useTtac();
   const [warehouse, setWarehouse] = useState<DefaultOptionType | null>(null);
   const { setField: setTTacField } = useTTacStore();

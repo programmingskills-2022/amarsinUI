@@ -4,10 +4,8 @@ import {
   convertToLatinDigits,
 } from "../../utilities/general";
 import AutoComplete from "../controls/AutoComplete";
-import { useCustomers } from "../../hooks/useCustomers";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { useCustomerStore } from "../../store/customerStore";
-import { useBrand } from "../../hooks/useBrands";
 import { useBrandStore } from "../../store/brandStore";
 import { Fields } from "./InvoiceReceiptShow";
 import { useProductStore } from "../../store/productStore";
@@ -22,6 +20,8 @@ import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 
 type Props = {
   // canEditForm1Mst1: boolean;
+  brands: SearchItem[];
+  customers: SearchItem[];
   canEditForm: boolean;
   fields: Fields;
   setFields: React.Dispatch<React.SetStateAction<Fields>>;
@@ -29,18 +29,22 @@ type Props = {
 };
 const InvoiceReceipShowHeader = ({
   //canEditForm1Mst1,
+  brands,
+  customers,
   canEditForm,
   fields,
   setFields,
   salesPricesSearchResponse,
 }: Props) => {
-  const { customers } = useCustomers();
   //const [cusomerSearch, setCusomerSearch] = useState<string>("");
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
-  const [cusomerSearchCondition, setCusomerSearchCondition] =
+  const [customerSearchCondition, setCustomerSearchCondition] =
     useState<string>("");
-  const [brandsearch, setBrandSearch] = useState<string>("");
-  const [salesPricesearch, setSalesPriceSearch] = useState<string>("");
+  //const [brandsearch, setBrandSearch] = useState<string>("");
+  const [isBrandEntered, setIsBrandEntered] = useState<boolean>(false);
+  //const [salesPricesearch, setSalesPriceSearch] = useState<string>("");
+  const [isSalesPricesEntered, setIsSalesPricesEntered] =
+    useState<boolean>(false);
   const { systemId, yearId } = useGeneralContext();
   const { setField: setCusomerField } = useCustomerStore();
   const { setField: setBrandField } = useBrandStore();
@@ -49,28 +53,8 @@ const InvoiceReceipShowHeader = ({
   useEffect(() => {
     setCusomerField("systemIdCustomerSearch", systemId);
     setCusomerField("yearIdCustomerSearch", yearId);
-    setCusomerField("search", cusomerSearchCondition);
-  }, [cusomerSearchCondition, systemId, yearId]);
-  //for api/Customer/search?search=search&page=1&lastId=0
-  /*useEffect(() => {
-    setCusomerField("systemIdCustomerSearch", systemId);
-    setCusomerField("yearIdCustomerSearch", yearId);
-    setCusomerField("search", cusomerSearch);
-  }, [cusomerSearch, systemId,yearId]);*/
-
-  useEffect(() => {
-    setBrandField("accSystem", systemId);
-    setBrandField("search", brandsearch);
-  }, [brandsearch, systemId]);
-  const { brands } = useBrand();
-  //for api/Product/salesPricesSearch req
-  useEffect(() => {
-    setSalesPriceField("salesPricesSearchSearch", salesPricesearch);
-    setSalesPriceField("salesPricesSearchPage", 1);
-    setSalesPriceField("salesPricesSearchLastId", 0);
-  }, [salesPricesearch]);
-
-  //const { salesPricesSearchResponse } = useProducts();
+    setCusomerField("search", customerSearchCondition);
+  }, [customerSearchCondition, systemId, yearId]);
 
   const { isModalOpen, setIsModalOpen } = useGeneralContext();
   useEffect(() => {
@@ -131,33 +115,6 @@ const InvoiceReceipShowHeader = ({
           isEntered={isCustomerEntered}
           setIsEntered={setIsCustomerEntered}
         />
-        {/*<div className="w-full flex">
-          <label className="p-1 w-24 text-left">تامین کننده:</label>
-          <div className="bg-slate-50 flex w-full">
-            <AutoComplete
-              disabled={!canEditForm}
-              options={customers.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={fields.customer}
-              handleChange={(_event, newValue) => {
-                return setFields((prev: Fields) => {
-                  return {
-                    ...prev,
-                    customer: newValue as DefaultOptionTypeStringId,
-                  };
-                });
-              }}
-              backgroundColor={!canEditForm ? "inherit" : "white"}
-              setSearch={setCusomerSearch}
-              showLabel={false}
-              inputPadding="0 !important"
-              showClearIcon={false}
-              outlinedInputPadding="5px"
-            />
-          </div>
-        </div>*/}
         <div className="flex">
           <label className="p-1 w-24 text-left">سررسید:</label>
           <input
@@ -260,7 +217,7 @@ const InvoiceReceipShowHeader = ({
                   });
                 }}
                 multiple={true}
-                setSearch={setCusomerSearchCondition}
+                setSearch={setCustomerSearchCondition}
                 showLabel={false}
                 showClearIcon={false}
                 outlinedInputPadding="10px"
@@ -276,61 +233,71 @@ const InvoiceReceipShowHeader = ({
         </div>
       )}
       {canEditForm && (
-        <div className="w-full flex items-center">
-          <label htmlFor="year" className="p-1 w-32 md:w-24 text-left">
-            برند:
-          </label>
-          <div className="bg-slate-50 flex w-full">
-            <AutoComplete
-              options={brands.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={fields.brand}
-              handleChange={(_event, newValue) => {
-                return setFields((prev: Fields) => {
-                  return {
+        <AutoCompleteSearch
+          label="برند"
+          labelWidth="w-20"
+          setField={setBrandField}
+          fieldValues={[{ field: "accSystem", value: systemId }]}
+          fieldSearch="search"
+          selectedOption={
+            {
+              id: fields.brand?.[0]?.id ?? 0,
+              title: fields.brand?.[0]?.title ?? "",
+            } as DefaultOptionTypeStringId
+          }
+          setSelectedOption={
+            fields.brand
+              ? (newValue: any) => {
+                  setFields((prev: Fields) => ({
                     ...prev,
                     brand: newValue as DefaultOptionTypeStringId[],
-                  };
-                });
-              }}
-              multiple={true}
-              setSearch={setBrandSearch}
-              showLabel={false}
-              outlinedInputPadding="10px"
-              placeholder={
-                Array.isArray(fields.brand) && fields.brand.length > 0
-                  ? undefined
-                  : "برند را انتخاب کنید..."
-              }
-            />
-          </div>
-        </div>
+                  }));
+                }
+              : undefined
+          }
+          options={brands.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isBrandEntered}
+          setIsEntered={setIsBrandEntered}
+          placeholder="برند را انتخاب کنید..."
+        />
       )}
       <div className="flex flex-col md:flex-row w-full md:justify-center md:items-center">
-        <div className="md:w-1/3 flex items-center">
-          <label className="p-1 w-32 md:w-28 text-left">قیمت:</label>
-          <div className="bg-slate-50 flex w-full">
-            <AutoComplete
-              disabled={!canEditForm}
-              options={salesPricesSearchResponse.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={fields.price}
-              handleChange={(_event, newValue) => {
-                return setFields((prev: Fields) => {
-                  return { ...prev, price: newValue as DefaultOptionType };
-                });
-              }}
-              setSearch={setSalesPriceSearch}
-              showLabel={false}
-              outlinedInputPadding="10px"
-              backgroundColor={!canEditForm ? "inherit" : "white"}
-            />
-          </div>
-        </div>
+        <AutoCompleteSearch
+          label="قیمت"
+          labelWidth="w-20"
+          setField={setSalesPriceField}
+          fieldValues={[
+            { field: "lastId", value: 0 },
+            { field: "salesPricesSearchPage", value: 1 },
+          ]}
+          fieldSearch="salesPricesSearch"
+          selectedOption={
+            {
+              id: fields.price?.id ?? 0,
+              title: fields.price?.title ?? "",
+            } as DefaultOptionType
+          }
+          setSelectedOption={
+            fields.price
+              ? (newValue: any) => {
+                  setFields((prev: Fields) => ({
+                    ...prev,
+                    price: newValue as DefaultOptionType,
+                  }));
+                }
+              : undefined
+          }
+          options={salesPricesSearchResponse.map((b) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isSalesPricesEntered}
+          setIsEntered={setIsSalesPricesEntered}
+          placeholder="قیمت را انتخاب کنید..."
+        />
         <div className="md:w-1/3 flex items-center">
           <label className="p-1 w-32 text-left">فروش از تاریخ:</label>
           <PersianDatePicker

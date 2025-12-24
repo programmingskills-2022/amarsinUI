@@ -33,6 +33,7 @@ import ProductOfferFormListHistory from "../productOffer/ProductOfferFormListHis
 import { useProductOfferStore } from "../../store/productOfferStore";
 import { useProductOffer } from "../../hooks/useProductOffer";
 import { useProductStore } from "../../store/productStore";
+import { useWarehouseStore } from "../../store/warehouseStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -91,6 +92,14 @@ const OrderRegShow = ({
   const { setField: setProductOfferDtlHistoryField } = useProductOfferStore();
   const { productOfferDtlHistory, isLoadingProductOfferDtlHistory } =
     useProductOffer();
+
+  const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
+  const [warehouseSearch, setWarehouseSearch] = useState<string>("");
+  const { setField: setSalesPriceField } = useProductStore();
+  const { setField: setSalesPriceFieldInOrder } = useOrderStore();
+  const { salesPricesSearchResponse } = useProducts();
+  const { warehouseSearchResponse } = useWarehouse();
+  const { setField: setWarehouseField } = useWarehouseStore();
   const columns: TableColumns = [
     {
       Header: "اطلاعات سفارش",
@@ -288,6 +297,13 @@ const OrderRegShow = ({
   //for api/Order/orderRegShow?orderId=22052
   if (orderId !== workFlowRowSelectResponse?.workTableRow.formId) {
     setOrderField("orderId", workFlowRowSelectResponse?.workTableRow.formId);
+    setWarehouseField("formIdWarehouseTemporaryReceipt", -1); // Disable indentShow query
+    setWarehouseField("formIdWarehouseTemporaryReceiptTitac", -1); // Disable titacShow query
+    setWarehouseField("iocId", -1); // Disable indentList query
+    setWarehouseField("receiptPurchaseId", -1); // Disable purchaseShow query
+    setWarehouseField("id", -1); // Disable salesPrices query
+    setWarehouseField("idReg", -1); // Disable purchaseReg query
+    setWarehouseField("page", -1); //  Disable salesPrices query
   }
   /*useEffect(() => {
     //console.log(workFlowRowSelectResponse?.workTableRow.formId);
@@ -538,12 +554,6 @@ const OrderRegShow = ({
 
   const { width } = useCalculateTableHeight();
 
-  const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
-  const [warehouseSearch, setWarehouseSearch] = useState<string>("");
-  const { setField: setSalesPriceField } = useProductStore(); 
-  const { setField: setSalesPriceFieldInOrder } = useOrderStore(); 
-  const { salesPricesSearchResponse } = useProducts();
-  const { warehouseSearchResponse } = useWarehouse();
   // for /api/Product/salesPricesSearch?
   useEffect(() => {
     console.log(convertToLatinDigits(salesPriceSearch), "salesPriceSearch");

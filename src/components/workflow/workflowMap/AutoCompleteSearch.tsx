@@ -26,6 +26,7 @@ type Props = {
     newValue: DefaultOptionType | null
   ) => void;
   textAlign?: "left" | "center" | "right";
+  placeholder?: string;
 };
 
 const AutoCompleteSearch = ({
@@ -42,6 +43,7 @@ const AutoCompleteSearch = ({
   setIsEntered = () => {},
   handleChange = () => {},
   textAlign = "right",
+  placeholder = "",
 }: Props) => {
   const [search, setSearch] = useState("");
   //for api search
@@ -110,6 +112,7 @@ const AutoCompleteSearch = ({
           setIsEntered={setIsEntered}
           disabled={disabled}
           textAlign={textAlign}
+          placeholder={placeholder}
         />
       </div>
     </div>

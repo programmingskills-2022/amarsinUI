@@ -248,6 +248,8 @@ const ProductPriceFormList = ({
             product: productPriceProducts[0].product,
             pId: productPriceProducts[0].pId,
             lastDate: productPriceProducts[0].lastDate,
+            lastBuyPrice: productPriceProducts[0].lastBuyPrice,
+            tax: productPriceProducts[0].tax,
             p1O: productPriceProducts[0].p1O,
             p2O: productPriceProducts[0].p2O,
             p3O: productPriceProducts[0].p3O,
@@ -387,6 +389,8 @@ const ProductPriceFormList = ({
         ) {
           return {
             ...row,
+            lastBuyPrice: res.data.result[0].lastBuyPrice,
+            tax: res.data.result[0].tax,
             p1O: res.data.result[0].p1O,
             p2O: res.data.result[0].p2O,
             p3O: res.data.result[0].p3O,

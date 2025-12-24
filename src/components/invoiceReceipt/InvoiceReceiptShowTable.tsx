@@ -390,14 +390,9 @@ const InvoiceReceiptShowTable = ({
     );
   };
 
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
   const [originalData, setOriginalData] = useState<IndentDtlTable[]>([]);
   const [deletedData, setDeletedData] = useState<IndentDtlTable[]>([]);
   const [data, setData] = useState<IndentDtlTable[]>([]);
-
-  useEffect(() => {
-    console.log(skipPageReset);
-  }, []);
 
   ///////////////////////////////////////////////////////
   useEffect(() => {
@@ -428,13 +423,17 @@ const InvoiceReceiptShowTable = ({
     const normalizedProductSearch = normalizeInputForSearch(productSearch);
     const normalizedBrandSearch = normalizeInputForSearch(brandSearch);
     const normalizedDtlDscSearch = normalizeInputForSearch(dtlDscSearch);
-    
+
     if (originalData.length > 0) {
       const filtered = originalData
         .filter(
           (dtl) =>
-            normalizeInputForSearch(dtl.bName).includes(normalizedBrandSearch) &&
-            normalizeInputForSearch(dtl.product).includes(normalizedProductSearch) &&
+            normalizeInputForSearch(dtl.bName).includes(
+              normalizedBrandSearch
+            ) &&
+            normalizeInputForSearch(dtl.product).includes(
+              normalizedProductSearch
+            ) &&
             normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
         )
         .map((row, idx) => ({ ...row, index: idx + 1 }));
@@ -519,8 +518,9 @@ const InvoiceReceiptShowTable = ({
   };
   /////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
+    console.log(rowIndex, columnId, value, "come to updateMyData in InvoiceReceiptShowTable");
     // We also turn on the flag to not reset the page
-    setSkipPageReset(true);
+    /*setSkipPageReset(true);
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -546,38 +546,54 @@ const InvoiceReceiptShowTable = ({
           return row;
         })
       );
-    }
+    }*/
   };
   /////////////////////////////////////////////////////
-  const calculateTotal = useMemo(() => {
-    return (cost: string, cnt: string, dcrmnt: string, tax: number = 0) => {
-      return Math.round(
-        currencyStringToNumber(convertToLatinDigits(cost)) *
-          Number(convertToLatinDigits(cnt)) +
-          (currencyStringToNumber(convertToLatinDigits(cost)) *
-            Number(convertToLatinDigits(cnt)) *
-            tax) /
+  const calculateTotal = useCallback(
+    (rowIndex: number, params: string[]): number => {
+      const value0 = String((data as any)[rowIndex]?.[params[0]] ?? "");
+      const value1 = String((data as any)[rowIndex]?.[params[1]] ?? "");
+      const value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0");
+      const value3 = String((data as any)[rowIndex]?.[params[3]] ?? "0");
+
+      const result = Math.round(
+        currencyStringToNumber(convertToLatinDigits(value0)) *
+          currencyStringToNumber(convertToLatinDigits(value1)) +
+          (currencyStringToNumber(convertToLatinDigits(value0)) *
+            currencyStringToNumber(convertToLatinDigits(value1)) *
+            currencyStringToNumber(convertToLatinDigits(value2))) /
             100 -
-          currencyStringToNumber(convertToLatinDigits(dcrmnt))
+          currencyStringToNumber(convertToLatinDigits(value3))
       );
-    };
-  }, []);
+      //console.log(result, "result in calculateTotal");
+      return result;
+    },
+    [data]
+  );
   /////////////////////////////////////////////////////
-  const calculateTaxValue = useMemo(() => {
-    return (cost: string, cnt: string, tax: number = 0) => {
-      return Math.round(
-        (currencyStringToNumber(convertToLatinDigits(cost)) *
-          Number(convertToLatinDigits(cnt)) *
-          tax) /
+  const calculateTaxValue = useCallback(
+    (rowIndex: number, params: string[]): number => {
+      const value0 = String((data as any)[rowIndex]?.[params[0]] ?? "");
+      const value1 = String((data as any)[rowIndex]?.[params[1]] ?? "");
+      const value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0");
+
+      const result = Math.round(
+        (currencyStringToNumber(convertToLatinDigits(value0)) *
+          currencyStringToNumber(convertToLatinDigits(value1)) *
+          currencyStringToNumber(convertToLatinDigits(value2))) /
           100
       );
-    };
-  }, []);
+      //console.log(result, "result in calculateTaxValue");
+      return result;
+    },
+    [data]
+  );
 
   /////////////////////////////////////////////////////
   const changeRowValues = useCallback(
     (value: string, rowIndex: number, columnId: string) => {
-      if (
+      console.log(value, rowIndex, columnId, "come to changeRowValues in InvoiceReceiptShowTable");
+      /*if (
         columnId === "cost" ||
         columnId === "cnt" ||
         columnId === "tax" ||
@@ -632,7 +648,7 @@ const InvoiceReceiptShowTable = ({
             return row;
           })
         );
-      }
+      }*/
     },
     [calculateTotal, data]
   );
@@ -729,6 +745,19 @@ const InvoiceReceiptShowTable = ({
                 canEditForm={canEditForm}
                 columns={columns}
                 data={data}
+                originalData={originalData}
+                calculatedFieldfns={[
+                  {
+                    calcField: "taxValue",
+                    calculateFn: calculateTaxValue,
+                    params: ["cost", "cnt", "tax"],
+                  },
+                  {
+                    calcField: "total",
+                    calculateFn: calculateTotal,
+                    params: ["cost", "cnt", "dcrmnt", "tax"],
+                  },
+                ]}
                 selectedRowIndex={selectedRowIndex}
                 setSelectedRowIndex={setSelectedRowIndex}
                 updateMyData={updateMyData}

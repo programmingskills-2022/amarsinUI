@@ -3,19 +3,20 @@ import { convertToFarsiDigits } from "../../utilities/general";
 import AutoComplete from "../controls/AutoComplete";
 import { useCustomers } from "../../hooks/useCustomers";
 import { DefaultOptionType } from "../../types/general";
-import { WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
-import { useWarehouse } from "../../hooks/useWarehouse";
+import { WarehouseSearchResponse, WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
 import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { useCustomerStore } from "../../store/customerStore";
 
 type Props = {
   warehouseTemporaryReceiptPurchaseShowResponse: WarehouseTemporaryReceiptPurchaseShowResponse;
+  warehouseSearchResponse: WarehouseSearchResponse;
   canEditForm1Mst2: boolean;
 };
 
 const ReceiptPurchaseShowHeader = ({
   warehouseTemporaryReceiptPurchaseShowResponse,
+  warehouseSearchResponse,
   canEditForm1Mst2,
 }: Props) => {
   const [customer, setCustomer] = useState<DefaultOptionType | null>(null);
@@ -27,7 +28,6 @@ const ReceiptPurchaseShowHeader = ({
   const { setField: setCustomerField } = useCustomerStore();
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
-  const { warehouseSearchResponse } = useWarehouse();
   const [warehouseSearch, setWarehouseSearch] = useState<string>("");
   const [warehouse, setWarehouse] = useState<DefaultOptionType | null>(null);
 

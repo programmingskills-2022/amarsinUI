@@ -664,13 +664,6 @@ const ProductPriceForm = ({
 
   /////////////////////////////////////////////////////////////
   //initializing attachment fields for api/Attachment/list
-  /*useEffect(() => {
-    setAttachmentField("systemId", systemId);
-    setAttachmentField("yearId", yearId);
-    setAttachmentField("formId", isNew ? 0 : selectedProductPrice?.id ?? 0);
-    setAttachmentField("prefix", "ProductPrice");
-    setAttachmentField("GUID", guid);
-  }, [selectedProductPrice?.id, systemId, yearId, guid, isNew]);*/
   const handleAttachmentClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {

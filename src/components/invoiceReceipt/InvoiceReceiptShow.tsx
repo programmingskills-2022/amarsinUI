@@ -1,10 +1,6 @@
+//Indent/_CreateIndent
 //کارشناس خرید => دریافت پیش فاکتور
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useInvoiceReceipt } from "../../hooks/useInvoiceReceipt";
 import { WorkflowRowSelectResponse } from "../../types/workflow";
 import { useInvoiceReceiptStore } from "../../store/invoiceReceiptStore";
@@ -29,6 +25,9 @@ import { IndentDtl, IndentDtlTable } from "../../types/invoiceReceipt";
 import { handleExport } from "../../utilities/ExcelExport";
 import { useProductStore } from "../../store/productStore";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
+import { useBrandStore } from "../../store/brandStore";
+import { useBrand } from "../../hooks/useBrands";
+import { useCustomers } from "../../hooks/useCustomers";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -65,6 +64,19 @@ const InvoiceReceiptShow = ({
 Props) => {
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm1;
   const { setField, mrsId: mrsIdStore } = useInvoiceReceiptStore();
+  const { setField: setProductField } = useProductStore();
+  const { setField: setBrandField } = useBrandStore();
+  const {customers} = useCustomers();
+  const {brands} = useBrand();
+  const { indentMrsResponse, isLoading, getIndentMrsResponse } =
+  useInvoiceReceipt();  const {
+    salesPricesSearchResponse,
+    addProductList,
+    //products,
+    saveList,
+    isLoadingSaveList,
+    isDtHistoryLoading,
+  } = useProducts();
   const { yearId } = useGeneralContext();
   //for excel data
   const [excelData, setExcelData] = useState<any[]>([]);
@@ -117,39 +129,16 @@ Props) => {
     },
   ];
   // Set mrsId BEFORE useInvoiceReceipt hook runs to prevent stale queries
-  if (mrsIdStore !== workFlowRowSelectResponse.workTableRow.formId)
+  if (mrsIdStore !== workFlowRowSelectResponse.workTableRow.formId) {
     setField("mrsId", workFlowRowSelectResponse.workTableRow.formId);
+  }
 
-  const { indentMrsResponse, isLoading, getIndentMrsResponse } =
-    useInvoiceReceipt();
-
-  // Reset pId and mrsId in productStore to prevent stale dtlHistory queries
-  // These should only be set when handleShowHistory is called
-  const { setField: setProductField } = useProductStore();
-  const { pId: pIdStore, mrsId: mrsIdInProductStore } = useProductStore();
   useEffect(() => {
-    if (pIdStore !== -1 || mrsIdInProductStore !== -1) {
-      setProductField("pId", -1);
-      setProductField("mrsId", -1);
-    }
-  }, []);
-
-  const {
-    salesPricesSearchResponse,
-    addProductList,
-    //products,
-    saveList,
-    isLoadingSaveList,
-    isDtHistoryLoading,
-  } = useProducts();
-
-  //const { definitionDateTime } = useDefinitionInvironment();
-  if (mrsIdStore !== workFlowRowSelectResponse.workTableRow.formId)
-    setField("mrsId", workFlowRowSelectResponse.workTableRow.formId);
-  /*useEffect(() => {
-    if (mrsId !== workFlowRowSelectResponse.workTableRow.formId)
-      setField("mrsId", workFlowRowSelectResponse.workTableRow.formId);
-  }, [workFlowRowSelectResponse.workTableRow.formId]);*/
+    setBrandField("accSystem", -1);
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query
+    setProductField("pId", -1);
+    setProductField("mrsId", -1);
+  }, [workFlowRowSelectResponse.workTableRow.formId]);
 
   const [fields, setFields] = useState<Fields>({
     customer: {
@@ -412,33 +401,6 @@ Props) => {
     };
   }, [isModalOpen]);
 
-/*  const [search, setSearch] = useState<string>("");
-  //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
-    if (canEditForm) {
-      setProductField("productSearchAccSystem", systemId);
-      setProductField("productSearchAccYear", yearId);
-      handleDebounceFilterChange("productSearchSearch", search);
-      setProductField("productSearchPage", 1);
-    }
-    // to not allow calling salesPricesSearch when productSearch is called
-    setProductField("salesPricesSearchPage", -1);
-  }, [search, systemId, yearId]);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  ///////////////////////////////////////////////////////
-  const handleDebounceFilterChange = useCallback(
-    debounce((field: string, value: string | number) => {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      // Create a new AbortController for this request
-      abortControllerRef.current = new AbortController();
-
-      setProductField(field as keyof ProductSearchRequest, value);
-    }, 500),
-    [setProductField]
-  );*/
   ////////////////////////////////////////////////////////
   useEffect(() => {
     if (isNew && addList.length === 0) {
@@ -468,7 +430,8 @@ Props) => {
   return (
     <div className="w-full flex flex-col">
       <InvoiceReceipShowHeader
-        //canEditForm1Mst1={canEditForm1Mst1}
+        brands={brands}
+        customers={customers}
         canEditForm={canEditForm}
         fields={fields}
         setFields={setFields}
@@ -519,7 +482,6 @@ Props) => {
 
       <InvoiceReceiptShowTable
         isNew={isNew}
-        //setProductSearchinTable={setSearch}
         canEditForm={canEditForm}
         indentMrsResponse={indentMrsResponse}
         isLoading={isLoading}
@@ -530,10 +492,6 @@ Props) => {
         mrsId={workFlowRowSelectResponse.workTableRow.formId}
         fields={fields}
         newRow={newRow}
-        /*products={products.map((p) => ({
-          id: p.pId,
-          title: p.n,
-        }))}*/
         saveList={saveList}
         isLoadingSaveList={isLoadingSaveList}
         isDtHistoryLoading={isDtHistoryLoading}

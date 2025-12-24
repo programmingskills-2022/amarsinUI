@@ -31,8 +31,6 @@ const WarehouseIndentTable = ({
   editIndents,
 }: Props) => {
   const { setIsModalOpen } = useGeneralContext();
-  //const { isLoadingWarehouseIndentList, warehouseIndentList, editIndents } =
-  //  useWarehouse();
 
   const columns = React.useMemo(
     () => [

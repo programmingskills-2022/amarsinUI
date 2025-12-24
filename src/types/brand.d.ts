@@ -14,7 +14,7 @@ export interface BrandRequest{
 
 export interface BrandState extends BrandRequest{
     brands:SearchItem[]
-    setField: (field: keyof BrandRequest, value: any) => void;
+    setField: (field: string , value: string | number) => void;
     setBrands:(brands:Brand[]) =>void
     
 }

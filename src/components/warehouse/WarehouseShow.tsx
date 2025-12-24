@@ -13,6 +13,7 @@ import { useWarehouse } from "../../hooks/useWarehouse";
 import WarehouseIndentTable from "./WarehouseIndentTable";
 import ShowMessages from "../controls/ShowMessages";
 import { colors } from "../../utilities/color";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -30,6 +31,7 @@ const WarehouseShow = ({
   const [confirmHasError, setConfirmHasError] = useState(false);
   const { selectIndentsResponse, regResponse, formIdWarehouseTemporaryReceipt, setField } =
     useWarehouseStore();
+  const { setField: setProductField } = useProductStore();
   //const { setField: setTTacField } = useTTacStore();
 
   // Set formId BEFORE useWarehouse hook runs to prevent stale queries
@@ -37,7 +39,11 @@ const WarehouseShow = ({
     setField("formIdWarehouseTemporaryReceipt", workFlowRowSelectResponse.workTableRow.formId);
     setField("formIdWarehouseTemporaryReceiptTitac", -1);
     setField("receiptPurchaseId", -1);
-    setField("idProductCatalogRequest", -1);
+    setProductField("idProductCatalogRequest", -1); // Disable productCatalog query
+    setField("iocId", -1); // Disable indentList query
+    setField("id", -1); // Disable salesPrices query
+    setField("idReg", -1); // Disable purchaseReg query
+    setField("page", -1); //  Disable salesPrices query
   }
 
   //console.log("jskdjskjd")

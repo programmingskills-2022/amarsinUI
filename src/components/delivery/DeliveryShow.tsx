@@ -38,6 +38,7 @@ const DeliveryShow = ({
     warehouseTemporaryReceiptTitacShowResponse,
     refetchWarehouseTemporaryReceiptTitacShow,
     isLoadingWarehouseTemporaryReceiptTitacShow,
+    warehouseSearchResponse,
   } = useWarehouse();
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm2;
   const isLoading =
@@ -90,10 +91,16 @@ const DeliveryShow = ({
       "workFlowRowSelectResponse.workTableRow.formId"
     );
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
-    setWarehouseField("formIdWarehouseTemporaryReceipt", -1);
-    setTTacField("ttacRequestId", -1);
-    setTTacField("systemId", -1);
-    setTTacField("yearId", -1);
+    setWarehouseField("formIdWarehouseTemporaryReceipt", -1); // Disable indentShow query
+    setWarehouseField("formIdWarehouseTemporaryReceiptTitac", -1); // Disable titacShow query
+    setWarehouseField("iocId", -1); // Disable indentList query
+    setWarehouseField("receiptPurchaseId", -1); // Disable purchaseShow query
+    setWarehouseField("id", -1); // Disable salesPrices query
+    setWarehouseField("idReg", -1); // Disable purchaseReg query
+    setWarehouseField("page", -1); //  Disable salesPrices query
+    setTTacField("ttacRequestId", -1); // Disable ttac request query
+    setTTacField("systemId", -1); // Disable ttac system query
+    setTTacField("yearId", -1); // Disable ttac year query
   }
   if (
     formIdWarehouseTemporaryReceiptTitac !==
@@ -110,7 +117,11 @@ const DeliveryShow = ({
     );
     setWarehouseField("receiptPurchaseId", -1);
     setWarehouseField("formIdWarehouseTemporaryReceipt", -1); // Disable indentShow query
-    setTTacField("ttacRequestId", -1);
+    setWarehouseField("idReg", -1); // Disable purchaseReg query
+    setWarehouseField("page", -1); //  Disable salesPrices query
+    setWarehouseField("iocId", -1); //  Disable salesPrices query
+    setWarehouseField("page", -1); //  Disable salesPrices query
+    setTTacField("ttacRequestId", -1); 
     setTTacField("systemId", -1);
     setTTacField("yearId", -1);
   }
@@ -204,6 +215,7 @@ const DeliveryShow = ({
     <div>
       <DeliveryShowHeader
         deliveryShowResponse={response.data.result}
+        warehouseSearchResponse={warehouseSearchResponse}
         canEditForm={canEditForm}
       />
       <div className="flex items-center w-full justify-between gap-2 py-1">
