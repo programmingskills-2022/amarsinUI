@@ -1,22 +1,11 @@
-import { useEffect } from "react";
-import { useInvoice } from "../../hooks/useInvoice";
-import { useInvoiceStore } from "../../store/invoiceStore";
 import { convertToFarsiDigits } from "../../utilities/general";
-import { WorkflowRowSelectResponse } from "../../types/workflow";
+import { InvoiceShowIdResponse } from "../../types/invoice";
 
 type Props = {
-  workFlowRowSelectResponse: WorkflowRowSelectResponse;
+  invoiceShowIdResponse: InvoiceShowIdResponse;
 };
 
-const InvoiceShowHeader = ({ workFlowRowSelectResponse }: Props) => {
-  const { invoiceShowIdResponse } = useInvoice();
-  const { setField, formId:formIdStore } = useInvoiceStore();
-
-  useEffect(() => {
-    //console.log(workFlowRowSelectResponse.workTableRow.formId, "formId in InvoiceShowHeader");
-    if (formIdStore !== workFlowRowSelectResponse.workTableRow.formId)
-      setField("formId", workFlowRowSelectResponse.workTableRow.formId);
-  }, [workFlowRowSelectResponse.workTableRow.formId]);
+const InvoiceShowHeader = ({ invoiceShowIdResponse }: Props) => {
 
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">

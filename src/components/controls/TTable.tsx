@@ -132,8 +132,81 @@ export function EditableInput<T extends object>({
       setSearch?.("");
     }
     if (newValue) {
+      //updateMyData(index, id, (newValue as DefaultOptionType)?.title ?? "");
+      updateData((newValue as DefaultOptionType)?.title ?? "");
       updateMyData(index, id, (newValue as DefaultOptionType)?.title ?? "");
     }
+  };
+
+  // Helper function to update data directly (fast, no React state updates)
+  const updateData = (newValue: any) => {
+    // Update data immediately so calculateFn can read the new value
+    console.log(index, id, newValue, "newValue in updateData");
+    (data as any)[index][id as string] = newValue;
+    if (originalData && originalData.length > 0) {
+      const currentRow = data[index];
+      if (currentRow) {
+        const rowInOriginal = originalData.find(
+          (row) => (row as any).index === (currentRow as any).index
+        );
+        if (rowInOriginal) {
+          (rowInOriginal as any)[id as string] = newValue;
+        }
+      }
+    }
+  };
+
+  // Handle change event
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = convertToFarsiDigits(e.target.value);
+    setValue(newValue);
+    updateData(newValue);
+    if (
+      calculatedFieldfns &&
+      calculatedFieldfns.some((calcFieldfn) =>
+        calcFieldfn.params.includes(id as string)
+      )
+    ) {
+      calculatedFieldfns.forEach((calcFieldfn) => {
+        const calculatedValue = calcFieldfn.calculateFn(
+          index,
+          calcFieldfn.params
+        );
+        console.log(
+          calcFieldfn.calcField,
+          calculatedValue,
+          "calcFieldfn.calcField in EditableInput"
+        );
+        if (data && data.length > 0) {
+          (data as any)[index][calcFieldfn.calcField] = calculatedValue;
+          // Notify parent to trigger re-render
+          updateMyData(index, calcFieldfn.calcField, String(calculatedValue));
+        }
+        if (originalData && originalData.length > 0) {
+          (originalData as any)[index][calcFieldfn.calcField] = calculatedValue;
+        }
+      });
+    }
+  };
+
+  // Handle blur event
+  const handleBlur = () => {
+    (data as any)[index][id as string] = value as string;
+    // Update originalData by finding matching row by id (not index, in case it's filtered)
+    if (originalData && originalData.length > 0) {
+      const currentRow = data[index];
+      if (currentRow) {
+        const rowInOriginal = originalData.find(
+          (row) => (row as any).index === (currentRow as any).index
+        );
+        if (rowInOriginal) {
+          (rowInOriginal as any)[id as string] = value as string;
+        }
+      }
+    }
+    // Notify parent (it handles the update efficiently with direct mutation)
+    updateMyData(index, id, value as string);
+    setIsFocused(false);
   };
 
   if (type === "autoComplete") {
@@ -196,16 +269,12 @@ export function EditableInput<T extends object>({
         checked={Boolean(value)}
         onChange={(e) => {
           setValue(e.target.checked);
-          changeRowValues(
-            e.target.checked,
-            index,
-            id ?? (column as any)?.accessor
-          ); //rowIndex, columnId
+          updateData(e.target.checked);
+          changeRowValues(e.target.checked, index, id);
         }}
       />
     );
   }
-
   return (
     <input
       disabled={!canEditForm}
@@ -220,51 +289,8 @@ export function EditableInput<T extends object>({
       }}
       //style={{ backgroundColor: isFocused && canEditForm ? "white" :  "inherit" }}
       value={value as string}
-      onChange={(e) => {
-        setValue(convertToFarsiDigits(e.target.value));
-        if (
-          calculatedFieldfns &&
-          calculatedFieldfns.some((calcFieldfn) =>
-            calcFieldfn.params.includes(id as string)
-          )
-        ) {
-          calculatedFieldfns.forEach((calcFieldfn) => {
-            if (data && data.length > 0) {
-              console.log(
-                calcFieldfn.calcField,
-                calcFieldfn.calculateFn(index, calcFieldfn.params),
-                "calcFieldfn.calcField in EditableInput"
-              );
-              (data as any)[index][calcFieldfn.calcField] =
-                calcFieldfn.calculateFn(index, calcFieldfn.params);
-            }
-            if (originalData && originalData.length > 0) {
-              (originalData as any)[index][calcFieldfn.calcField] =
-                calcFieldfn.calculateFn(index, calcFieldfn.params);
-            }
-          });
-        }
-        //changeRowValues(e.target.value, index, id);
-      }}
-      onBlur={() => {
-        // Direct mutation - fastest approach, no React state updates
-        (data as any)[index][id as string] = value as string;
-        // Update originalData by finding matching row by id (not index, in case it's filtered)
-        if (originalData && originalData.length > 0) {
-          const currentRow = data[index];
-          if (currentRow) {
-            const rowInOriginal = originalData.find(
-              (row) => (row as any).id === (currentRow as any).id
-            );
-            if (rowInOriginal) {
-              (rowInOriginal as any)[id as string] = value as string;
-            }
-          }
-        }
-        // Notify parent (it handles the update efficiently with direct mutation)
-        updateMyData(index, id, value as string);
-        setIsFocused(false);
-      }}
+      onChange={handleChange} //changeRowValues(e.target.value, index, id);
+      onBlur={handleBlur}
       onFocus={() => {
         setIsFocused(true);
       }}

@@ -10,10 +10,7 @@ import { useGeneralContext } from "../../context/GeneralContext";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import TTable, { EditableInput } from "../controls/TTable";
 import { convertToFarsiDigits } from "../../utilities/general";
-import {
-  DefaultOptionTypeStringId,
-  TableColumns,
-} from "../../types/general";
+import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
 import { useClearBookStore } from "../../store/clearBookStore";
 import ErrorPage from "../common/ErrorPage";
 import {
@@ -198,7 +195,15 @@ export default function ClearBookShow({
   }, [clearBookProducts]);
   ///////////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    console.log(rowIndex, columnId, value);
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+
+    /*console.log(rowIndex, columnId, value);
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -209,7 +214,7 @@ export default function ClearBookShow({
         }
         return row;
       })
-    );
+    );*/
   };
   const changeRowValues = (
     value: string | boolean,

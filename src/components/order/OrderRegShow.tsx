@@ -707,7 +707,7 @@ const OrderRegShow = ({
           setBaseData={setBaseData}
           handleOrderCupboardListClose={handleEditClickClose2}
           data={data} //data for OrderCupboardList
-          setData={setData}
+          //setData={setData}
         />
       </ModalForm>
       {/* open سوابق آفر */}

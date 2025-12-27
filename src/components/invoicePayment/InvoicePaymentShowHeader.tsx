@@ -62,7 +62,7 @@ const InvoicePaymentShowHeader = ({
   const [fishNo, setFishNo] = useState("");
   const { invoiceId } = useInvoiceStore();
   const { cashPosSystemSearch } = useCheques();
-  const { setField: setCashPosSystemField } = useChequeStore();
+  const { setField: setCashPosSystemField , setField: setChequeField } = useChequeStore();
   const [cashPosSystem, setCashPosSystem] = useState<DefaultOptionType | null>( //برای صندوق
     null
   );
@@ -133,6 +133,7 @@ const InvoicePaymentShowHeader = ({
   // order paymentKinds by id is handled by useMemo above
 
   useEffect(() => {
+    setChequeField("sayadiPaymentId", -1);
     setCustomer({
       id: invoicePaymentResponse.data.result.customerId,
       title: invoicePaymentResponse.data.result.srName,

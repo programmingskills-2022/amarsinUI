@@ -119,30 +119,6 @@ const OrderRegShowHeader = ({
             <p className="text-red-500 w-20 p-1">لیست سیاه</p>
           ) : null}
         </div>
-        {/*<div className="w-full md:w-3/4 flex justify-center items-center">
-          <label className="p-1 w-20 text-left">خریدار:</label>
-          <div className="bg-slate-50 flex w-full rounded-md">
-            <AutoComplete
-              options={customers.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={customer}
-              handleChange={(_event, newValue) => {
-                return setCustomer(newValue as DefaultOptionType | null);
-              }}
-              setSearch={setSearch}
-              showLabel={false}
-              inputPadding="0 !important"
-              showClearIcon={false}
-              changeColorOnFocus={true}
-              disabled={!canEditForm1Mst1}
-            />
-          </div>
-          {orderRegShowResponse.data.result.orderMst?.blackList ? (
-            <p className="text-red-500 w-20 p-1">لیست سیاه</p>
-          ) : null}
-        </div>*/}
         <div className="w-full md:w-1/4 flex">
           <label className="p-1 w-20 md:w-12 text-left">ثبت:</label>
           <input

@@ -129,13 +129,15 @@ const ProductOfferFormList = ({
     // Just find and update the row directly, no state updates needed
     // The mutation persists in the object, React will see it when state is read
     const currentRow = data[rowIndex];
+    (currentRow as any)[columnId] = value;
     if (!currentRow) return;
     
-    const rowInOriginal = originalData.find((row) => row.id === currentRow.id);
+    const rowInOriginal = originalData.find((row) => row.index === currentRow.index);
     if (rowInOriginal) {
       (rowInOriginal as any)[columnId] = value;
     }
   };
+
   ////////////////////////////////////////////////////
   const changeRowValues = (
     value: string,
@@ -162,6 +164,7 @@ const ProductOfferFormList = ({
     setOriginalData((old) =>
       old.map((row, index) => {
         if (index === rowIndex && productOfferProducts) {
+          console.log(productOfferProducts[0].product, "productOfferProducts[0].product in updateMyRow");
           return {
             ...old[rowIndex],
             index: rowIndex + 1,

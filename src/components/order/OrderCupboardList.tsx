@@ -22,9 +22,9 @@ type Props = {
   checkSum: number;
   setBaseData: (baseData: any) => void;
   data: OrderCupListTbl[];
-  setData: (
+  /*setData: (
     data: OrderCupListTbl[] | ((prev: OrderCupListTbl[]) => OrderCupListTbl[])
-  ) => void;
+  ) => void;*/
 };
 const OrderCupboardList = ({
   handleOrderCupboardListClose,
@@ -34,7 +34,7 @@ const OrderCupboardList = ({
   isLoadingOrderCupList,
   setProcessedData,
   data,
-  setData,
+  //setData,
   checkSum,
   setBaseData,
 }: Props) => {
@@ -106,7 +106,11 @@ const OrderCupboardList = ({
 
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
     //console.log(rowIndex, columnId, value,"rowIndex, columnId, value")
-    setData((old) =>
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+    /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -116,7 +120,7 @@ const OrderCupboardList = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   ////////////////////////////////////////////////////

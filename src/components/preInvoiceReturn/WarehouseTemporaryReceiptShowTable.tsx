@@ -274,8 +274,11 @@ const WarehouseTemporaryReceiptShowTable = ({
 
   //////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    // We also turn on the flag to not reset the page
-    setData((old) =>
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+/*    setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -285,7 +288,7 @@ const WarehouseTemporaryReceiptShowTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
   ////////////////////////////////////////////////////
   const changeRowValues = (

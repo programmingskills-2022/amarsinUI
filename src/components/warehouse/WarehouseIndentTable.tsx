@@ -113,12 +113,16 @@ const WarehouseIndentTable = ({
   const [data, setData] = useState<WarehouseTemporaryReceiptIndentTbl[]>([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in warehouseIndentTable table
 
-  //console.log(data, "data");
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
-
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
     // We also turn on the flag to not reset the page
-    setSkipPageReset(true);
+    /*setSkipPageReset(true);
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -129,7 +133,7 @@ const WarehouseIndentTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   useEffect(() => {
@@ -178,7 +182,6 @@ const WarehouseIndentTable = ({
       // Now we can check the response directly
       if (response.meta.errorCode >0 ) {
         setIsModalOpen(true);
-        console.log(skipPageReset)
       }
     } catch (error) {
       setIsModalOpen(true);
@@ -186,7 +189,8 @@ const WarehouseIndentTable = ({
   };
   /////////////////////////////////////////////////////////
   const changeRowValues = (value: string, rowIndex: number, columnId: string) => {
-    setData((old) =>
+    console.log(value, rowIndex, columnId, "come to changeRowValues in WarehouseIndentTable");
+    /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -196,7 +200,7 @@ const WarehouseIndentTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   return (

@@ -1,5 +1,4 @@
 import { Paper } from "@mui/material";
-import { useInvoice } from "../../hooks/useInvoice";
 import Skeleton from "../layout/Skeleton";
 import React, { useEffect } from "react";
 import TTable from "../controls/TTable";
@@ -9,16 +8,25 @@ import {
 } from "../../utilities/general";
 import InvoiceShowTableHeader from "./InvoiceShowTableHeader";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
+import { InvoiceShowIdResponse } from "../../types/invoice";
 
 type Props = {
   caption: string;
   refetchSwitch: boolean;
-  setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>
+  setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
+  invoiceShowIdResponse: InvoiceShowIdResponse;
+  refetchInvoiceShowId: () => void;
+  isLoading: boolean;
 };
 
-const InvoiceShowTable = ({ caption, refetchSwitch, setRefetchSwitch }: Props) => {
-  const { isLoading, invoiceShowIdResponse ,refetchInvoiceShowId} = useInvoice();
-
+const InvoiceShowTable = ({
+  caption,
+  refetchSwitch,
+  setRefetchSwitch,
+  invoiceShowIdResponse,
+  refetchInvoiceShowId,
+  isLoading,
+}: Props) => {
   const columns = React.useMemo(
     () => [
       {
@@ -82,7 +90,6 @@ const InvoiceShowTable = ({ caption, refetchSwitch, setRefetchSwitch }: Props) =
     []
   );
 
-
   useEffect(() => {
     if (!refetchSwitch) return;
     if (refetchSwitch) {
@@ -96,19 +103,19 @@ const InvoiceShowTable = ({ caption, refetchSwitch, setRefetchSwitch }: Props) =
     index: i + 1,
   }));
 
-  const {width} = useCalculateTableHeight()
+  const { width } = useCalculateTableHeight();
   return (
     <>
       <Paper className="p-2 mt-2 w-full">
         {isLoading ? (
           <div className="text-center">{<Skeleton />}</div>
-        ) : invoiceShowIdResponse.meta.errorCode  >0 ? (
+        ) : invoiceShowIdResponse.meta.errorCode > 0 ? (
           <p className="p-6 text-red-400 text-sm md:text-base font-bold">
             {invoiceShowIdResponse.meta.message}
           </p>
         ) : (
           <div className="w-full mt-2">
-            {width>768 && <InvoiceShowTableHeader caption={caption} />}
+            {width > 768 && <InvoiceShowTableHeader caption={caption} />}
             <TTable
               columns={columns}
               data={data}

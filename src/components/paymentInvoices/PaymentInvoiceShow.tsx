@@ -38,13 +38,6 @@ const PaymentInvoiceShow = ({
   const { systemId, yearId } = useGeneralContext();
   const { setField, paymentId } = usePaymentInvoiceStore();
   const { authApiResponse } = useAuthStore();
-  // Subscribe to updatedWorkFlowRowSelectResponse from store using selector
-  /*const updatedWorkFlowRowSelectResponse = useWorkflowStore(
-    (state) => state.updatedWorkFlowRowSelectResponse
-  );
-  const setUpdatedWorkFlowRowSelectResponse = useWorkflowStore(
-    (state) => state.setUpdatedWorkFlowRowSelectResponse
-  );*/
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm1;
   const usrId = authApiResponse?.data?.result?.login?.usrId ?? 0;
 

@@ -468,7 +468,7 @@ const ProductOfferForm = ({
               ? item.s4DO.toString() + "+" + item.s4NO.toString()
               : "",
           isDeleted: false,
-          no: false,
+          no: item.no,
           dtlDsc: item.dtlDsc,
           deleted: item.deleted,
           index: productOfferDtls.length + 1,
@@ -633,6 +633,7 @@ const ProductOfferForm = ({
     const dtls: Dtl[] = originalData
       .filter((item) => item.pId !== 0)
       .map((item) => {
+        console.log(item,"item")
         const dtl: Dtl = {
           id: item.id,
           pId: item.pId,

@@ -15,6 +15,7 @@ import {
 import { useBanks } from "../../hooks/useBanks";
 import { useCheques } from "../../hooks/useCheques";
 import { useWorkflowStore } from "../../store/workflowStore";
+import { useChequeStore } from "../../store/chequeStore";
 
 type Props = {
   workFlowResponse: WorkflowResponse;
@@ -62,6 +63,7 @@ const WorkflowForm = ({
   const [selectedId, setSelectedId] = useState<number>(-1);
   const { banks, isLoading: isLoadingBanks } = useBanks();
   const { cashPosSystemSearch } = useCheques();
+  const { setField: setChequeField } = useChequeStore();
   const [data, setData] = useState<any[]>([]); // data for WorkflowParent
   const { setField } = useWorkflowStore();
   
@@ -72,6 +74,7 @@ const WorkflowForm = ({
       setField("workTableIdTrigger", Date.now());
     }
     setSelectedId(id);
+    setChequeField("sayadiPaymentId", -1);
   };
 
   return (

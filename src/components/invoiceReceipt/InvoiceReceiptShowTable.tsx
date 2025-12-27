@@ -46,9 +46,9 @@ import { Fields } from "./InvoiceReceiptShow";
 import InvoiceReceiptHistory from "./invoiceReceiptHistory";
 import InvoiceReceiptShowTableHeader from "./InvoiceReceiptShowTableHeader";
 import InvoiceReceiptShowTableSummery from "./InvoiceReceiptShowTableSummery";
-import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { debounce } from "lodash";
 import { useProducts } from "../../hooks/useProducts";
+
 
 type Props = {
   isNew?: boolean;
@@ -403,7 +403,6 @@ const InvoiceReceiptShowTable = ({
   }, []);
   // Initialize data when indentMrsResponse changes
   useEffect(() => {
-    //console.log(indentMrsResponse, "indentMrsResponse.indentDtls", isNew);
     if (isNew) return;
     if (indentMrsResponse.data.result.indentDtls) {
       let i = 1;
@@ -416,7 +415,7 @@ const InvoiceReceiptShowTable = ({
       setOriginalData(initialData);
       setData(initialData);
     }
-  }, [indentMrsResponse]);
+  }, [indentMrsResponse.data.result.indentDtls]);
   ////////////////////////////////////////////////////////
   // Filter data based on search terms
   useEffect(() => {
@@ -518,54 +517,56 @@ const InvoiceReceiptShowTable = ({
   };
   /////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    console.log(rowIndex, columnId, value, "come to updateMyData in InvoiceReceiptShowTable");
-    // We also turn on the flag to not reset the page
-    /*setSkipPageReset(true);
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
+    console.log(
+      rowIndex,
+      columnId,
+      value,
+      "come to updateMyData in InvoiceReceiptShowTable"
     );
-    // Also update the same row in originalData
-    const rowInOriginal = data[rowIndex];
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    // Update data array (what's displayed in the table)
+    (data as any)[rowIndex][columnId] = value;
+
+    // Also update originalData to keep them in sync
+    const rowInOriginal = originalData.find((row) => row.index === currentRow.index);
     if (rowInOriginal) {
-      setOriginalData((origOld) =>
-        origOld.map((row) => {
-          if (row.id === rowInOriginal.id && row.pId === rowInOriginal.pId) {
-            return {
-              ...row,
-              [columnId]: value,
-            };
-          }
-          return row;
-        })
-      );
-    }*/
+      (rowInOriginal as any)[columnId] = value;
+    }
+
+    // Force re-render by creating a new array reference for calculated fields
+    // This ensures React detects the change and re-renders the table
+    if (columnId === "total" || columnId === "taxValue") {
+      setData([...data]);
+    }
   };
   /////////////////////////////////////////////////////
   const calculateTotal = useCallback(
     (rowIndex: number, params: string[]): number => {
-      const value0 = String((data as any)[rowIndex]?.[params[0]] ?? "");
-      const value1 = String((data as any)[rowIndex]?.[params[1]] ?? "");
-      const value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0");
-      const value3 = String((data as any)[rowIndex]?.[params[3]] ?? "0");
+      let value0 = String((data as any)[rowIndex]?.[params[0]] ?? "0"); //cost
+      let value1 = String((data as any)[rowIndex]?.[params[1]] ?? "0"); //cnt
+      let value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0"); //dcrmnt
+      let value3 = String((data as any)[rowIndex]?.[params[3]] ?? "0"); //tax
+
+      value0 = value0 === "" ? "0" : value0;
+      value1 = value1 === "" ? "0" : value1;
+      value2 = value2 === "" ? "0" : value2;
+      value3 = value3 === "" ? "0" : value3;
 
       const result = Math.round(
         currencyStringToNumber(convertToLatinDigits(value0)) *
           currencyStringToNumber(convertToLatinDigits(value1)) +
           (currencyStringToNumber(convertToLatinDigits(value0)) *
             currencyStringToNumber(convertToLatinDigits(value1)) *
-            currencyStringToNumber(convertToLatinDigits(value2))) /
+            currencyStringToNumber(convertToLatinDigits(value3))) /
             100 -
-          currencyStringToNumber(convertToLatinDigits(value3))
+          currencyStringToNumber(convertToLatinDigits(value2))
       );
-      //console.log(result, "result in calculateTotal");
+
       return result;
     },
     [data]
@@ -573,9 +574,13 @@ const InvoiceReceiptShowTable = ({
   /////////////////////////////////////////////////////
   const calculateTaxValue = useCallback(
     (rowIndex: number, params: string[]): number => {
-      const value0 = String((data as any)[rowIndex]?.[params[0]] ?? "");
-      const value1 = String((data as any)[rowIndex]?.[params[1]] ?? "");
-      const value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0");
+      let value0 = String((data as any)[rowIndex]?.[params[0]] ?? "0"); //cost
+      let value1 = String((data as any)[rowIndex]?.[params[1]] ?? "0"); //cnt
+      let value2 = String((data as any)[rowIndex]?.[params[2]] ?? "0"); //tax
+
+      value0 = value0 === "" ? "0" : value0;
+      value1 = value1 === "" ? "0" : value1;
+      value2 = value2 === "" ? "0" : value2;
 
       const result = Math.round(
         (currencyStringToNumber(convertToLatinDigits(value0)) *
@@ -583,7 +588,6 @@ const InvoiceReceiptShowTable = ({
           currencyStringToNumber(convertToLatinDigits(value2))) /
           100
       );
-      //console.log(result, "result in calculateTaxValue");
       return result;
     },
     [data]
@@ -592,63 +596,12 @@ const InvoiceReceiptShowTable = ({
   /////////////////////////////////////////////////////
   const changeRowValues = useCallback(
     (value: string, rowIndex: number, columnId: string) => {
-      console.log(value, rowIndex, columnId, "come to changeRowValues in InvoiceReceiptShowTable");
-      /*if (
-        columnId === "cost" ||
-        columnId === "cnt" ||
-        columnId === "tax" ||
-        columnId === "dcrmnt"
-      ) {
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              const taxValue = calculateTaxValue(
-                columnId === "cost" ? value : row.cost.toString(),
-                columnId === "cnt" ? value : row.cnt.toString(),
-                columnId === "tax" ? Number(value) : row.tax ?? 0
-              );
-              const total = calculateTotal(
-                columnId === "cost" ? value : row.cost.toString(),
-                columnId === "cnt" ? value : row.cnt.toString(),
-                columnId === "dcrmnt" ? value : row.dcrmnt.toString(),
-                columnId === "tax" ? Number(value) : row.tax ?? 0
-              );
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-                taxValue,
-                total,
-              };
-            }
-            return row;
-          })
-        );
-        const rowInOriginal = data[rowIndex];
-        setOriginalData((old) =>
-          old.map((row) => {
-            if (row.id === rowInOriginal.id && row.pId === rowInOriginal.pId) {
-              const taxValue = calculateTaxValue(
-                columnId === "cost" ? value : row.cost.toString(),
-                columnId === "cnt" ? value : row.cnt.toString(),
-                columnId === "tax" ? Number(value) : row.tax ?? 0
-              );
-              const total = calculateTotal(
-                columnId === "cost" ? value : row.cost.toString(),
-                columnId === "cnt" ? value : row.cnt.toString(),
-                columnId === "dcrmnt" ? value : row.dcrmnt.toString(),
-                columnId === "tax" ? Number(value) : row.tax ?? 0
-              );
-              return {
-                ...row,
-                [columnId]: value,
-                total,
-                taxValue,
-              };
-            }
-            return row;
-          })
-        );
-      }*/
+      console.log(
+        value,
+        rowIndex,
+        columnId,
+        "come to changeRowValues in InvoiceReceiptShowTable"
+      );
     },
     [calculateTotal, data]
   );
@@ -723,12 +676,40 @@ const InvoiceReceiptShowTable = ({
       console.error("Error ثبت :", error);
     }
   };
-  ///////////////////////////////////////////////////////
-  const { height } = useCalculateTableHeight();
+  ////////////////////////////////////////////////////////
+  // on selecting each row, set the id and productId and yearId in productGraceStore for api/productGrace?id=
+  const [selectedDtlId, setSelectedDtlId] = useState<number>(0); // for selected id in productOfferFormList table
+  //const [res, setRes] = useState<ShowProductListResponse | undefined>(
+  //  undefined
+  //);
+  useEffect(() => {
+    if (!canEditForm) return;
+    const fetchData = async () => {
+      if (data.length > 0) {
+        const found = data.find((item) => item.id === selectedDtlId);
+        const productId = found?.pId ?? 0;
+        if (productId === 0) return;
+        const res = await handleSubmit(undefined, productId);
+        //set tax field in data and originalData in selectedDtl row
+        const tax = res?.data.result?.[0]?.tax ?? 0;
+        const originalItem = originalData.find(
+          (item) => item.id === selectedDtlId
+        );
+        if (originalItem) originalItem.tax = tax;
+        const dataItem = data.find((item) => item.id === selectedDtlId);
+        if (dataItem) dataItem.tax = tax;
+        console.log(tax, "tax");
+      }
+    };
+    fetchData();
+  }, [selectedDtlId, yearId]);
+
+  //const { height } = useCalculateTableHeight();
   return (
     <>
       <div className="p-2 mt-2 w-full bg-white rounded-md">
-        <div className="overflow-y-auto" style={{ height: height - 450 }}>
+        <div>
+        {/* className="overflow-y-auto" style={{ height: height - 450 }}> */}
           <InvoiceReceiptShowTableHeader
             brandSearch={brandSearch}
             setBrandSearch={setBrandSearch}
@@ -742,6 +723,7 @@ const InvoiceReceiptShowTable = ({
           ) : (
             <div className="w-full">
               <TTable
+                setSelectedId={setSelectedDtlId}
                 canEditForm={canEditForm}
                 columns={columns}
                 data={data}

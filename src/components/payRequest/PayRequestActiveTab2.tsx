@@ -249,7 +249,11 @@ const PayRequestActiveTab2 = ({
   }, [isChecked, originalData]);
   ////////////////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    setOriginalData((old: PayRequestDtlTable[]) =>
+    const currentRow = originalData[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+   /* setOriginalData((old: PayRequestDtlTable[]) =>
     //setData((old: PayRequestDtlTable[]) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -260,7 +264,7 @@ const PayRequestActiveTab2 = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   ////////////////////////////////////////////////////

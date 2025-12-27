@@ -304,7 +304,11 @@ const PaymentInvoiceShowTable = ({
   }, [invoiceOutStandingResponse]);
   /////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    setData((old) =>
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+    /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -314,7 +318,7 @@ const PaymentInvoiceShowTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
   /////////////////////////////////////////////////////
   // Custom cell click handler for Table
