@@ -37,7 +37,7 @@ type Props = {
   banks: SearchItem[];
   cashPosSystemSearch: SearchItem[];
   setWorkFlowResponse: React.Dispatch<React.SetStateAction<WorkflowResponse>>;
- //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
+  //setWorkFlowRowSelectResponse: React.Dispatch<React.SetStateAction<WorkflowRowSelectResponse>>;
 };
 
 export const WorkflowChild = ({
@@ -61,8 +61,8 @@ export const WorkflowChild = ({
   banks,
   cashPosSystemSearch,
   setWorkFlowResponse,
-  //setWorkFlowRowSelectResponse, // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
-}: Props) => {
+}: //setWorkFlowRowSelectResponse, // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
+Props) => {
   //const [currentSelectedId, setCurrentSelectedId] = useState(selectedId);
   const { chartId, systemId } = useGeneralContext();
   const { setField } = useWorkflowStore();
@@ -90,21 +90,21 @@ export const WorkflowChild = ({
     // 2. If workflow parameters changed and no valid selection, use first record
     // 3. If no data available, use 0
     console.log(
-    selectedId,
-    chartId,
-    systemId,
-    page,
-    pageSize,
-    dateTime,
-    code,
-    cost,
-    flowMapId,
-    name,
-    dsc,
+      selectedId,
+      chartId,
+      systemId,
+      page,
+      pageSize,
+      dateTime,
+      code,
+      cost,
+      flowMapId,
+      name,
+      dsc,
       "selectedId in child"
     );
     if (selectedId === workTableId) {
-      console.log("enter 0","workTableId", selectedId);
+      console.log("enter 0", "workTableId", selectedId);
       return;
     }
     if (selectedId !== 0) {
@@ -134,43 +134,39 @@ export const WorkflowChild = ({
 
   return (
     <>
-      {workFlowResponse.err === 0 && workFlowResponse.workTables.length > 0 && (
-        <WorkflowRowSelect
-          workFlowRowSelectResponse={workFlowRowSelectResponse}
-          doFlow={doFlow}
-          workFlowDoFlowResponse={workFlowDoFlowResponse}
-          isLoadingdoFlow={isLoadingdoFlow}
-          isLoading={isLoadingRowSelect}
-          error={errorRowSelect}
-          //refetchWorkTable={refetchWorkTable}
-          //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
-          //selectedId={selectedId}
-          //setSelectedId={setSelectedId}
-          definitionInvironment={definitionInvironment}
-          definitionDateTime={definitionDateTime}
-          isLoadingBanks={isLoadingBanks}
-          banks={banks}
-          cashPosSystemSearch={cashPosSystemSearch}
-          setWorkFlowResponse={setWorkFlowResponse}
-          //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating worktableRowSelect in WorkflowRowSelectHeader.tsx
-        />
-      )}
-      <WorkflowComponent
-        doFlow={doFlow}
-        //isLoadingdoFlow={isLoadingdoFlow}
-        workFlowRowSelectResponse={workFlowRowSelectResponse}
-        refetchSwitch={refetchSwitch}
-        setRefetchSwitch={setRefetchSwitch}
-        //refetchWorkTable={refetchWorkTable}
-        //refetchWorkTableRowSelect={refetchWorkTableRowSelect}
-        definitionInvironment={definitionInvironment}
-        definitionDateTime={definitionDateTime}
-        isLoadingBanks={isLoadingBanks}
-        banks={banks}
-        cashPosSystemSearch={cashPosSystemSearch}
-        setWorkFlowResponse={setWorkFlowResponse}
-        //setWorkFlowRowSelectResponse={setWorkFlowRowSelectResponse} // for updating 
-      />
+      {workFlowResponse.workTables &&
+        workFlowResponse.err === 0 &&
+        workFlowResponse.workTables.length > 0 && (
+          <WorkflowRowSelect
+            workFlowRowSelectResponse={workFlowRowSelectResponse}
+            doFlow={doFlow}
+            workFlowDoFlowResponse={workFlowDoFlowResponse}
+            isLoadingdoFlow={isLoadingdoFlow}
+            isLoading={isLoadingRowSelect}
+            error={errorRowSelect}
+            definitionInvironment={definitionInvironment}
+            definitionDateTime={definitionDateTime}
+            isLoadingBanks={isLoadingBanks}
+            banks={banks}
+            cashPosSystemSearch={cashPosSystemSearch}
+            setWorkFlowResponse={setWorkFlowResponse}
+          />
+        )}
+      {workFlowResponse.workTables &&
+        workFlowResponse.workTables.length > 0 && (
+          <WorkflowComponent
+            doFlow={doFlow}
+            workFlowRowSelectResponse={workFlowRowSelectResponse}
+            refetchSwitch={refetchSwitch}
+            setRefetchSwitch={setRefetchSwitch}
+            definitionInvironment={definitionInvironment}
+            definitionDateTime={definitionDateTime}
+            isLoadingBanks={isLoadingBanks}
+            banks={banks}
+            cashPosSystemSearch={cashPosSystemSearch}
+            setWorkFlowResponse={setWorkFlowResponse}
+          />
+        )}
     </>
   );
 };

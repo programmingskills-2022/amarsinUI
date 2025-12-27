@@ -77,7 +77,6 @@ export default function WorkflowComponent({
   let componentToRender1: React.ReactNode | null = null;
   let componentToRender2: React.ReactNode | null = null;
   //const { workFlowDoFlowResponse } = useWorkflowStore();
-
   switch (workFlowRowSelectResponse.workTableForms.form1ViewPath) {
     case "Invoice/_Show":
     case "InvoiceBuy/_InvoiceBuy":

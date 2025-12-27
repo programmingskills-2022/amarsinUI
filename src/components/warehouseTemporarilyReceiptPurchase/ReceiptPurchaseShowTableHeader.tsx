@@ -165,26 +165,6 @@ const ReceiptPurchaseShowTableHeader = ({
                           isEntered={isSalesPricesEntered}
                           setIsEntered={setIsSalesPricesEntered}
                         />
-                        {/*<AutoComplete
-                          disabled={false}
-                          options={salesPricesSearchResponse.map((b) => ({
-                            id: b.id,
-                            title: b.text,
-                          }))}
-                          value={salesPrice}
-                          handleChange={(_event, newValue) => {
-                            changeSalesPrice(newValue as DefaultOptionType);
-                          }}
-                          setSearch={setSalesPriceSearch}
-                          showLabel={false}
-                          outlinedInputPadding="10px"
-                          backgroundColor={"white"}
-                          showClearIcon={false}
-                          inputPadding="0 !important"
-                          textAlign="center"
-                          desktopfontsize="12px"
-                          placeholder="قیمت ..."
-                        />*/}
                         {permissionPrice && (
                           <img
                             src={HistoryIcon}
