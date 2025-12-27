@@ -6,6 +6,7 @@ import { useInvoiceStore } from "../../store/invoiceStore";
 import InvoicePaymentShowTable from "./InvoicePaymentShowTable";
 import { useEffect } from "react";
 import { SearchItem } from "../../types/general";
+import { useChequeStore } from "../../store/chequeStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -29,6 +30,7 @@ const InvoicePaymentShow = ({
     refetchInvoicePayment
   } = useInvoice();
   const { setField: setInvoicePaymentField, invoiceId } = useInvoiceStore();
+  const { setField: setChequeField } = useChequeStore();
   ////////////////////////////////////////////////////////////////////////
   // for refetchInvoicePayment if refetchSwitch is true
   useEffect(() => {
@@ -39,16 +41,12 @@ const InvoicePaymentShow = ({
     }
   }, [refetchSwitch]);
   ////////////////////////////////////////////////////////////////////////
-  if (invoiceId !== workFlowRowSelectResponse?.workTableRow.formId) {
-    setInvoicePaymentField(
-      "invoiceId",
-      workFlowRowSelectResponse?.workTableRow.formId
-    );
-  }
-  /*useEffect(() => {
-    //console.log(workFlowRowSelectResponse?.workTableRow.formId);
-    setInvoicePaymentField("invoiceId", workFlowRowSelectResponse?.workTableRow.formId);
-  }, [workFlowRowSelectResponse?.workTableRow.formId]);*/
+  useEffect(() => {
+    if (invoiceId === -1 || invoiceId !== workFlowRowSelectResponse?.workTableRow.formId) {
+      setInvoicePaymentField("invoiceId", workFlowRowSelectResponse?.workTableRow.formId);
+    }
+    setChequeField("paymentAttachmentFormId", -1);
+  }, [workFlowRowSelectResponse?.workTableRow.formId, invoiceId, setInvoicePaymentField, setChequeField]);
 
   return (
     <div className="w-full flex flex-col">

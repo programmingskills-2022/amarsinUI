@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AutoComplete from "../controls/AutoComplete";
 import { DefaultOptionType, SearchItem } from "../../types/general";
 import { useCustomers } from "../../hooks/useCustomers";
@@ -131,14 +131,47 @@ const InvoicePaymentShowHeader = ({
   const [message, setMessage] = useState("");
   const { systemId, yearId } = useGeneralContext();
   // order paymentKinds by id is handled by useMemo above
+  
+  // Use ref to track if we've already processed this data to prevent infinite loops
+  const processedDataRef = useRef<{
+    customerId: number;
+    amnt: string;
+    dat: string;
+  } | null>(null);
+
+  // Extract key values for dependency tracking
+  const result = invoicePaymentResponse?.data?.result;
+  const resultCustomerId = result?.customerId ?? -1;
+  const resultAmnt = result?.amnt ?? "";
+  const resultDat = result?.dat ?? "";
+  const resultSrName = result?.srName ?? "";
 
   useEffect(() => {
+    if (!result) return;
+    
+    const currentData = {
+      customerId: resultCustomerId,
+      amnt: resultAmnt,
+      dat: resultDat,
+    };
+    
+    // Only process if data actually changed (prevent infinite loop)
+    if (
+      processedDataRef.current?.customerId === currentData.customerId &&
+      processedDataRef.current?.amnt === currentData.amnt &&
+      processedDataRef.current?.dat === currentData.dat
+    ) {
+      return;
+    }
+    
+    processedDataRef.current = currentData;
+    
     setChequeField("sayadiPaymentId", -1);
     setCustomer({
-      id: invoicePaymentResponse.data.result.customerId,
-      title: invoicePaymentResponse.data.result.srName,
+      id: resultCustomerId,
+      title: resultSrName,
     });
-    setDat(parsePersianDateString(invoicePaymentResponse.data.result.dat) ?? null);
+    setDat(parsePersianDateString(resultDat) ?? null);
     const findPaymentKind = paymentKinds.find((b) => b.id === 9);
     if (findPaymentKind)
       setPaymentKind({
@@ -150,12 +183,12 @@ const InvoicePaymentShowHeader = ({
       title: "",
     });
     setPayKind(0);
-    setAmnt(convertToFarsiDigits(invoicePaymentResponse.data.result.amnt));
+    setAmnt(convertToFarsiDigits(resultAmnt));
     setAcc_DefCheq({
       id: 0,
       title: "",
     });
-  }, [invoicePaymentResponse]);
+  }, [resultCustomerId, resultAmnt, resultDat, resultSrName, paymentKinds, setChequeField, result]);
   ////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (paymentKind?.id === 9) setDsc("واریز به");
@@ -218,47 +251,13 @@ const InvoicePaymentShowHeader = ({
     setMessage(invoicePaymentSaveResponse.meta?.message ?? "");
   }, [invoicePaymentSaveResponse]);
 
-  //برای صندوق
-  /*useEffect(() => {
-    setCashPosSystemField("systemId", systemId);
-    setCashPosSystemField("page", 1);
-    setCashPosSystemField("lastId", 0);
-    setCashPosSystemField("search", cashPosSystemSearchString);
-    setCashPosSystemField("payKind", 0);
-  }, [systemId, cashPosSystemSearchString]); */
-  //initial payment kind search params for api/Payment/KindSearch?search=%D8%B3&page=1&lastId=0
-  //برای نحوه پرداخت
+    //برای نحوه پرداخت
   useEffect(() => {
     setPaymentField("paymentKindSearch", "");
     setPaymentField("paymentKindSearchPage", 1);
     setPaymentField("paymentKindSearchLastId", 0);
   }, []);
 
-  //for api/Customer/search?search=search&page=1&lastId=0
-  //برای طرف حساب
-  /*useEffect(() => {
-    setCusomerField("systemId", systemId);
-    setCusomerField("yearId", yearId);
-    setCusomerField("search", customerSearch);
-  }, [customerSearch, systemId, yearId]);*/
-
-  //fetch data for bankAccountSearch query for api/Payment/bankAccountSearch?search=%D8%A2&page=1&lastId=0&SystemId=1
-  //برای حساب
-  /*useEffect(() => {
-    setBankAccountField("systemId", systemId);
-    setBankAccountField("page", 1);
-    setBankAccountField("lastId", 0);
-    setBankAccountField("search", bankAccountSearch);
-  }, [systemId, bankAccountSearch]);*/
-
-  //initializing chequeBookSearch requests api/Payment/chequeBookSearch
-  /*useEffect(() => {
-    setPayRequestField("acc_systemChequeBookSearch", systemId);
-    setPayRequestField("searchChequeBookSearch", chequeBookSearch);
-    setPayRequestField("pageChequeBookSearch", 1);
-    setPayRequestField("lastIdChequeBookSearch", 0);
-    //console.log(chequeBookSearch, "chequeBookSearch in useEffect");
-  }, [chequeBookSearch]);*/
   // api/Payment/chequeBookDtlSearch?ChequeBookId=
   useEffect(() => {
     setPayRequestField("searchChequeBookDtlSearch", cheqNoSearch);
@@ -268,13 +267,6 @@ const InvoicePaymentShowHeader = ({
       setPayRequestField("chequeBookIdChequeBookDtlSearch", acc_DefCheq?.id);
     }
   }, [cheqNoSearch, acc_DefCheq?.id]);
-
-  //for api/Payment/bankSearch
-  /*useEffect(() => {
-    setBankField("page", 1);
-    setBankField("lastId", 0);
-    setBankField("search", bankSearch);
-  }, [bankSearch]);*/
 
   //for api/Payment/chequeBookGetById?id=190
   useEffect(() => {
