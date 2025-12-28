@@ -35,6 +35,7 @@ type Props<T extends { id: string | number; title: string }> = {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   setIsEntered?: (isEntered: boolean) => void;
+  onIsOpenChange?: (isOpen: boolean) => void;
 };
 
 const AutoComplet = forwardRef(
@@ -72,6 +73,7 @@ const AutoComplet = forwardRef(
       hasNextPage,
       isFetchingNextPage,
       setIsEntered,
+      onIsOpenChange,
     }: Props<T>,
     ref: React.Ref<any>
   ) => {
@@ -287,6 +289,11 @@ const AutoComplet = forwardRef(
         return () => document.removeEventListener("mousedown", handleClickOutside);
       }
     }, [isOpen]);
+
+    // Notify parent when isOpen changes
+    useEffect(() => {
+      onIsOpenChange?.(isOpen);
+    }, [isOpen, onIsOpenChange]);
 
     // Scroll highlighted option into view
     useEffect(() => {

@@ -110,10 +110,10 @@ Props) => {
     if (selectedId !== 0) {
       setField("workTableId", selectedId);
       console.log("enter 1", "workTableId", selectedId);
-    } else if (workFlowResponse.workTables.length > 0) {
+    } else if (workFlowResponse?.workTables?.length > 0) {
       setField("workTableId", workFlowResponse.workTables[0].id);
       console.log("enter 2", "workTableId", workFlowResponse.workTables[0].id);
-    } else if (workFlowResponse.workTables.length === 0) {
+    } else if (workFlowResponse?.workTables?.length === 0) {
       setField("workTableId", -1);
       console.log("enter 3", "workTableId", -1);
     }
@@ -134,8 +134,8 @@ Props) => {
 
   return (
     <>
-      {workFlowResponse.workTables &&
-        workFlowResponse.err === 0 &&
+      {workFlowResponse?.workTables &&
+        workFlowResponse?.err === 0 &&
         workFlowResponse.workTables.length > 0 && (
           <WorkflowRowSelect
             workFlowRowSelectResponse={workFlowRowSelectResponse}
@@ -152,7 +152,7 @@ Props) => {
             setWorkFlowResponse={setWorkFlowResponse}
           />
         )}
-      {workFlowResponse.workTables &&
+      {workFlowResponse?.workTables &&
         workFlowResponse.workTables.length > 0 && (
           <WorkflowComponent
             doFlow={doFlow}

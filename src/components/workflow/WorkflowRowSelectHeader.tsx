@@ -174,14 +174,16 @@ Props) => {
         response.data.result.workTable,
         "response.data.result.workTable"
       );
-      setWorkFlowResponse(response.data.result.workTable); // to refresh parent table in workflowForm
-      setCurrentWorkTableRowId(workFlowRowSelectResponse.workTableRow.id); // to keep previous id of parent table to find out if next and prev come to the same cartabl
-      if (
-        workFlowRowSelectResponse.workTableRow.id ===
-        response.data.result.workTableRowSelect.workTableRow.id
-      ) {
-        console.log("come to the same کارتابل");
-        setWorkFlowField("workTableIdTrigger", Date.now());
+      if (response.meta.errorCode <= 0) {
+        setWorkFlowResponse(response.data.result.workTable); // to refresh parent table in workflowForm
+        setCurrentWorkTableRowId(workFlowRowSelectResponse.workTableRow.id); // to keep previous id of parent table to find out if next and prev come to the same cartabl
+        if (
+          workFlowRowSelectResponse.workTableRow.id ===
+          response.data.result.workTableRowSelect.workTableRow.id
+        ) {
+          console.log("come to the same کارتابل");
+          setWorkFlowField("workTableIdTrigger", Date.now());
+        }
       }
       //setWorkFlowRowSelectResponse(response.data.result.workTableRowSelect)
       //setWorkFlowField("workTableIdTrigger", Date.now());

@@ -46,17 +46,18 @@ const AutoCompleteSearch = ({
   placeholder = "",
 }: Props) => {
   const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   //for api search
   useEffect(() => {
     //if user entered the search box, then call the api
-    if (isEntered) {
+    if (isEntered || isOpen) {
       fieldValues.forEach((fieldValue) => {
         //console.log(fieldValue.field, fieldValue.value, "fieldValue in AutoCompleteSearch");
         setField(fieldValue.field, fieldValue.value);
       });
       handleDebounceFilterChange(fieldSearch, search); // for search change
     }
-  }, [isEntered, search]);
+  }, [isEntered, search, isOpen]);
   ///////////////////////////////////////////////////////
   const abortControllerRef = useRef<AbortController | null>(null);
   const handleDebounceFilterChange = useCallback(
@@ -113,6 +114,7 @@ const AutoCompleteSearch = ({
           disabled={disabled}
           textAlign={textAlign}
           placeholder={placeholder}
+          onIsOpenChange={setIsOpen}
         />
       </div>
     </div>

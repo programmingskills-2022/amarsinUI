@@ -4,6 +4,7 @@ import {
   ProductOfferProduct,
   ProductOfferProductTable,
   ProductOfferProductTable2,
+  ProductOfferSaveResponse,
   ShowProductListRequest,
   ShowProductListResponse,
 } from "../../types/productOffer";
@@ -46,6 +47,7 @@ type Props = {
   canEditForm1: boolean;
   selectedId: number;
   isNew: boolean;
+  productOfferSaveResponse: ProductOfferSaveResponse;
 };
 
 const ProductOfferFormList = ({
@@ -69,8 +71,9 @@ const ProductOfferFormList = ({
   setIsModalRegOpen,
   selectedId,
   isNew,
+  productOfferSaveResponse,
 }: Props) => {
-  const { productOfferSaveResponse } = useProductOfferStore();
+  //const { productOfferSaveResponse } = useProductOfferStore();
   const [brandSearch, setBrandSearch] = useState<string>("");
   const [dtlDscSearch, setDtlDscSearch] = useState<string>("");
   const [productSearch, setProductSearch] = useState<string>("");

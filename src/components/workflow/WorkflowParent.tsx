@@ -191,16 +191,16 @@ export default function WorkflowParent({
     console.log(flowMapId); //just for handling warning of unused flowMapId
     if (
       flowMapIdStore?.toString() === "-1" &&
-      workFlowResponse.totalCount > 0
+      workFlowResponse?.totalCount > 0
     ) {
       setFlowMapTitle({
         id: "-1",
         title:
-          workFlowResponse.flowMapTitles.length > 0
+          workFlowResponse.flowMapTitles?.length > 0
             ? `${
-                workFlowResponse.flowMapTitles[0].name
+                workFlowResponse.flowMapTitles[0]?.name ?? ""
               } (${convertToFarsiDigits(
-                workFlowResponse.flowMapTitles[0].count
+                workFlowResponse.flowMapTitles[0]?.count ?? 0
               )})`
             : "",
       });
@@ -240,7 +240,7 @@ export default function WorkflowParent({
   useEffect(() => {
     // Only set first record as selected if there's no current selection
     // This prevents losing selection when data is refetched
-    if (workFlowResponse.workTables.length > 0) {
+    if (workFlowResponse?.workTables?.length > 0) {
       // Only reset if selectedId doesn't exist in current data
       const selectedExists = workFlowResponse.workTables.some(
         (table) => table.id === selectedId
@@ -268,7 +268,7 @@ export default function WorkflowParent({
   const [skipPageReset, setSkipPageReset] = useState(false);
 
   useEffect(() => {
-    if (workFlowResponse.workTables)
+    if (workFlowResponse?.workTables)
       setData(
         workFlowResponse.workTables.map((item, idx) => ({
           ...item,
@@ -363,10 +363,10 @@ export default function WorkflowParent({
           />*/}
           <div style={{ width: columnWidths.flowMapTitle + "%" }}>
             <AutoComplete
-              options={workFlowResponse.flowMapTitles.map((b) => ({
+              options={workFlowResponse?.flowMapTitles?.map((b) => ({
                 id: b.id.toString(),
                 title: `${b.name} (${convertToFarsiDigits(b.count)})`,
-              }))}
+              })) ?? []}
               value={flowMapTitle}
               handleChange={(_event, newValue) => {
                 setField(
@@ -408,9 +408,9 @@ export default function WorkflowParent({
         {isLoading ||
         isRefetchingWorkTable /*|| isRefetchingWorkTableRowSelect*/ ? (
           <div className="w-full text-center">{<Skeleton />}</div>
-        ) : workFlowResponse.err !== 0 ? (
+        ) : workFlowResponse?.err !== 0 ? (
           <p className="p-6 text-red-400 text-sm md:text-base font-bold">
-            {workFlowResponse.msg}
+            {workFlowResponse?.msg}
           </p>
         ) : (
           <div
@@ -439,7 +439,7 @@ export default function WorkflowParent({
               setPage={setPageNumber}
               pageSize={pageSize}
               setPageSize={setPageSize}
-              totalCount={workFlowResponse.totalCount}
+              totalCount={workFlowResponse?.totalCount ?? 0}
               setSelectedRowIndex={setSelectedRowIndex}
               showPagination={true}
             />

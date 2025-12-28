@@ -269,6 +269,11 @@ const ProductOfferForm = ({
   const [dsc, setDsc] = useState<string>("");
   const [isModalRegOpen, setIsModalRegOpen] = useState(false);
   const [excelData, setExcelData] = useState<any[]>([]);
+  const [productOfferSaveResponse, setProductOfferSaveResponse] = useState<ProductOfferSaveResponse>({
+    meta: { errorCode: 0, message: "", type: "" },
+    data: { result: { systemId: 0, id: 0, err: 0, msg: "", hasFlow: false } },
+  });
+
 
   const columns: TableColumns = useMemo(() => {
     return headCells.map((item) => {
@@ -624,16 +629,14 @@ const ProductOfferForm = ({
       : "";
   };
   ////////////////////////////////////////////////////////
-  const handleSubmitSave = async (
+  const handleSubmitSave =  (
     e?: React.MouseEvent<HTMLButtonElement>
-  ): Promise<ProductOfferSaveResponse | undefined> => {
+  ): void => {
     if (e) e.preventDefault();
     let request: ProductOfferSaveRequest;
-    console.log(originalData, "originalData in handleSubmitSave");
     const dtls: Dtl[] = originalData
       .filter((item) => item.pId !== 0)
       .map((item) => {
-        console.log(item,"item")
         const dtl: Dtl = {
           id: item.id,
           pId: item.pId,
@@ -653,7 +656,9 @@ const ProductOfferForm = ({
           item.s1D !== "" ||
           item.s2D !== "" ||
           item.s3D !== "" ||
-          item.s4D !== ""
+          item.s4D !== "" ||
+          item.dtlDsc !== "" ||
+          item.no !== false
         ) {
           return dtl;
         } else {
@@ -661,7 +666,16 @@ const ProductOfferForm = ({
         }
       })
       .filter((item) => item !== undefined);
-
+    if (dtls.length === 0) {
+      console.log(dtls,"اقلام مشخص نشده!");
+      const response: ProductOfferSaveResponse = {
+        meta: { errorCode: 1, message: "اقلام مشخص نشده!", type: "" },
+        data: { result: { systemId: 0, id: 0, err: 1, msg: "اقلام مشخص نشده!", hasFlow: false } },
+      };
+      setIsModalRegOpen(true);
+      setProductOfferSaveResponse(response);
+      return;
+    }
     request = {
       chartId: chartId,
       id: isNew ? 0 : selectedProductOffer?.id ?? 0, //if isNew is true, id is 0, otherwise id is selectedProductOffer?.id for edit
@@ -674,19 +688,20 @@ const ProductOfferForm = ({
       dtls: dtls,
     };
     console.log(request);
-    try {
-      const response = await productOfferSave(request);
-      setIsModalRegOpen(true);
-      console.log(
-        setSelectedRowIndex,
-        "setSelectedRowIndex in handleSubmitSave"
-      );
-      //if (setSelectedRowIndex && isNew) setSelectedRowIndex(0);
-      return response;
-      //console.log( "request");
-    } catch (error) {
-      console.error("Error ثبت :", error);
-    }
+    productOfferSave(request)
+      .then((response) => {
+        setIsModalRegOpen(true);
+        console.log(
+          setSelectedRowIndex,
+          "setSelectedRowIndex in handleSubmitSave"
+        );
+        //if (setSelectedRowIndex && isNew) setSelectedRowIndex(0);
+        setProductOfferSaveResponse(response);
+        //console.log( "request");
+      })
+      .catch((error) => {
+        console.error("Error ثبت :", error);
+      });
   };
   ///////////////////////////////////////////////////////
   useEffect(() => {
@@ -788,6 +803,7 @@ const ProductOfferForm = ({
         columns={columns}
         originalData={originalData}
         setOriginalData={setOriginalData}
+        productOfferSaveResponse={productOfferSaveResponse}
         isLoadingProductOfferSave={isLoadingProductOfferSave}
         handleSubmitSave={handleSubmitSave}
         isDtlHistoryLoading={isLoadingProductOfferDtlHistory}
