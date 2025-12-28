@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   convertToFarsiDigits,
   convertToLatinDigits,
@@ -50,11 +50,33 @@ const InvoiceReceipShowHeader = ({
   const { setField: setBrandField } = useBrandStore();
   const { setField: setSalesPriceField } = useProductStore();
 
+  // Use ref to track previous values to prevent infinite loops
+  const prevValuesRef = useRef<{
+    systemId: number;
+    yearId: number;
+    customerSearchCondition: string;
+  } | null>(null);
+
   useEffect(() => {
-    setCusomerField("systemIdCustomerSearch", systemId);
-    setCusomerField("yearIdCustomerSearch", yearId);
-    setCusomerField("search", customerSearchCondition);
-  }, [customerSearchCondition, systemId, yearId]);
+    // Only update if values actually changed
+    const hasChanged =
+      !prevValuesRef.current ||
+      prevValuesRef.current.systemId !== systemId ||
+      prevValuesRef.current.yearId !== yearId ||
+      prevValuesRef.current.customerSearchCondition !== customerSearchCondition;
+
+    if (hasChanged) {
+      prevValuesRef.current = {
+        systemId,
+        yearId,
+        customerSearchCondition,
+      };
+
+      setCusomerField("systemIdCustomerSearch", systemId);
+      setCusomerField("yearIdCustomerSearch", yearId);
+      setCusomerField("search", customerSearchCondition);
+    }
+  }, [customerSearchCondition, systemId, yearId, setCusomerField]);
 
   const { isModalOpen, setIsModalOpen } = useGeneralContext();
   useEffect(() => {
