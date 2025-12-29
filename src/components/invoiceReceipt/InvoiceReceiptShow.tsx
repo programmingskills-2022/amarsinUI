@@ -1,6 +1,6 @@
 //Indent/_CreateIndent
 //کارشناس خرید => دریافت پیش فاکتور
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
 import { useInvoiceReceipt } from "../../hooks/useInvoiceReceipt";
 import { WorkflowRowSelectResponse } from "../../types/workflow";
 import { useInvoiceReceiptStore } from "../../store/invoiceReceiptStore";
@@ -26,7 +26,6 @@ import { handleExport } from "../../utilities/ExcelExport";
 import { useProductStore } from "../../store/productStore";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 import { useBrandStore } from "../../store/brandStore";
-import { useBrand } from "../../hooks/useBrands";
 import { useCustomers } from "../../hooks/useCustomers";
 
 type Props = {
@@ -37,6 +36,7 @@ type Props = {
   setIsNew: (isNew: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
   definitionDateTime: DefinitionDateTime;
+  isFromWorkFlow: boolean;
 };
 
 export type Fields = {
@@ -60,14 +60,14 @@ const InvoiceReceiptShow = ({
   setIsNew,
   setIsEdit,
   definitionDateTime,
-}: //setIsOpen,//for close modal
+  isFromWorkFlow,
+}: 
 Props) => {
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm1;
   const { setField, mrsId: mrsIdStore } = useInvoiceReceiptStore();
   const { setField: setProductField } = useProductStore();
   const { setField: setBrandField } = useBrandStore();
   const {customers} = useCustomers();
-  const {brands} = useBrand();
   const { indentMrsResponse, isLoading, getIndentMrsResponse } =
   useInvoiceReceipt();  const {
     salesPricesSearchResponse,
@@ -138,7 +138,7 @@ Props) => {
     setProductField("salesPricesSearchPage", -1); // Disable salesPrices query
     setProductField("pId", -1);
     setProductField("mrsId", -1);
-  }, [workFlowRowSelectResponse.workTableRow.formId]);
+  }, []);
 
   const [fields, setFields] = useState<Fields>({
     customer: {
@@ -231,7 +231,7 @@ Props) => {
             indentMrsResponse.data.result.indents?.[0]?.tim ?? ""
           ),
     }));
-  }, [isLoading, indentMrsResponse]);
+  }, [isLoading, indentMrsResponse.data.result.indents?.[0]]);
 
   {
     isLoading && <p>در حال بارگذاری...</p>;
@@ -318,64 +318,61 @@ Props) => {
 
     //console.log(res, "res");
     if (res && res.data.result) {
-      // Map through the new products
-      res.data.result.forEach((product) => {
-        setAddList((prev) => {
-          // Filter out newRow entries (empty rows) before adding new records
-          // Check by properties since items might be clones of newRow
-          const filteredPrev = prev.filter((item: IndentDtl) => {
-            // Remove items that match newRow pattern (id === 0 and product is empty)
-            return !(
-              item.id === 0 &&
-              item.productCode === "" &&
-              item.product === "" &&
-              item.pId === 0
-            );
-          });
-          //console.log(filteredPrev, "filteredPrev");
-          return [
-            ...filteredPrev,
-            {
-              //index: rowIndex + 1 + i,
-              id: product.id,
-              ordr: 0,
-              custId: 0,
-              customer: "",
-              pId: product.pId,
-              bName: product.bName,
-              productCode: "",
-              product: product.product,
-              sumCompanyCnt: product.sumCompanyCnt ?? 0,
-              sumStoreCnt: product.sumStoreCnt ?? 0,
-              lbDate: product.lbDate ?? "",
-              companyStock: product.companyStock ?? 0,
-              storeStock: product.storeStock ?? 0,
-              productExp: "",
-              cnt: product.cnt ?? 0,
-              offer: product.offer ?? 0,
-              cost: product.cost ?? 0,
-              dcrmntPrcnt: 0,
-              dcrmnt: 0,
-              tax: product.tax ?? 0,
-              taxValue: product.taxValue ?? 0,
-              total: product.total ?? 0,
-              dtlDsc: product.dtlDsc,
-              del: false,
-              recieptId: 0,
-              recieptDsc: "",
-              isDeleted: false,
-            },
-          ];
+      // Batch ALL updates into a SINGLE setAddList call to prevent performance violations
+      // This prevents multiple state updates and cascading re-renders
+      setAddList((prev) => {
+        // Filter out newRow entries (empty rows) before adding new records
+        const filteredPrev = prev.filter((item: IndentDtl) => {
+          // Remove items that match newRow pattern (id === 0 and product is empty)
+          return !(
+            item.id === 0 &&
+            item.productCode === "" &&
+            item.product === "" &&
+            item.pId === 0
+          );
         });
-      });
-      setAddList((prev) => [
-        ...prev,
-        {
-          ...newRow,
-          //  index: rowIndex + res.indentProducts.length + 1
+        
+        // Map all products at once
+        const newProducts = res.data.result.map((product) => ({
+          id: product.id,
+          ordr: 0,
+          custId: 0,
+          customer: "",
+          pId: product.pId,
+          bName: product.bName,
+          productCode: "",
+          product: product.product,
+          sumCompanyCnt: product.sumCompanyCnt ?? 0,
+          sumStoreCnt: product.sumStoreCnt ?? 0,
+          lbDate: product.lbDate ?? "",
+          companyStock: product.companyStock ?? 0,
+          storeStock: product.storeStock ?? 0,
+          productExp: "",
+          cnt: product.cnt ?? 0,
+          offer: product.offer ?? 0,
+          cost: product.cost ?? 0,
+          dcrmntPrcnt: 0,
+          dcrmnt: 0,
+          tax: product.tax ?? 0,
+          taxValue: product.taxValue ?? 0,
+          total: product.total ?? 0,
+          dtlDsc: product.dtlDsc,
+          del: false,
+          recieptId: 0,
+          recieptDsc: "",
           isDeleted: false,
-        },
-      ]);
+        }));
+        
+        // Add new empty row in the SAME update to avoid second state update
+        return [
+          ...filteredPrev,
+          ...newProducts,
+          {
+            ...newRow,
+            isDeleted: false,
+          },
+        ];
+      });
     }
     //setIsOpen!==undefined && setIsOpen(false); //for close modal
   };
@@ -402,11 +399,21 @@ Props) => {
   }, [isModalOpen]);
 
   ////////////////////////////////////////////////////////
+  // Track initialization to prevent infinite loops
+  const hasInitializedRef = useRef(false);
+  
   useEffect(() => {
-    if (isNew && addList.length === 0) {
-      setAddList([newRow]);
+    // Only initialize once when isNew is true and list is empty
+    if (isNew && addList.length === 0 && !hasInitializedRef.current) {
+      setAddList([{ ...newRow }]);
+      hasInitializedRef.current = true;
     }
-  }, []);
+    // Reset flag when isNew changes to false
+    if (!isNew) {
+      hasInitializedRef.current = false;
+    }
+  }, [isNew]); // Only depend on isNew to avoid reading stale addList.length
+
   useEffect(() => {
     const tempData = indentMrsResponse.data.result.indentDtls.map(
       (dtl, index) => {
@@ -427,10 +434,10 @@ Props) => {
     );
     setExcelData(tempData);
   }, [indentMrsResponse.data.result.indentDtls]);
+  
   return (
     <div className="w-full flex flex-col">
       <InvoiceReceipShowHeader
-        brands={brands}
         customers={customers}
         canEditForm={canEditForm}
         fields={fields}
@@ -498,6 +505,7 @@ Props) => {
         getIndentMrsResponse={getIndentMrsResponse}
         setIsNew={setIsNew}
         setIsEdit={setIsEdit}
+        isFromWorkFlow={isFromWorkFlow}
       />
     </div>
   );

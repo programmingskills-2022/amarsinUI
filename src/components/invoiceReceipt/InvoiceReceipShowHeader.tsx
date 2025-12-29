@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   convertToFarsiDigits,
   convertToLatinDigits,
@@ -17,10 +17,11 @@ import {
 import PersianDatePicker from "../controls/PersianDatePicker";
 import ModalMessage from "../layout/ModalMessage";
 import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import { useBrand } from "../../hooks/useBrands";
 
 type Props = {
   // canEditForm1Mst1: boolean;
-  brands: SearchItem[];
+  //brands: SearchItem[];
   customers: SearchItem[];
   canEditForm: boolean;
   fields: Fields;
@@ -29,7 +30,7 @@ type Props = {
 };
 const InvoiceReceipShowHeader = ({
   //canEditForm1Mst1,
-  brands,
+  //brands,
   customers,
   canEditForm,
   fields,
@@ -40,8 +41,7 @@ const InvoiceReceipShowHeader = ({
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
   const [customerSearchCondition, setCustomerSearchCondition] =
     useState<string>("");
-  //const [brandsearch, setBrandSearch] = useState<string>("");
-  const [isBrandEntered, setIsBrandEntered] = useState<boolean>(false);
+  const [brandsearch, setBrandSearch] = useState<string>("");
   //const [salesPricesearch, setSalesPriceSearch] = useState<string>("");
   const [isSalesPricesEntered, setIsSalesPricesEntered] =
     useState<boolean>(false);
@@ -49,34 +49,21 @@ const InvoiceReceipShowHeader = ({
   const { setField: setCusomerField } = useCustomerStore();
   const { setField: setBrandField } = useBrandStore();
   const { setField: setSalesPriceField } = useProductStore();
-
-  // Use ref to track previous values to prevent infinite loops
-  const prevValuesRef = useRef<{
-    systemId: number;
-    yearId: number;
-    customerSearchCondition: string;
-  } | null>(null);
+  const {brands} = useBrand();
 
   useEffect(() => {
-    // Only update if values actually changed
-    const hasChanged =
-      !prevValuesRef.current ||
-      prevValuesRef.current.systemId !== systemId ||
-      prevValuesRef.current.yearId !== yearId ||
-      prevValuesRef.current.customerSearchCondition !== customerSearchCondition;
+    setCusomerField("systemIdCustomerSearch", systemId);
+    setCusomerField("yearIdCustomerSearch", yearId);
+    setCusomerField("search", customerSearchCondition);
+  }, [customerSearchCondition, systemId, yearId]);
 
-    if (hasChanged) {
-      prevValuesRef.current = {
-        systemId,
-        yearId,
-        customerSearchCondition,
-      };
-
-      setCusomerField("systemIdCustomerSearch", systemId);
-      setCusomerField("yearIdCustomerSearch", yearId);
-      setCusomerField("search", customerSearchCondition);
-    }
-  }, [customerSearchCondition, systemId, yearId, setCusomerField]);
+  useEffect(() => {
+    setBrandField("accSystem", systemId);
+    setBrandField("search", brandsearch);
+    //setBrandField("page", 1);
+    //setBrandField("lastId", 0);
+    //setBrandField("usrPerm", 0);
+  }, [brandsearch, systemId]);
 
   const { isModalOpen, setIsModalOpen } = useGeneralContext();
   useEffect(() => {
@@ -255,36 +242,36 @@ const InvoiceReceipShowHeader = ({
         </div>
       )}
       {canEditForm && (
-        <AutoCompleteSearch
-          label="برند"
-          labelWidth="w-20"
-          setField={setBrandField}
-          fieldValues={[{ field: "accSystem", value: systemId }]}
-          fieldSearch="search"
-          selectedOption={
-            {
-              id: fields.brand?.[0]?.id ?? 0,
-              title: fields.brand?.[0]?.title ?? "",
-            } as DefaultOptionTypeStringId
-          }
-          setSelectedOption={
-            fields.brand
-              ? (newValue: any) => {
-                  setFields((prev: Fields) => ({
+        <div className="w-full flex items-center">
+          <label className="p-1 w-32 md:w-24 text-left">برند:</label>
+          <div className="bg-slate-50 flex w-full">
+            <AutoComplete
+              options={brands.map((b) => ({
+                id: b.id,
+                title: b.text,
+              }))}
+              value={fields.brand as DefaultOptionTypeStringId[]}
+              handleChange={(_event, newValue) => {
+                return setFields((prev: Fields) => {
+                  return {
                     ...prev,
                     brand: newValue as DefaultOptionTypeStringId[],
-                  }));
-                }
-              : undefined
-          }
-          options={brands.map((b) => ({
-            id: b.id,
-            text: b.text,
-          }))}
-          isEntered={isBrandEntered}
-          setIsEntered={setIsBrandEntered}
-          placeholder="برند را انتخاب کنید..."
-        />
+                  };
+                });
+              }}
+              multiple={true}
+              setSearch={setBrandSearch}
+              showLabel={false}
+              showClearIcon={false}
+              outlinedInputPadding="10px"
+              placeholder={
+                Array.isArray(fields.brand) && fields.brand.length > 0
+                  ? undefined
+                  : "برند را انتخاب کنید..."
+              }
+            />
+          </div>
+        </div>
       )}
       <div className="flex flex-col md:flex-row w-full md:justify-center md:items-center">
         <AutoCompleteSearch
@@ -343,7 +330,6 @@ const InvoiceReceipShowHeader = ({
       </div>
     </div>
   );
-
   return (
     <>
       {body1}

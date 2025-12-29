@@ -79,6 +79,7 @@ const PurchaseRequestIndentForm = ({
         setIsNew={setIsNew}
         setIsEdit={setIsEdit}
         definitionDateTime={definitionDateTime}
+        isFromWorkFlow={false}
       />
     </div>
   );

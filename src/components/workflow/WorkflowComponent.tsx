@@ -118,6 +118,7 @@ export default function WorkflowComponent({
           setIsNew={() => {}}
           setIsEdit={() => {}}
           definitionDateTime={definitionDateTime}
+          isFromWorkFlow={true}
         />
       );
       break;
@@ -369,6 +370,7 @@ export default function WorkflowComponent({
           setIsNew={() => {}}
           setIsEdit={() => {}}
           definitionDateTime={definitionDateTime}
+          isFromWorkFlow={true}
         />
       );
       break;

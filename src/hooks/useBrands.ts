@@ -1,6 +1,5 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useBrandStore } from "../store/brandStore";
-import { BrandRequest } from "../types/brand";
 import api from "../api/axios";
 import { SearchItem } from "../types/general";
 
@@ -11,27 +10,17 @@ interface BrandResponse {
 export function useBrand() {
   const { accSystem, lastId, page, usrPerm, search, setBrands } =
     useBrandStore();
-
   const query = useQuery<BrandResponse, Error, BrandResponse, unknown[]>({
     queryKey: ["brands", accSystem, lastId, page, usrPerm, search],
     queryFn: async () => {
-      const params: BrandRequest = {
-        accSystem,
-        lastId,
-        page,
-        usrPerm,
-        search,
-      };
-      const url = `/api/Brand/search?accSystem=${params.accSystem}&page=${
-        params.page
-      }&lastId=${params.lastId}&usrPerm=${
-        params.usrPerm
-      }&search=${encodeURIComponent(search ?? "")}`;
+      const url = `/api/Brand/search?accSystem=${accSystem}&page=${page}&lastId=${lastId}&usrPerm=${usrPerm}&search=${encodeURIComponent(
+        search ?? ""
+      )}`;
+      console.log(url, "url,response.data in brandSearch");
       const response = await api.get(url);
-      console.log(url, response.data, "url,response.data in brandSearch");
       return response.data;
     },
-    enabled: accSystem !== -1, // Only run if accSystem exists
+    //enabled: accSystem !== -1, // Only run if accSystem exists
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

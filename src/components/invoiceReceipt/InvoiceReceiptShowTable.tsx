@@ -48,7 +48,7 @@ import InvoiceReceiptShowTableHeader from "./InvoiceReceiptShowTableHeader";
 import InvoiceReceiptShowTableSummery from "./InvoiceReceiptShowTableSummery";
 import { debounce } from "lodash";
 import { useProducts } from "../../hooks/useProducts";
-
+import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 
 type Props = {
   isNew?: boolean;
@@ -76,6 +76,7 @@ type Props = {
   //setProductSearchinTable: React.Dispatch<React.SetStateAction<string>>;
   setIsNew: (isNew: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
+  isFromWorkFlow: boolean;
 };
 export const headCells = [
   {
@@ -227,6 +228,7 @@ const InvoiceReceiptShowTable = ({
   getIndentMrsResponse,
   setIsNew,
   setIsEdit,
+  isFromWorkFlow,
 }: Props) => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [brandSearch, setBrandSearch] = useState<string>("");
@@ -441,20 +443,45 @@ const InvoiceReceiptShowTable = ({
     }
   }, [brandSearch, productSearch, dtlDscSearch, originalData]);
   //////////////////////////////////////////////////////
+  // Use refs to track changes efficiently without expensive JSON.stringify
+  const lastProcessedAddListLengthRef = useRef<number>(0);
+  const lastProcessedAddListIdsRef = useRef<Set<number>>(new Set());
+  
   useEffect(() => {
-    setOriginalData((old) => {
-      const temp = old.filter(
-        (item) => item.id !== 0 && item.product !== "" && item.pId !== 0
-      );
-      return [
-        ...temp,
-        ...addList.map((item, idx) => ({
-          ...item,
-          index: old.length + idx + 1,
-          isDeleted: false,
-        })),
-      ];
-    });
+    // Quick check: only process if length changed or if we detect new IDs
+    const currentIds = new Set(addList.map(item => item.id));
+    const hasNewItems = addList.length !== lastProcessedAddListLengthRef.current ||
+      addList.some(item => !lastProcessedAddListIdsRef.current.has(item.id));
+    
+    if (hasNewItems) {
+      lastProcessedAddListLengthRef.current = addList.length;
+      lastProcessedAddListIdsRef.current = currentIds;
+      
+      // Use requestAnimationFrame to defer the expensive operation
+      // This prevents blocking the main thread
+      requestAnimationFrame(() => {
+        setOriginalData((old) => {
+          // Filter out empty rows from existing data
+          const temp = old.filter(
+            (item) => item.id !== 0 && item.product !== "" && item.pId !== 0
+          );
+          
+          // Get existing IDs to avoid duplicates
+          const existingIds = new Set(temp.map(item => item.id));
+          
+          // Add new items from addList that aren't duplicates
+          const newItems = addList
+            .filter(item => !existingIds.has(item.id))
+            .map((item, idx) => ({
+              ...item,
+              index: temp.length + idx + 1,
+              isDeleted: false,
+            }));
+          
+          return [...temp, ...newItems];
+        });
+      });
+    }
   }, [addList]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
@@ -533,7 +560,9 @@ const InvoiceReceiptShowTable = ({
     (data as any)[rowIndex][columnId] = value;
 
     // Also update originalData to keep them in sync
-    const rowInOriginal = originalData.find((row) => row.index === currentRow.index);
+    const rowInOriginal = originalData.find(
+      (row) => row.index === currentRow.index
+    );
     if (rowInOriginal) {
       (rowInOriginal as any)[columnId] = value;
     }
@@ -704,12 +733,14 @@ const InvoiceReceiptShowTable = ({
     fetchData();
   }, [selectedDtlId, yearId]);
 
-  //const { height } = useCalculateTableHeight();
+  const { height } = useCalculateTableHeight();
   return (
     <>
       <div className="p-2 mt-2 w-full bg-white rounded-md">
-        <div>
-        {/* className="overflow-y-auto" style={{ height: height - 450 }}> */}
+        <div
+          className={!isFromWorkFlow ? "overflow-y-auto" : ""}
+          style={{ height: !isFromWorkFlow ? height - 450 : "auto" }}
+        >
           <InvoiceReceiptShowTableHeader
             brandSearch={brandSearch}
             setBrandSearch={setBrandSearch}

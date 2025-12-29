@@ -157,7 +157,10 @@ const WarehouseIndentTable = ({
         )
       );
     }
-  }, [warehouseIndentList.data.result.warehouseTemporaryReceiptIndentLists?.length]);
+  }, [
+    warehouseIndentList.data.result.warehouseTemporaryReceiptIndentLists
+      ?.length,
+  ]);
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -177,19 +180,27 @@ const WarehouseIndentTable = ({
 
     try {
       const response = await editIndents(request);
-      handleWarehouseIndentListClose();
 
       // Now we can check the response directly
-      if (response.meta.errorCode >0 ) {
+      if (response.meta.errorCode > 0) {
         setIsModalOpen(true);
-      }
+      } else handleWarehouseIndentListClose();
     } catch (error) {
       setIsModalOpen(true);
     }
   };
   /////////////////////////////////////////////////////////
-  const changeRowValues = (value: string, rowIndex: number, columnId: string) => {
-    console.log(value, rowIndex, columnId, "come to changeRowValues in WarehouseIndentTable");
+  const changeRowValues = (
+    value: string,
+    rowIndex: number,
+    columnId: string
+  ) => {
+    console.log(
+      value,
+      rowIndex,
+      columnId,
+      "come to changeRowValues in WarehouseIndentTable"
+    );
     /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -207,7 +218,7 @@ const WarehouseIndentTable = ({
     <>
       {isLoadingWarehouseIndentList ? (
         <div className="text-center">{<Skeleton />}</div>
-      ) : warehouseIndentList.meta.errorCode >0 ? (
+      ) : warehouseIndentList.meta.errorCode > 0 ? (
         <p className="p-6 text-red-400 text-sm md:text-base font-bold">
           {warehouseIndentList.meta.message}
         </p>
@@ -231,7 +242,7 @@ const WarehouseIndentTable = ({
 
           {data.length > 0 && (
             <ConfirmCard variant="rounded-md justify-end">
-              <Button text="تایید" onClick={handleSubmit}   />
+              <Button text="تایید" onClick={handleSubmit} />
             </ConfirmCard>
           )}
         </div>
