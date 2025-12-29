@@ -17,7 +17,6 @@ import { DefaultOptionType, TableColumns } from "../../types/general";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { red } from "@mui/material/colors";
 import ModalMessage from "../layout/ModalMessage";
-import { useProductOfferStore } from "../../store/productOfferStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 
 type Props = {

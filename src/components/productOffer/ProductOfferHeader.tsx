@@ -18,6 +18,7 @@ import { Indent } from "../../types/product";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
 import ExcelIcon from "../../assets/images/GrayThem/excel24.png";
 import { useEffect, useState } from "react";
+import { convertToLatinDigits, currencyStringToNumber } from "../../utilities/general";
 type Props = {
   columns: TableColumns;
   setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
@@ -48,6 +49,19 @@ const ProductOfferHeader = ({
   definitionInvironment,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [processedDataForExcel, setProcessedDataForExcel] = useState<any[]>([]);
+  useEffect(() => {
+    if (data) {
+      setProcessedDataForExcel(data.map((item) => ({
+        ...item,
+        p1: item.p1 ? currencyStringToNumber(convertToLatinDigits(item.p1)) : "",
+        p2: item.p2 ? currencyStringToNumber(convertToLatinDigits(item.p2)) : "",
+        p3: item.p3 ? currencyStringToNumber(convertToLatinDigits(item.p3)) : "",
+        p4: item.p4 ? currencyStringToNumber(convertToLatinDigits(item.p4)) : "",
+        p5: item.p5 ? currencyStringToNumber(convertToLatinDigits(item.p5)) : "",
+      })));
+    }
+  }, [data]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -155,7 +169,7 @@ const ProductOfferHeader = ({
           className="flex flex-col items-center justify-center  cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
           onClick={() =>
             handleExport({
-              data: data,
+              data: processedDataForExcel,
               setIsModalOpen,
               headCells: columns,
               fileName: "data_export.xlsx",

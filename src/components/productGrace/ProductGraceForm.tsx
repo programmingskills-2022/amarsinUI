@@ -388,7 +388,7 @@ const ProductGraceForm = ({
               pId: item.pId,
               bName: item.bName,
               product: item.product,
-              lastDate: "",//res?.data.result.productGraceProducts[0].lastDate ?? item.lastDate,
+              lastDate: item.lastDate,
               gd: item.gd,
               sc: item.sc,
               cc: item.cc,
