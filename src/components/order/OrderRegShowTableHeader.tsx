@@ -62,6 +62,7 @@ const OrderRegShowTableHeader = ({
           const columnGroup = item as ColumnGroup;
           return (
             <div
+              key={columnGroup.Header}
               className="bg-gray-200 p-1 border-r border-y last:border-x border-gray-300 text-center"
               style={{
                 width: columnGroup.width,
@@ -97,6 +98,7 @@ const OrderRegShowTableHeader = ({
                   if (column.accessor === "cupCode") {
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l border-b"
                         style={{
                           width: mergedWidth,
@@ -129,28 +131,6 @@ const OrderRegShowTableHeader = ({
                           }}
                           textAlign="center"
                         />
-                        {/*<AutoComplete
-                          disabled={false}
-                          options={warehouseSearchResponse.data.result.searchResults.map(
-                            (b) => ({
-                              id: b.id,
-                              title: b.text,
-                            })
-                          )}
-                          value={warehouse}
-                          handleChange={(_event, newValue) => {
-                            changeWarehouse(newValue as DefaultOptionType);
-                          }}
-                          setSearch={setWarehouseSearch}
-                          showLabel={false}
-                          outlinedInputPadding="10px"
-                          backgroundColor={"white"}
-                          showClearIcon={false}
-                          inputPadding="0 !important"
-                          textAlign="center"
-                          desktopfontsize="12px"
-                          placeholder="انبار را انتخاب کنید..."
-                        />*/}
                       </div>
                     );
                   }
@@ -158,6 +138,7 @@ const OrderRegShowTableHeader = ({
                   else if (column.accessor === "salePrice")
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l border-b"
                         style={{
                           width:
@@ -193,6 +174,7 @@ const OrderRegShowTableHeader = ({
                   else if (!isMergedColumn && column.accessor !== "cupCnt")
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l"
                         style={{
                           width:
@@ -206,6 +188,7 @@ const OrderRegShowTableHeader = ({
                         <p className="py-1"></p>
                       </div>
                     );
+                  return null;
                 })}
               </div>
             );
@@ -223,6 +206,7 @@ const OrderRegShowTableHeader = ({
               >
                 {columnGroup.columns.map((column) => (
                   <div
+                    key={column.accessor}
                     className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l"
                     style={{
                       width:

@@ -129,6 +129,7 @@ const OrderRegShowHeader = ({
                 orderRegShowResponse.data.result.orderMst?.tim
             )}
             disabled={!canEditForm1Mst1}
+            readOnly
             className="text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md"
           />
         </div>
@@ -141,6 +142,7 @@ const OrderRegShowHeader = ({
             orderRegShowResponse.data.result.orderMst?.exp ?? ""
           )}
           disabled={!canEditForm1Mst1}
+          readOnly
           className="text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md"
         />
       </div>
@@ -153,6 +155,7 @@ const OrderRegShowHeader = ({
               orderRegShowResponse.data.result.orderMst?.dsc ?? ""
             )}
             disabled={!canEditForm1Mst1}
+            readOnly
             className="text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md"
           />
         </div>
@@ -164,6 +167,7 @@ const OrderRegShowHeader = ({
               orderRegShowResponse.data.result.orderMst?.footerDescTxt ?? ""
             )}
             disabled={!canEditForm1Mst1}
+            readOnly
             className="text-sm text-gray-400 w-full p-1 border border-gray-300 rounded-md"
           />
         </div>
@@ -182,6 +186,7 @@ const OrderRegShowHeader = ({
               orderRegShowResponse.data.result.orderMst?.customerDcrmntPrcnt ??
                 ""
             )}
+            readOnly
             className="text-sm text-gray-400 w-16 p-1 border border-gray-300 rounded-md"
           />
           <label className="p-1 text-left">%</label>
@@ -255,31 +260,6 @@ const OrderRegShowHeader = ({
             }}
             textAlign="center"
           />
-          {/*<div className="flex items-center justify-between w-full">
-            <label className="p-1 w-20 text-left">انبار:</label>
-            <AutoComplete
-              disabled={false}
-              options={warehouseSearchResponse.data.result.searchResults.map(
-                (b) => ({
-                  id: b.id,
-                  title: b.text,
-                })
-              )}
-              value={warehouse}
-              handleChange={(_event, newValue) => {
-                changeWarehouse(newValue as DefaultOptionType);
-              }}
-              setSearch={setWarehouseSearch}
-              showLabel={false}
-              outlinedInputPadding="10px"
-              backgroundColor={"white"}
-              showClearIcon={false}
-              inputPadding="0 !important"
-              textAlign="center"
-              desktopfontsize="12px"
-              placeholder="انبار را انتخاب کنید..."
-            />
-          </div>*/}
         </>
       ) : null}
     </div>
