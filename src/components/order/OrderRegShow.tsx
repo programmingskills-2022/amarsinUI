@@ -345,6 +345,7 @@ const OrderRegShow = ({
     setWarehouseField("idReg", -1); // Disable purchaseReg query
     setWarehouseField("page", -1); //  Disable salesPrices query
     setProductField("salesPricesSearchPage", -1);
+    setWarehouseField("salesPriceId",0)
   }
   /*useEffect(() => {
     //console.log(workFlowRowSelectResponse?.workTableRow.formId);

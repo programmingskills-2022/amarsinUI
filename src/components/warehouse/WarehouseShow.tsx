@@ -44,6 +44,7 @@ const WarehouseShow = ({
     setField("id", -1); // Disable salesPrices query
     setField("idReg", -1); // Disable purchaseReg query
     setField("page", -1); //  Disable salesPrices query
+    setField("salesPriceId",0)
   }
 
   //console.log("jskdjskjd")

@@ -121,6 +121,7 @@ const DeliveryShow = ({
     setWarehouseField("page", -1); //  Disable salesPrices query
     setWarehouseField("iocId", -1); //  Disable salesPrices query
     setWarehouseField("page", -1); //  Disable salesPrices query
+    setWarehouseField("salesPriceId",0);
     setTTacField("ttacRequestId", -1); 
     setTTacField("systemId", -1);
     setTTacField("yearId", -1);

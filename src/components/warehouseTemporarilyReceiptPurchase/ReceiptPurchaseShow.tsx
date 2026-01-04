@@ -68,6 +68,7 @@ const ReceiptPurchaseShow = ({
     setWarehouseField("id",-1) // to not fetching warehouseTemporaryReceiptSalesPricesQuery
     setWarehouseField("idReg",-1) // Disable purchaseReg query
     setWarehouseField("page",-1) //  Disable salesPrices query
+    setWarehouseField("salesPriceId",0)
     setProductField("salesPricesSearchPage",-1)
     setProductField("productSearchAccYear",-1)
     if (!canEditForm1Mst2) setCustomerField("yearIdCustomerSearch",-1) // to not fetching CustomerSearchQuery

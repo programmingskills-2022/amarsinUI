@@ -61,6 +61,7 @@ const ReceiptPurchaseShowTableHeader = ({
         warehouseTemporaryReceiptPurchaseShowResponse.data.result.result.spTitle
       ),
     });
+
     setSalesPriceFieldInWarehouse(
       "id",
       warehouseTemporaryReceiptPurchaseShowResponse.data.result.result
