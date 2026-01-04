@@ -41,8 +41,12 @@ export function TablePaginationActions(props: Props) {
   const [inputValue, setInputValue] = useState<string>((page || 0) + 1 + "");
   const inputRef = useRef<boolean>(false);
   const timeoutRef = useRef<number | null>(null);
-  setDefaultRowsPerPage(pageSize || 10);
   const lastPage = Math.max(0, Math.ceil(totalCount / pageSize) - 1);
+
+  // Update defaultRowsPerPage in useEffect to avoid setState during render
+  useEffect(() => {
+    setDefaultRowsPerPage(pageSize || 10);
+  }, [pageSize, setDefaultRowsPerPage]);
 
   // Update input value when page changes
   useEffect(() => {

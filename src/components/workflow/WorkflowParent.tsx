@@ -150,11 +150,21 @@ export default function WorkflowParent({
     setField("page", pageNumber);
     setField("pageSize", pageSize);
   }, [systemId, chartId, pageNumber, pageSize]);
-
+  ////////////////////////////////////////////////
   useEffect(() => {
     setField("flowMapId", "-1");
   }, [chartId]);
-
+  ////////////////////////////////////////////////
+  //initialize
+  useEffect(() => {
+    setField("title", "");
+    setField("code", "");
+    setField("cost", "");
+    setField("name", "");
+    setField("dsc", "");
+    setField("flowMapId", "-1");
+    setField("page", 1);
+  }, []);
   //define flowMapTitles
   const [flowMapTitle, setFlowMapTitle] = useState<{
     id: string;
@@ -363,10 +373,12 @@ export default function WorkflowParent({
           />*/}
           <div style={{ width: columnWidths.flowMapTitle + "%" }}>
             <AutoComplete
-              options={workFlowResponse?.flowMapTitles?.map((b) => ({
-                id: b.id.toString(),
-                title: `${b.name} (${convertToFarsiDigits(b.count)})`,
-              })) ?? []}
+              options={
+                workFlowResponse?.flowMapTitles?.map((b) => ({
+                  id: b.id.toString(),
+                  title: `${b.name} (${convertToFarsiDigits(b.count)})`,
+                })) ?? []
+              }
               value={flowMapTitle}
               handleChange={(_event, newValue) => {
                 setField(
