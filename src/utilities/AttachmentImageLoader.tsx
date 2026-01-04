@@ -25,7 +25,8 @@ interface AttachmentImageLoaderProps {
 // Helper function to determine file type from extension
 const getFileTypeFromExtension = (
   extension: string | undefined,
-  mimeType: string
+  mimeType: string,
+  url?: string
 ): FileType => {
   if (extension) {
     const ext = extension.toLowerCase().replace(/^\./, ""); // Remove leading dot
@@ -39,7 +40,7 @@ const getFileTypeFromExtension = (
   }
 
   // Fallback to MIME type detection
-  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType && mimeType.startsWith("image/")) return "image";
   if (mimeType === "application/pdf") return "pdf";
   if (mimeType.includes("wordprocessingml") || mimeType.includes("msword"))
     return "word";
@@ -48,6 +49,13 @@ const getFileTypeFromExtension = (
   if (mimeType.includes("presentationml") || mimeType.includes("powerpoint"))
     return "powerpoint";
 
+  // Additional fallback: check if URL contains "image" in the path
+  // This helps when the API endpoint is for images but doesn't have extension
+  if (url && (url.includes("/image/") || url.includes("/Image/"))) {
+    return "image";
+  }
+
+  // Default to "other" if we can't determine
   return "other";
 };
 
@@ -234,8 +242,15 @@ const AttachmentImageLoader: React.FC<AttachmentImageLoaderProps> = ({
           return;
         }
 
-        // Detect file type from extension or MIME type
-        const detectedFileType = getFileTypeFromExtension(extension, blob.type);
+        // Detect file type from extension, MIME type, or URL pattern
+        let detectedFileType = getFileTypeFromExtension(extension, blob.type, imageUrl);
+        
+        // If blob type is empty/unknown but URL contains "/image/", assume it's an image
+        // This handles cases where the API endpoint is for images but doesn't set proper Content-Type
+        if (detectedFileType === "other" && (imageUrl.includes("/image/") || imageUrl.includes("/Image/"))) {
+          detectedFileType = "image";
+        }
+        
         setFileType(detectedFileType);
 
         const objectUrl = URL.createObjectURL(blob);

@@ -28,6 +28,7 @@ const RegRecievedChequeImg = ({
   const token = authApiResponse?.data.result.login.token ?? "";
 
   const imageUrl = paymentAttachmentResponse?.data?.result?.path ?? "";
+  const fileExtension = paymentAttachmentResponse?.data?.result?.extension ?? undefined;
 
   const [actCode, setActCode] = useState("Last");
   const [curId, setCurId] = useState(0);
@@ -146,6 +147,7 @@ const RegRecievedChequeImg = ({
                     height: "auto",
                     transform: `rotate(${rotation}deg)`, // rotation is here
                   },
+                  fileExtension: fileExtension,
                   onError: (error) =>
                     console.error("Image failed to load:", error),
                 }}
