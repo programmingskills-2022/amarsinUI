@@ -36,8 +36,6 @@ import ShowMessages from "../controls/ShowMessages";
 import { colors } from "../../utilities/color";
 import ModalMessage from "../layout/ModalMessage";
 import { v4 as uuidv4 } from "uuid";
-//import { useAttachments } from "../../hooks/useAttachments";
-//import { useAttachmentStore } from "../../store/attachmentStore";
 import AttachmentShowTableTabs from "../attachment/AttachmentShowTableTabs";
 import {
   DefinitionDateTime,

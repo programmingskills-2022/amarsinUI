@@ -144,6 +144,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
     isLoadingDtl,
     refetch,
     addProductList,
+    isLoadingAddList,
     productOfferDtlHistory,
     isLoadingProductOfferDtlHistory,
     productOfferSave,
@@ -698,6 +699,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
       >
         <ProductOfferForm
           addProductList={addProductList}
+          isLoadingAddList={isLoadingAddList}
           productOfferDtlHistory={productOfferDtlHistory || []}
           isLoadingProductOfferDtlHistory={isLoadingProductOfferDtlHistory}
           productOfferSave={productOfferSave}

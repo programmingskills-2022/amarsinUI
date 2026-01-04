@@ -6,7 +6,7 @@ import {
   WorkFlowFlowMapsSearchResponse,
   WorkFlowIfOperationFlowMapAddRequest,
 } from "../../../../types/workflow";
-import AutoCompleteSearch from "../AutoCompleteSearch";
+import AutoCompleteSearch from "../../../controls/AutoCompleteSearch";
 import ConfirmCancel from "../ConfirmCancel";
 
 type Props = {

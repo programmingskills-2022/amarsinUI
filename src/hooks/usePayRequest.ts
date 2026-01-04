@@ -464,6 +464,8 @@ export function usePayRequest() {
       setChequeBookDtlByIdResponse(data);
     },
     enabled: chequeBookDtlId !== -1,
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<ChequeBookDtlByIdResponse, Error, ChequeBookDtlByIdResponse, unknown[]>);
   //for PayRequest/Save
   const payRequestSaveFn = useMutation({

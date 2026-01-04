@@ -5,10 +5,16 @@ import {
   convertToFarsiDigits,
   convertToLatinDigits,
   formatNumberWithCommas,
+  handleCurrencyInputChange,
 } from "../../utilities/general";
 import { colors } from "../../utilities/color";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import AutoComplet from "./AutoComplet";
+import PersianDatePicker from "./PersianDatePicker";
+import {
+  parsePersianDateString,
+  convertToPersianDate,
+} from "../../utilities/general";
 
 type TableProps<T extends object> = {
   canEditForm?: boolean;
@@ -99,6 +105,7 @@ export function EditableInput<T extends object>({
   } = column as any;
   const [value, setValue] = React.useState<string | boolean>(initialValue);
   const [isFocused, setIsFocused] = React.useState(false);
+  const [dateValue, setDateValue] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
     if (
@@ -108,6 +115,11 @@ export function EditableInput<T extends object>({
       setValue(initialValue.props.children.props.checked);
     } else if (typeof initialValue === "boolean") {
       setValue(initialValue);
+    } else if (type === "date") {
+      // Convert string date to Date object for date picker
+      const date = parsePersianDateString(initialValue as string);
+      setDateValue(date);
+      setValue(initialValue as string);
     } else {
       setValue(
         convertToFarsiDigits(
@@ -115,7 +127,19 @@ export function EditableInput<T extends object>({
         )
       );
     }
-  }, [initialValue]);
+  }, [initialValue, type, isCurrency]);
+
+  // Handle date change from PersianDatePicker
+  const handleDateChange = (event: { target: { name: string; value: Date | null } }) => {
+    const date = event.target.value;
+    setDateValue(date);
+    
+    // Convert Date to Persian date string format (YYYY/MM/DD)
+    const dateString = date ? convertToPersianDate(date) : "";
+    setValue(dateString);
+    updateData(dateString);
+    updateMyData(index, id as string, dateString);
+  };
 
   // Handle change from AutoComplete
   const handleAutoCompleteChange = (
@@ -141,7 +165,7 @@ export function EditableInput<T extends object>({
   // Helper function to update data directly (fast, no React state updates)
   const updateData = (newValue: any) => {
     // Update data immediately so calculateFn can read the new value
-    console.log(index, id, newValue, "newValue in updateData");
+    //console.log(index, id, newValue, "newValue in updateData");
     (data as any)[index][id as string] = newValue;
     if (originalData && originalData.length > 0) {
       const currentRow = data[index];
@@ -158,9 +182,20 @@ export function EditableInput<T extends object>({
 
   // Handle change event
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = convertToFarsiDigits(e.target.value);
-    setValue(newValue);
-    updateData(newValue);
+    if (isCurrency) {
+      // Use handleCurrencyInputChange for currency fields
+      const numericValue = handleCurrencyInputChange(e.target.value, setValue);
+      updateData(numericValue);
+      // Update parent with numeric value
+      updateMyData(index, id as string, String(numericValue));
+    } else {
+      // Regular input handling
+      const newValue = convertToFarsiDigits(e.target.value);
+      setValue(newValue);
+      updateData(newValue);
+    }
+    
+    // Handle calculated fields
     if (
       calculatedFieldfns &&
       calculatedFieldfns.some((calcFieldfn) =>
@@ -209,6 +244,32 @@ export function EditableInput<T extends object>({
     setIsFocused(false);
   };
 
+  if (type === "date") {
+    return (
+      <div
+        style={{
+          backgroundColor:
+            isFocused || selectedRowIndex === index
+              ? "white"
+              : !canEditForm
+              ? "inherit"
+              : bgColor || "white",
+        }}
+        className="w-full h-full"
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+      >
+        <PersianDatePicker
+          name={id as string}
+          label=""
+          value={dateValue}
+          disabled={!canEditForm}
+          fontSize="text-xs border-none"
+          onChange={handleDateChange}
+        />
+      </div>
+    );
+  }
   if (type === "autoComplete") {
     return (
       <AutoComplet

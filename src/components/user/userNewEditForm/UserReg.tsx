@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DefaultOptionType } from "../../../types/general";
-import AutoCompleteSearch from "../../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../../controls/AutoCompleteSearch";
 import Input from "../../controls/Input";
 import { RadioGroup } from "../../controls/RadioGroup";
 import PersianDatePicker from "../../controls/PersianDatePicker";

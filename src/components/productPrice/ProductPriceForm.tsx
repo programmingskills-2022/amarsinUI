@@ -18,6 +18,7 @@ import { useGeneralContext } from "../../context/GeneralContext";
 import {
   convertToFarsiDigits,
   convertToLatinDigits,
+  currencyStringToNumber,
   formatNumberWithCommas,
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
@@ -149,6 +150,7 @@ export const headCells = [
     accessor: "p1",
     width: "4%",
     type: "inputText",
+    isCurrency: true,
     Cell: EditableInput,
   },
   {
@@ -156,6 +158,7 @@ export const headCells = [
     accessor: "p2",
     width: "4%",
     type: "inputText",
+    isCurrency: true,
     Cell: EditableInput,
   },
   {
@@ -163,6 +166,7 @@ export const headCells = [
     accessor: "p3",
     width: "4%",
     type: "inputText",
+    isCurrency: true,
     Cell: EditableInput,
   },
   {
@@ -170,6 +174,7 @@ export const headCells = [
     accessor: "p4",
     width: "4%",
     type: "inputText",
+    isCurrency: true,
     Cell: EditableInput,
   },
   {
@@ -177,6 +182,7 @@ export const headCells = [
     accessor: "p5",
     width: "4%",
     type: "inputText",
+    isCurrency: true,
     Cell: EditableInput,
   },
   {
@@ -577,20 +583,20 @@ const ProductPriceForm = ({
           id: item.id,
           pId: item.pId,
           ordr: 0,
-          p1: Number(convertToLatinDigits(item.p1?.toString())) ?? 0,
-          p2: Number(convertToLatinDigits(item.p2?.toString())) ?? 0,
-          p3: Number(convertToLatinDigits(item.p3?.toString())) ?? 0,
-          p4: Number(convertToLatinDigits(item.p4?.toString())) ?? 0,
-          p5: Number(convertToLatinDigits(item.p5?.toString())) ?? 0,
+          p1: Number(currencyStringToNumber(convertToLatinDigits(item.p1?.toString())) ?? 0),
+          p2: Number(currencyStringToNumber(convertToLatinDigits(item.p2?.toString())) ?? 0),
+          p3: Number(currencyStringToNumber(convertToLatinDigits(item.p3?.toString())) ?? 0),
+          p4: Number(currencyStringToNumber(convertToLatinDigits(item.p4?.toString())) ?? 0),
+          p5: Number(currencyStringToNumber(convertToLatinDigits(item.p5?.toString())) ?? 0),  
           dtlDsc: item.dtlDsc,
           deleted: item.isDeleted,
         };
         if (
-          Number(convertToLatinDigits(item.p1?.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.p2?.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.p3?.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.p4?.toString())) !== 0 ||
-          Number(convertToLatinDigits(item.p5?.toString())) !== 0
+          Number(currencyStringToNumber(convertToLatinDigits(item.p1?.toString()))) !== 0 ||
+          Number(currencyStringToNumber(convertToLatinDigits(item.p2?.toString()))) !== 0 ||
+          Number(currencyStringToNumber(convertToLatinDigits(item.p3?.toString()))) !== 0 ||
+          Number(currencyStringToNumber(convertToLatinDigits(item.p4?.toString()))) !== 0 ||
+          Number(currencyStringToNumber(convertToLatinDigits(item.p5?.toString()))) !== 0
         ) {
           return dtl;
         } else {
@@ -656,7 +662,7 @@ const ProductPriceForm = ({
   ///////////////////////////////////////////////////////
   useEffect(() => {
     if (isNew) {
-      setGuid(uuidv4());
+      setGuid(uuidv4()); 
     } else {
       setGuid(selectedProductPrice?.guid ?? "");
     }

@@ -16,7 +16,7 @@ import {
 } from "../../types/general";
 import PersianDatePicker from "../controls/PersianDatePicker";
 import ModalMessage from "../layout/ModalMessage";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { useBrand } from "../../hooks/useBrands";
 
 type Props = {

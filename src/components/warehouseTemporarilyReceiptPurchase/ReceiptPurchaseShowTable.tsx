@@ -63,6 +63,7 @@ const ReceiptPurchaseShowTable = ({
     isLoadingProductOfferDtlHistory,
     productOfferSave,
     isLoadingProductOfferSave,
+    isLoadingAddList,
   } = useProductOffer();
   const { setField: setWarehouseTemporaryReceiptPurchaseRegField } =
     useWarehouseStore();
@@ -450,6 +451,7 @@ const ReceiptPurchaseShowTable = ({
           canEditForm1={true}
           selectedId={0}
           definitionDateTime={definitionDateTime}
+          isLoadingAddList={isLoadingAddList}
         />
       </ModalForm>
       <ModalForm

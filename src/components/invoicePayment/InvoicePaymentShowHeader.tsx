@@ -34,7 +34,7 @@ import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { useInvoiceStore } from "../../store/invoiceStore";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../utilities/color";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 type Props = {
   invoicePaymentResponse: InvoicePaymentResponse;
@@ -333,7 +333,7 @@ const InvoicePaymentShowHeader = ({
       amount: currencyStringToNumber(convertToLatinDigits(amnt)).toString(),
       dsc: convertToLatinDigits(dsc),
       updateAcepted: true,
-      idempotencyKey: uuidv4(),
+      idempotencyKey: uuidv4(),  
     };
     console.log(request);
     try {

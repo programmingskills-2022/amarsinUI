@@ -6,7 +6,7 @@ import { Process } from "../WorkflowMapHeader";
 import { useDefinitionStore } from "../../../../store/definitionStore";
 import { useGeneralContext } from "../../../../context/GeneralContext";
 import ConfirmCancel from "../ConfirmCancel";
-import AutoCompleteSearch from "../AutoCompleteSearch";
+import AutoCompleteSearch from "../../../controls/AutoCompleteSearch";
 import { useWorkflowStore } from "../../../../store/workflowStore";
 import { convertToFarsiDigits } from "../../../../utilities/general";
 import {

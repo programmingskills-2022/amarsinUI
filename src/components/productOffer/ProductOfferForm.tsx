@@ -43,6 +43,7 @@ import { useProductOfferStore } from "../../store/productOfferStore";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 
 type Props = {
+  isLoadingAddList: boolean;
   addProductList: (
     request: ShowProductListRequest
   ) => Promise<ShowProductListResponse>;
@@ -227,6 +228,7 @@ export const headCells = [
 
 const ProductOfferForm = ({
   canEditForm1,
+  isLoadingAddList,
   addProductList,
   productOfferDtlHistory,
   isLoadingProductOfferDtlHistory,
@@ -818,6 +820,7 @@ const ProductOfferForm = ({
         setIsModalRegOpen={setIsModalRegOpen}
         selectedId={selectedId}
         isNew={isNew}
+        isLoadingAddList={isLoadingAddList}
       />
     </div>
   );

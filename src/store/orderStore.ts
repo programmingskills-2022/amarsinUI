@@ -85,6 +85,16 @@ export const useOrderStore = create<OrderState>()((set) => ({
   OrderDtlIdTrigger: 0,
   WarehauseId: -1,
   //end for Order/orderCupList
+  // for api/Order/DtlUpdate
+  dtlUpdateResponse: {
+    meta: {
+      errorCode: 0,
+      message: "",
+      type: "",
+    },
+    data: { result: 0 },
+  },
+  setDtlUpdateResponse: (dtlUpdateResponse) => set({ dtlUpdateResponse }), //for api/Order/DtlUpdate
   setField: (field: string | number | symbol, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setOrderRegShowResponse: (orderRegShowResponse) =>

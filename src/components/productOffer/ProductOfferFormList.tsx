@@ -47,6 +47,7 @@ type Props = {
   selectedId: number;
   isNew: boolean;
   productOfferSaveResponse: ProductOfferSaveResponse;
+  isLoadingAddList: boolean;
 };
 
 const ProductOfferFormList = ({
@@ -71,6 +72,7 @@ const ProductOfferFormList = ({
   selectedId,
   isNew,
   productOfferSaveResponse,
+  isLoadingAddList,
 }: Props) => {
   //const { productOfferSaveResponse } = useProductOfferStore();
   const [brandSearch, setBrandSearch] = useState<string>("");
@@ -133,8 +135,10 @@ const ProductOfferFormList = ({
     const currentRow = data[rowIndex];
     (currentRow as any)[columnId] = value;
     if (!currentRow) return;
-    
-    const rowInOriginal = originalData.find((row) => row.index === currentRow.index);
+
+    const rowInOriginal = originalData.find(
+      (row) => row.index === currentRow.index
+    );
     if (rowInOriginal) {
       (rowInOriginal as any)[columnId] = value;
     }
@@ -146,7 +150,13 @@ const ProductOfferFormList = ({
     rowIndex: number,
     columnId: string
   ) => {
-    console.log(value, rowIndex, columnId, "come to changeRowValues in productOfferFormList");
+    console.log(
+      isNew,
+      value,
+      rowIndex,
+      columnId,
+      "come to changeRowValues in productOfferFormList"
+    );
     //updateMyData(rowIndex, columnId, value);
   };
   /////////////////////////////////////////////////////
@@ -166,7 +176,10 @@ const ProductOfferFormList = ({
     setOriginalData((old) =>
       old.map((row, index) => {
         if (index === rowIndex && productOfferProducts) {
-          console.log(productOfferProducts[0].product, "productOfferProducts[0].product in updateMyRow");
+          console.log(
+            productOfferProducts[0].product,
+            "productOfferProducts[0].product in updateMyRow"
+          );
           return {
             ...old[rowIndex],
             index: rowIndex + 1,
@@ -237,22 +250,30 @@ const ProductOfferFormList = ({
   ////////////////////////////////////////////////////////
   // on selecting each row, set the id and productId and yearId in productGraceStore for api/productGrace?id=
   const { yearId } = useGeneralContext();
-  const [selectedDtlId, setSelectedDtlId] = useState<number>(0); // for selected id in productOfferFormList table
+  //const [selectedDtlId, setSelectedDtlId] = useState<number>(0); // for selected id in productOfferFormList table
   const [res, setRes] = useState<ShowProductListResponse | undefined>(
     undefined
   );
   useEffect(() => {
-    if (isNew || selectedId === 0 || !canEditForm1) return;
+    console.log(
+      "come to useEffect in productOfferFormList",
+      isLoadingAddList,
+      selectedRowIndex,
+      canEditForm1
+    );
+    if (isLoadingAddList || !canEditForm1 || selectedRowIndex === 0) return;
     const fetchData = async () => {
       if (data.length > 0) {
-        const found = data.find((item) => item.id === selectedDtlId);
+        console.log(data, selectedRowIndex, "data in useEffect");
+        const found = data.find((item) => item.index === selectedRowIndex + 1);
+        //console.log(found, "found in useEffect");
         const productId = found?.pId ?? 0;
-        console.log(
+        /*console.log(
           productId,
           selectedId,
           canEditForm1,
           "productId in useEffect"
-        );
+        );*/
         if (productId === 0) return;
         const request: ShowProductListRequest = {
           id: selectedId,
@@ -262,17 +283,17 @@ const ProductOfferFormList = ({
         };
         const res = await handleSubmit(undefined, request);
         setRes(res);
-        console.log(res, "res in useEffect");
+        //console.log(res, "res in useEffect");
       }
     };
     fetchData();
-  }, [selectedDtlId, yearId]);
+  }, [selectedRowIndex, yearId]);
   ////////////////////////////////////////////////////////
   //initialize selectedRowIndex, selectedDtlId, res when selectedId changes
   useEffect(() => {
     if (selectedId === 0) return;
     setSelectedRowIndex(0);
-    setSelectedDtlId(0);
+    //setSelectedDtlId(0);
     setRes(undefined);
   }, [selectedId]);
   ////////////////////////////////////////////////////////
@@ -348,7 +369,7 @@ const ProductOfferFormList = ({
           />
 
           <TTable
-            setSelectedId={setSelectedDtlId}
+            //setSelectedId={setSelectedDtlId}
             canEditForm={canEditForm1}
             columns={columns}
             selectedRowIndex={selectedRowIndex}
@@ -400,7 +421,7 @@ const ProductOfferFormList = ({
         }
         color="text-white"
         message={
-          productOfferSaveResponse?.meta.errorCode >0
+          productOfferSaveResponse?.meta.errorCode > 0
             ? productOfferSaveResponse?.meta.message || ""
             : "اطلاعات با موفقیت ثبت شد."
         }

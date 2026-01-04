@@ -135,6 +135,7 @@ const PayRequestActiveTab2 = ({
       Header: "سررسید",
       accessor: "dat",
       width: "5%",
+      type: "date",
       Cell: EditableInput
     },
     {
@@ -215,13 +216,12 @@ const PayRequestActiveTab2 = ({
     //initializing chequeBookSearch requests api/Payment/chequeBookSearch
     //if can edit form1, initialize chequeBookSearch requests
     if (CanEditForm1Dtl1){
-      console.log( "filling params for api/Payment/chequeBookSearch");
       setField("acc_systemChequeBookSearch", systemId);
       setField("searchChequeBookSearch", chequeBookSearch);
       setField("pageChequeBookSearch", 1);
       setField("lastIdChequeBookSearch", 0);
     }
-  }, [chequeBookSearch]);
+  }, [chequeBookSearch, systemId]);
   useEffect(() => {
     setField("searchChequeBookDtlSearch", chequeBookDtlSearch);
     setField("pageChequeBookDtlSearch", 1);
@@ -249,11 +249,12 @@ const PayRequestActiveTab2 = ({
   }, [isChecked, originalData]);
   ////////////////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    const currentRow = originalData[rowIndex];
+    console.log(rowIndex, columnId, value, "updateMyData");
+    /*const currentRow = originalData[rowIndex];
     if (!currentRow) return;
 
-    (currentRow as any)[columnId] = value;
-   /* setOriginalData((old: PayRequestDtlTable[]) =>
+    (currentRow as any)[columnId] = value;*/
+    setOriginalData((old: PayRequestDtlTable[]) =>
     //setData((old: PayRequestDtlTable[]) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -264,7 +265,7 @@ const PayRequestActiveTab2 = ({
         }
         return row;
       })
-    );*/
+    );
   };
 
   ////////////////////////////////////////////////////

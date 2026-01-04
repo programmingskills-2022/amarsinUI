@@ -5,7 +5,7 @@ import { useCustomers } from "../../hooks/useCustomers";
 import { useCustomerStore } from "../../store/customerStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { WarehouseShowIdResponse } from "../../types/warehouse";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { DefaultOptionType } from "../../types/general";
 
 type Customer = {

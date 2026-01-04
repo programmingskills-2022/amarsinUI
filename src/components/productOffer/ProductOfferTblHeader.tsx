@@ -57,10 +57,10 @@ const ProductOfferTblHeader = React.memo(({
   };
   return (
     <div className="flex text-xs font-bold text-gray-500 w-full h-6">
-      {columns.filter((column: any) => column.visible!==false).map((column: any) => (
+      {columns.filter((column: any) => column.visible!==false).map((column: any, index: number) => (
         <div
           className="flex bg-gray-200 border border-gray-300 text-center items-center justify-center border-r last:border-l cursor-pointer"
-          key={column.id}
+          key={column.id || column.accessor || index}
           style={{ width: column.width }}
           onClick={() => {
             if ((column.accessor === "id" ) || (column.accessor === "ordrId" )) {

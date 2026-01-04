@@ -27,7 +27,7 @@ import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import RegRecievedChequeInfoSanad from "./RegRecievedChequeInfoSanad";
 import { FaCircle } from "react-icons/fa";
 import { DefinitionInvironment } from "../../types/definitionInvironment";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 type Props = {
   canEditForm: boolean;

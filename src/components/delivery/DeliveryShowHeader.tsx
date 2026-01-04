@@ -6,7 +6,7 @@ import { FaCircle } from "react-icons/fa";
 import { useTTacStore } from "../../store/ttacStore";
 import { useTtac } from "../../hooks/useTtac";
 import { colors } from "../../utilities/color";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { DefaultOptionType } from "../../types/general";
 import { WarehouseSearchResponse } from "../../types/warehouse";
 

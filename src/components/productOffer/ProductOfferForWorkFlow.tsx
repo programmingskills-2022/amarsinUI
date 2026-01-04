@@ -31,6 +31,7 @@ const ProductOfferForWorkFlow = ({
     productOfferSave,
     isLoadingProductOfferSave,
     refetchProductOfferDtl,
+    isLoadingAddList,
   } = useProductOffer();
 
   const { setField, id } = useProductOfferStore();
@@ -78,6 +79,7 @@ const ProductOfferForWorkFlow = ({
   return (
     <div className="w-full h-full py-2">
       <ProductOfferForm
+        isLoadingAddList={isLoadingAddList}
         canEditForm1={workFlowRowSelectResponse.workTableForms.canEditForm1}
         addProductList={addProductList}
         productOfferDtlHistory={productOfferDtlHistory || []}

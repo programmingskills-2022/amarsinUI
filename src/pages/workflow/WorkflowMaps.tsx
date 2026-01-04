@@ -11,7 +11,7 @@ import { colors } from "../../utilities/color";
 import { FaTrash } from "react-icons/fa";
 import ModalForm from "../../components/layout/ModalForm";
 import WorkflowMapBeforeAftersDel from "../../components/workflow/workflowMap/workflowMapBeforeAfters/WorkflowMapBeforeAftersDel";
-import AutoCompleteSearch from "../../components/workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../../components/controls/AutoCompleteSearch";
 import { v4 as uuidv4 } from "uuid";
 import {
   WorkFlowFlowMapBeforeAfterDeleteRequest,
@@ -195,7 +195,7 @@ const WorkflowMaps = ({ definitionInvironment }: Props) => {
   const handleDeleteConfirmBeforeAfter = () => {
     const request: WorkFlowFlowMapBeforeAfterDeleteRequest = {
       flowMapIdBeforeAfterDelete: ifIdToDelete,
-      idempotencyKey: uuidv4(),
+      idempotencyKey: crypto.randomUUID(),
     };
     console.log(request, "request");
     workFlowFlowMapBeforeAfterDelete(request);

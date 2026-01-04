@@ -20,7 +20,7 @@ import { useGeneralContext } from "../../context/GeneralContext";
 import PersianDatePicker from "../controls/PersianDatePicker";
 import { InputElement } from "../controls/InputElement";
 import { DefinitionDateTime, DefinitionInvironment } from "../../types/definitionInvironment";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 type Props = {
   cnt: number; //attachment count

@@ -17,7 +17,7 @@ type Props = {
   warehouse: DefaultOptionType | null;
   salesPrice: DefaultOptionType | null;
   columns: TableColumns;
-  setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
+  //setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
   salesPricesSearchResponse: SearchItem[];
@@ -30,7 +30,7 @@ const OrderRegShowTable = ({
   warehouse,
   salesPrice,
   columns,
-  setSalesPriceSearch,
+  //setSalesPriceSearch,
   changeSalesPrice,
   changeWarehouse,
   salesPricesSearchResponse,
@@ -77,7 +77,7 @@ const OrderRegShowTable = ({
         columns={columns}
         salesPrice={salesPrice}
         warehouse={warehouse}
-        setSalesPriceSearch={setSalesPriceSearch}
+        //setSalesPriceSearch={setSalesPriceSearch}
         changeSalesPrice={changeSalesPrice}
         changeWarehouse={changeWarehouse}
         salesPricesSearchResponse={salesPricesSearchResponse}

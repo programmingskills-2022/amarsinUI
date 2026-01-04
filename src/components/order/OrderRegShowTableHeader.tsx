@@ -5,18 +5,19 @@ import {
   DefaultOptionType,
   SearchItem,
 } from "../../types/general";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { WarehouseSearchResponse } from "../../types/warehouse";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { convertToFarsiDigits } from "../../utilities/general";
 import { useWarehouseStore } from "../../store/warehouseStore";
 import { useState } from "react";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   columns: TableColumns;
   salesPrice: DefaultOptionType | null;
   warehouse: DefaultOptionType | null;
-  setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
+  //setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
   salesPricesSearchResponse: SearchItem[];
@@ -27,14 +28,16 @@ const OrderRegShowTableHeader = ({
   columns,
   salesPrice,
   warehouse,
-  setSalesPriceSearch,
+  //setSalesPriceSearch,
   changeSalesPrice,
   changeWarehouse,
   salesPricesSearchResponse,
   warehouseSearchResponse,
 }: Props) => {
   const { setField: setWarehouseField } = useWarehouseStore();
+  const {setField : setPriceField}= useProductStore()
   const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
+  const [isPriceEntered, setIsPriceEntered] = useState<boolean>(false); 
   const calculateMergedWidth = (columnGroup: ColumnGroup) => {
     const mergedColumns = [
       "cupCode",
@@ -149,7 +152,31 @@ const OrderRegShowTableHeader = ({
                           backgroundColor: column.backgroundColor,
                         }}
                       >
-                        <AutoComplete
+                        <AutoCompleteSearch
+                          label=""
+                          labelWidth="w-16"
+                          setField={setPriceField}
+                          fieldValues={[
+                            { field: "salesPricesSearchPage", value: 1 },
+                            { field: "salesPricesSearchLastId", value: 0 },
+                          ]}
+                          fieldSearch="salesPricesSearchSearch"
+                          options={salesPricesSearchResponse.map(
+                            (b) => ({
+                              id: b.id,
+                              text: convertToFarsiDigits(b.text),
+                            })
+                          )}
+                          selectedOption={salesPrice as DefaultOptionType}
+                          isEntered={isPriceEntered}
+                          setIsEntered={setIsPriceEntered}
+                          handleChange={(_event, newValue) => {
+                            changeSalesPrice(newValue as DefaultOptionType);
+                          }}
+                          textAlign="center"
+                          placeholder="قیمت را انتخاب کنید..."
+                        />
+                        {/*<AutoComplete
                           disabled={false}
                           options={salesPricesSearchResponse.map((b) => ({
                             id: b.id,
@@ -168,7 +195,8 @@ const OrderRegShowTableHeader = ({
                           textAlign="center"
                           desktopfontsize="12px"
                           placeholder="قیمت را انتخاب کنید..."
-                        />
+                        />*/}
+
                       </div>
                     );
                   else if (!isMergedColumn && column.accessor !== "cupCnt")

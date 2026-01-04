@@ -7,7 +7,7 @@ import { colors } from "../../utilities/color";
 import Button from "../controls/Button";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { useCustomerStore } from "../../store/customerStore";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 type Props = {
   invoiceReturnRequestShowResponse: any; //InvoiceReturnRequestShowResponse;

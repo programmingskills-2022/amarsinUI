@@ -4,7 +4,7 @@ import AutoComplete from "../controls/AutoComplete";
 import { useCustomers } from "../../hooks/useCustomers";
 import { DefaultOptionType } from "../../types/general";
 import { WarehouseSearchResponse, WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { useCustomerStore } from "../../store/customerStore";
 

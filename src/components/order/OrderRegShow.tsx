@@ -10,7 +10,12 @@ import OrderRegShowTable from "./OrderRegShowTable";
 import { useOrderStore } from "../../store/orderStore";
 import { useOrders } from "../../hooks/useOrders";
 import { DefaultOptionType, TableColumns } from "../../types/general";
-import { DtlsItem, InOutsItem, orderRegRequest } from "../../types/order";
+import {
+  DtlsItem,
+  DtlUpdateRequest,
+  InOutsItem,
+  orderRegRequest,
+} from "../../types/order";
 import {
   convertToFarsiDigits,
   convertToLatinDigits,
@@ -32,8 +37,10 @@ import { useProducts } from "../../hooks/useProducts";
 import ProductOfferFormListHistory from "../productOffer/ProductOfferFormListHistory";
 import { useProductOfferStore } from "../../store/productOfferStore";
 import { useProductOffer } from "../../hooks/useProductOffer";
-import { useProductStore } from "../../store/productStore";
+//import { useProductStore } from "../../store/productStore";
 import { useWarehouseStore } from "../../store/warehouseStore";
+import { v4 as uuidv4 } from "uuid";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -41,6 +48,15 @@ type Props = {
   setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+export type OrderEditRow = {
+  otId: number;
+  product: DefaultOptionType | null;
+  cnt: string;
+  oCnt: string;
+  dcrmntPrcnt: string;
+  dcrmnt: string;
+  cost: string;
+};
 const OrderRegShow = ({
   workFlowRowSelectResponse,
   refetchSwitch,
@@ -57,9 +73,19 @@ const OrderRegShow = ({
   const [baseData, setBaseData] = useState<any[]>([]);
   const [processedData, setProcessedData] = useState<any[]>([]);
   const [data, setData] = useState<any[]>([]); //data for OrderCupboardList
-  const [product, setProduct] = useState<DefaultOptionType | null>(null);
-  const [cnt, setCnt] = useState<number>(0);
-  const [cost, setCost] = useState<number>(0);
+  const [orderEditRow, setOrderEditRow] = useState<OrderEditRow>({
+    otId: 0,
+    product: null,
+    cnt: "",
+    oCnt: "",
+    dcrmntPrcnt: "",
+    dcrmnt: "",
+    cost: "",
+  });
+  const [showMessageModalDtlUpdate, setShowMessageModalDtlUpdate] =
+    useState(false);
+  //const [cnt, setCnt] = useState<number>(0);
+  //const [cost, setCost] = useState<number>(0);
   const { setField: setOrderField } = useOrderStore();
   const {
     orderRegShowResponse,
@@ -73,6 +99,9 @@ const OrderRegShow = ({
     orderReg,
     orderRegResponse,
     refetchOrderRegShow,
+    dtlUpdate,
+    dtlUpdateResponse,
+    isLoadingDtlUpdate,
   } = useOrders();
 
   const { setField: setOrderCupListField, orderId } = useOrderStore();
@@ -93,11 +122,12 @@ const OrderRegShow = ({
   const { productOfferDtlHistory, isLoadingProductOfferDtlHistory } =
     useProductOffer();
 
-  const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
+  //const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
   const [warehouseSearch, setWarehouseSearch] = useState<string>("");
-  const { setField: setSalesPriceField } = useProductStore();
+  //const { setField: setSalesPriceField } = useProductStore();
   const { setField: setSalesPriceFieldInOrder } = useOrderStore();
-  const { salesPricesSearchResponse } = useProducts();
+  const { salesPricesSearchResponse, products } = useProducts();
+  const { setField: setProductField } = useProductStore();
   const { warehouseSearchResponse } = useWarehouse();
   const { setField: setWarehouseField } = useWarehouseStore();
   const columns: TableColumns = [
@@ -265,7 +295,17 @@ const OrderRegShow = ({
   };
   //////////////////////////////////////////////////////////////
   const handleEditClick1 = (dtl: any) => {
+    setOrderEditRow({
+      otId: dtl.otId,
+      product: { id: dtl.pId, title: dtl.pName },
+      cnt: dtl.cnt,
+      oCnt: dtl.oCnt,
+      dcrmntPrcnt: dtl.dcrmntPrcnt,
+      dcrmnt: dtl.dcrmnt,
+      cost: dtl.cost,
+    });
     setEditClicked1(true);
+    setShowMessageModalDtlUpdate(false);
     console.log(dtl, "first");
   };
   const handleEditClick2 = (dtl: any) => {
@@ -304,6 +344,7 @@ const OrderRegShow = ({
     setWarehouseField("id", -1); // Disable salesPrices query
     setWarehouseField("idReg", -1); // Disable purchaseReg query
     setWarehouseField("page", -1); //  Disable salesPrices query
+    setProductField("salesPricesSearchPage", -1);
   }
   /*useEffect(() => {
     //console.log(workFlowRowSelectResponse?.workTableRow.formId);
@@ -555,12 +596,12 @@ const OrderRegShow = ({
   const { width } = useCalculateTableHeight();
 
   // for /api/Product/salesPricesSearch?
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(convertToLatinDigits(salesPriceSearch), "salesPriceSearch");
     setSalesPriceField("salesPricesSearch", salesPriceSearch);
     setSalesPriceField("salesPricesSearchPage", 1);
     setSalesPriceField("lastId", 0);
-  }, [salesPriceSearch]);
+  }, [salesPriceSearch]);*/
 
   // for api/Warehouse/Search?search=%D8%A7&page=1&pageSize=30&lastId=0&CustomerTypeId=-1
   /*useEffect(() => {
@@ -584,7 +625,7 @@ const OrderRegShow = ({
     );
     setSalesPriceFieldInOrder("salesPriceId", newValue.id);
     setSalesPrice(newValue);
-    setSalesPriceSearch(newValue.title);
+    //setSalesPriceSearch(newValue.title);
   };
   //change warehouse
   const changeWarehouse = (newValue: DefaultOptionType) => {
@@ -593,6 +634,42 @@ const OrderRegShow = ({
     setWarehouseSearch(newValue?.title ?? "ا");
   };
 
+  //////////////////////////////////////////////////////////////
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (showMessageModalDtlUpdate) {
+      timeoutId = setTimeout(() => {
+        setShowMessageModalDtlUpdate(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [showMessageModalDtlUpdate]);
+
+  //for handle edit submit
+  const handleEditSubmit = async () => {
+    console.log(orderEditRow, "orderEditRow in order reg show table");
+    let request: DtlUpdateRequest;
+    request = {
+      otId: orderEditRow.otId,
+      pId: orderEditRow.product?.id ?? 0,
+      cnt: orderEditRow.cnt,
+      oCnt: orderEditRow.oCnt,
+      dcrmntPrcnt: orderEditRow.dcrmntPrcnt,
+      dcrmnt: orderEditRow.dcrmnt,
+      cost: orderEditRow.cost,
+      idempotencyKey: uuidv4(),
+    };
+    console.log(request, "request in order reg show table");
+    const response = await dtlUpdate(request);
+    setShowMessageModalDtlUpdate(true);
+    if (response.meta.errorCode <= 0) {
+      setEditClicked1(false);
+    }
+  };
   return (
     <div className="w-full flex flex-col">
       <OrderRegShowHeader
@@ -607,7 +684,7 @@ const OrderRegShow = ({
         setCustomer={setCustomer}
         salesPrice={salesPrice}
         warehouse={warehouse}
-        setSalesPriceSearch={setSalesPriceSearch}
+        //setSalesPriceSearch={setSalesPriceSearch}
         canEditForm1Mst1={canEditForm1Mst1}
         salesPricesSearchResponse={salesPricesSearchResponse}
         warehouseSearchResponse={warehouseSearchResponse}
@@ -625,7 +702,7 @@ const OrderRegShow = ({
           warehouse={warehouse}
           salesPrice={salesPrice}
           columns={columns}
-          setSalesPriceSearch={setSalesPriceSearch}
+          //setSalesPriceSearch={setSalesPriceSearch}
           changeSalesPrice={changeSalesPrice}
           changeWarehouse={changeWarehouse}
           salesPricesSearchResponse={salesPricesSearchResponse}
@@ -680,13 +757,11 @@ const OrderRegShow = ({
         width="1/2"
       >
         <OrderEdit
-          canEditForm={canEditForm1Mst1}
-          product={product}
-          setProduct={setProduct}
-          cnt={cnt}
-          setCnt={setCnt}
-          cost={cost}
-          setCost={setCost}
+          products={products}
+          orderEditRow={orderEditRow}
+          setOrderEditRow={setOrderEditRow}
+          handleSubmit={handleEditSubmit}
+          isLoadingDtlUpdate={isLoadingDtlUpdate}
         />
       </ModalForm>
       {/*open order cup list if editIcon is clicked*/}
@@ -728,6 +803,19 @@ const OrderRegShow = ({
         color="text-white"
         onClose={() => setShowMessageModal(false)}
         message={orderRegShowResponse?.meta?.message || ""}
+        visibleButton={false}
+      />
+      {/* show message modal if dtlUpdateResponse.meta.errorCode > 0 */}
+      <ModalMessage
+        isOpen={showMessageModalDtlUpdate}
+        backgroundColor={
+          dtlUpdateResponse?.meta?.errorCode <= 0
+            ? "bg-green-200"
+            : "bg-red-200"
+        }
+        color="text-white"
+        onClose={() => setShowMessageModalDtlUpdate(false)}
+        message={dtlUpdateResponse?.meta?.message || ""}
         visibleButton={false}
       />
     </div>

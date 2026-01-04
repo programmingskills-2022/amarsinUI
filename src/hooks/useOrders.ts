@@ -1,7 +1,9 @@
-import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import api from "../api/axios";
 import { useOrderStore } from "../store/orderStore";
 import {
+  DtlUpdateRequest,
+  DtlUpdateResponse,
   OrderCupListResponse,
   orderRegRequest,
   OrderRegResponse,
@@ -18,10 +20,12 @@ export function useOrders() {
     salesPriceId,
     setOrderSalesPricesResponse,
     setOrderCupListResponse,
+    setDtlUpdateResponse,
     OrderDtlId,
     OrderDtlIdTrigger,
     WarehauseId,
   } = useOrderStore();
+  const queryClient = useQueryClient();
   //for Order/orderCupList
   const orderCupListQuery = useQuery<
     OrderCupListResponse,
@@ -75,6 +79,19 @@ export function useOrders() {
     onSuccess: (data: OrderRegResponse) => {
       console.log(data, "data in order reg");
       setOrderRegResponse(data);
+    },
+  });
+  //for Order/DtlUpdate
+  const dtlUpdatefn = useMutation({
+    mutationFn: async (request: DtlUpdateRequest) => {
+      const url: string = `/api/Order/DtlUpdate`;
+      const response = await api.put(url, request);
+      return response.data;
+    },
+    onSuccess: (data: DtlUpdateResponse) => {
+      console.log(data, "data in dtl update");
+      setDtlUpdateResponse(data);
+      queryClient.invalidateQueries({ queryKey: ["orders", orderId]  });
     },
   });
   //for Order/orderRegShow
@@ -153,7 +170,20 @@ export function useOrders() {
         },
       },
     },
-
+    //output for Order/DtlUpdate
+    isLoadingDtlUpdate: dtlUpdatefn.isPending,
+    errorDtlUpdate: dtlUpdatefn.error,
+    dtlUpdate: dtlUpdatefn.mutateAsync,
+    dtlUpdateResponse: dtlUpdatefn.data ?? {
+      meta: {
+        errorCode: 0,
+        message: "",
+        type: "",
+      },
+      data: {
+        result: 0,
+      },
+    },
     //output for Order/orderRegShow
     refetchOrderRegShow: () => orderRegShowQuery.refetch(),
     isLoadingOrderRegShow: orderRegShowQuery.isLoading,

@@ -10,7 +10,7 @@ import { convertToFarsiDigits } from "../../utilities/general";
 import { WarehouseTemporaryReceiptPurchaseShowResponse } from "../../types/warehouse";
 import HistoryIcon from "../../assets/images/GrayThem/history_gray_16.png";
 import { useWarehouseStore } from "../../store/warehouseStore";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { useProductStore } from "../../store/productStore";
 
 type Props = {

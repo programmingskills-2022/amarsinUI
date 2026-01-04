@@ -3,13 +3,14 @@ import { convertToFarsiDigits } from "../../utilities/general";
 import { useCustomerStore } from "../../store/customerStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { OrderRegShowResponse } from "../../types/order";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { useCustomers } from "../../hooks/useCustomers";
 import { DefaultOptionType, SearchItem } from "../../types/general";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { WarehouseSearchResponse } from "../../types/warehouse";
-import AutoCompleteSearch from "../workflow/workflowMap/AutoCompleteSearch";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 import { useWarehouseStore } from "../../store/warehouseStore";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   orderRegShowResponse: OrderRegShowResponse;
@@ -26,7 +27,7 @@ type Props = {
   warehouse: DefaultOptionType | null;
   salesPricesSearchResponse: SearchItem[];
   warehouseSearchResponse: WarehouseSearchResponse;
-  setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
+  //setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
   changeSalesPrice: (newValue: DefaultOptionType) => void;
   changeWarehouse: (newValue: DefaultOptionType) => void;
 };
@@ -46,35 +47,50 @@ const OrderRegShowHeader = ({
   warehouse,
   salesPricesSearchResponse,
   warehouseSearchResponse,
-  setSalesPriceSearch,
+  //setSalesPriceSearch,
   changeSalesPrice,
   changeWarehouse,
 }: Props) => {
   const { systemId, yearId } = useGeneralContext();
   const { setField: setWarehouseField } = useWarehouseStore();
+  const { setField: setPriceField } = useProductStore();
   const { customers } = useCustomers();
   const { setField: setCustomerField } = useCustomerStore();
   //const [search, setSearch] = useState<string>("");
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
   const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
-  useEffect(() => {
+  const [isPriceEntered, setIsPriceEntered] = useState<boolean>(false);
+  /*useEffect(() => {
     setCustomerField("systemIdCustomerSearch", systemId);
     setCustomerField("yearIdCustomerSearch", yearId);
     setCustomerField("search", "ا");
     setCustomerField("page", 1);
     setCustomerField("lastId", 0);
     setCustomerField("centerType", 0);
-  }, [systemId, yearId]);
+  }, [systemId, yearId]);*/
 
   useEffect(() => {
-    setCash1(orderRegShowResponse.data.result.orderMst?.cash);
-    setByPhone(orderRegShowResponse.data.result.orderMst?.byPhone);
-    setUrgency(orderRegShowResponse.data.result.orderMst?.urgency);
-    setCustomer({
-      id: orderRegShowResponse.data.result.orderMst?.cId ?? "",
-      title: orderRegShowResponse.data.result.orderMst?.srName ?? "",
-    });
-  }, [orderRegShowResponse.data.result.orderMst]);
+    const orderMst = orderRegShowResponse.data.result.orderMst;
+    if (orderMst) {
+      setCash1(orderMst.cash ?? false);
+      setByPhone(orderMst.byPhone ?? false);
+      setUrgency(orderMst.urgency ?? false);
+      setCustomer({
+        id: orderMst.cId ?? "",
+        title: orderMst.srName ?? "",
+      });
+    }
+  }, [
+    orderRegShowResponse.data.result.orderMst?.cash,
+    orderRegShowResponse.data.result.orderMst?.byPhone,
+    orderRegShowResponse.data.result.orderMst?.urgency,
+    orderRegShowResponse.data.result.orderMst?.cId,
+    orderRegShowResponse.data.result.orderMst?.srName,
+    setCash1,
+    setByPhone,
+    setUrgency,
+    setCustomer,
+  ]);
 
   const { width } = useCalculateTableHeight();
 
@@ -211,7 +227,29 @@ const OrderRegShowHeader = ({
       </div>
       {width <= 640 ? (
         <>
-          <div className="flex items-center justify-between w-full">
+          <AutoCompleteSearch
+            label=""
+            labelWidth="w-16"
+            setField={setPriceField}
+            fieldValues={[
+              { field: "salesPricesSearchPage", value: 1 },
+              { field: "salesPricesSearchLastId", value: 0 },
+            ]}
+            fieldSearch="salesPricesSearchSearch"
+            options={salesPricesSearchResponse.map((b) => ({
+              id: b.id,
+              text: convertToFarsiDigits(b.text),
+            }))}
+            selectedOption={salesPrice as DefaultOptionType}
+            isEntered={isPriceEntered}
+            setIsEntered={setIsPriceEntered}
+            handleChange={(_event, newValue) => {
+              changeSalesPrice(newValue as DefaultOptionType);
+            }}
+            textAlign="center"
+            placeholder="قیمت را انتخاب کنید..."
+          />
+          {/*<div className="flex items-center justify-between w-full">
             <label className="p-1 w-20 text-left">قیمت:</label>
             <AutoComplete
               disabled={false}
@@ -233,7 +271,7 @@ const OrderRegShowHeader = ({
               desktopfontsize="12px"
               placeholder="قیمت را انتخاب کنید..."
             />
-          </div>
+          </div> */}
           <AutoCompleteSearch
             label="انبار"
             labelWidth="w-16"
