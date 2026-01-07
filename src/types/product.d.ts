@@ -125,6 +125,10 @@ interface IndentSaveRequest {
   dtls: Detail[];
 }
 
+interface IndentSaveResponse {
+  meta: Meta;
+  data: { result: UpdateResult };
+}
 /*interface IndentSaveResponse {
   systemId: number;
   id: number;
@@ -239,7 +243,7 @@ interface IndentResponse {
   data: DataIndent;
 }
 
-//for delete /api/Indent/6480   
+//for delete /api/Indent/6480
 interface ResultIndentDel {
   result: UpdateResult;
 }
@@ -266,7 +270,6 @@ export interface IndentDoFirstFlowResponse {
 export interface ResultIndentDoFirstFlow {
   result: UpdateResult;
 }
-
 
 //http://apitest.dotis.ir/api/Product/productInstanceCatalog?Id=166717&UID=0&IRC=0
 export interface ProductCatalogRequest {
@@ -325,7 +328,6 @@ export interface ProductState
     IndentShowProductListRequest,
     IndentRequest,
     ProductCatalogRequest {
-
   //for /api/Product/salesPricesSearch?page=1&lastId=0&Search=%D8%B3%D9%81
   salesPricesSearchSearch: string;
   salesPricesSearchPage: number;
@@ -342,7 +344,7 @@ export interface ProductState
   salesPricesSearchResponse: SalesPricesSearchResponse;
   indentShowProductListResponse: IndentShowProductListResponse;
   indentSaveRequest: IndentSaveRequest;
-  indentSaveResponse: UpdateResult;
+  indentSaveResponse: IndentSaveResponse;
   indentDtlHistoryResponse: IndentDtlHistoryResponse;
   indentResponse: IndentResponse;
   indentDelResponse: IndentDelResponse; ///api/Indent/6480   //for delete
@@ -358,12 +360,14 @@ export interface ProductState
   setIndentShowProductListResponse: (
     indentShowProductListResponse: IndentShowProductListResponse
   ) => void;
-  setIndentSaveResponse: (indentSaveResponse: UpdateResult) => void;
+  setIndentSaveResponse: (indentSaveResponse: IndentSaveResponse) => void;
   setIndentDtlHistoryResponse: (
     indentDtlHistoryResponse: IndentDtlHistoryResponse
   ) => void;
   setIndentResponse: (indentResponse: IndentResponse) => void;
   setIndentDelResponse: (indentDelResponse: IndentDelResponse) => void;
-  setIndentDoFirstFlowResponse: (indentDoFirstFlowResponse: IndentDoFirstFlowResponse) => void;
-  setProductCatalog: (productCatalog: ProductCatalog) => void;// for api/Product/productInstanceCatalog?Id=166717&UID=0&IRC=0
+  setIndentDoFirstFlowResponse: (
+    indentDoFirstFlowResponse: IndentDoFirstFlowResponse
+  ) => void;
+  setProductCatalog: (productCatalog: ProductCatalog) => void; // for api/Product/productInstanceCatalog?Id=166717&UID=0&IRC=0
 }

@@ -7,6 +7,7 @@ import { ProductOffer } from "../../types/productOffer";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 import { useProductStore } from "../../store/productStore";
+import { useBrandStore } from "../../store/brandStore";
 
 
 type Props = {
@@ -35,7 +36,8 @@ const ProductOfferForWorkFlow = ({
   } = useProductOffer();
 
   const { setField, id } = useProductOfferStore();
-  const {setField:setSalesPriceField} = useProductStore()
+  const {setField:setProductField}= useProductStore()
+  const {setField:setBrandField}= useBrandStore()
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedProductOffer, setSelectedProductOffer] =
     useState<ProductOffer | null>(null);
@@ -69,7 +71,9 @@ const ProductOfferForWorkFlow = ({
         ) || null
       );
       setSelectedId(workFlowRowSelectResponse.workTableRow.formId);
-      setSalesPriceField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+      setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+      setProductField("acc_YearIndentRequest",-1)  
+      setBrandField("accSystem",-1)
     }
   }, [
     workFlowRowSelectResponse.workTableRow.formId,

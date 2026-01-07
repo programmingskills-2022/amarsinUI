@@ -69,7 +69,7 @@ const WarehouseTemporaryReceiptShowTable = ({
         },
         {
           Header: "uid",
-          accessor: "cCode",
+          accessor: "uid",
           width: "10%",
           Cell: ({ value }: any) => convertToFarsiDigits(value),
         },

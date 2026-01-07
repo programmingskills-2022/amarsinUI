@@ -16,11 +16,11 @@ export function useBrand() {
       const url = `/api/Brand/search?accSystem=${accSystem}&page=${page}&lastId=${lastId}&usrPerm=${usrPerm}&search=${encodeURIComponent(
         search ?? ""
       )}`;
-      console.log(url, "url,response.data in brandSearch");
+      console.log(url, "url");
       const response = await api.get(url);
       return response.data;
     },
-    //enabled: accSystem !== -1, // Only run if accSystem exists
+    enabled: accSystem !== -1, // Only run if accSystem exists
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

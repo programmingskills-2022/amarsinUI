@@ -4,10 +4,8 @@ import RestoreIcon from "../../assets/images/GrayThem/restore_gray_16.png";
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
@@ -23,10 +21,8 @@ import {
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/productStore";
-import { debounce } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import { ProductSearchRequest } from "../../types/product";
-import { useBrandStore } from "../../store/brandStore";
+//import { useBrandStore } from "../../store/brandStore";
 import { EditableInput } from "../controls/TTable";
 import ProductOfferFormParams from "../productOffer/ProductOfferFormParams";
 
@@ -239,16 +235,22 @@ const ProductPriceForm = ({
   definitionDateTime,
 }: Props) => {
   const [addList, setAddList] = useState<any[]>([]);
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [showDeleted, setShowDeleted] = useState(true);
   const [brand, setBrand] = useState<DefaultOptionTypeStringId[] | null>([]);
-  const [brandSearch, setBrandSearch] = useState<string>("");
+  //const [brandSearch, setBrandSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileName = "data_export.xlsx";
-  const { products, isProductSearchLoading } = useProducts();
+  const {
+    products,
+    isProductSearchLoading,
+    productSearchFetchNextPage,
+    productSearchHasNextPage,
+    isProductSearchFetchingNextPage,
+  } = useProducts();
   const { setField: setProductField } = useProductStore();
   const { yearId, systemId, chartId } = useGeneralContext();
-  const { setField: setBrandField } = useBrandStore();
+  //const { setField: setBrandField } = useBrandStore();
   const { setField: setProductPriceDtlHistoryField } = useProductPriceStore();
   const { authApiResponse } = useAuthStore();
   const [showHistory, setShowHistory] = useState<boolean>(false);
@@ -280,8 +282,25 @@ const ProductPriceForm = ({
                 title: p.n,
               }))
             : undefined,
-        setSearch: item.accessor === "product" ? setSearch : undefined,
+        //setSearch: item.accessor === "product" ? setSearch : undefined,
         isLoading: item.accessor === "product" ? isProductSearchLoading : false,
+        setField: item.accessor === "product" ? setProductField : undefined,
+        fieldValues:
+          item.accessor === "product"
+            ? [
+                { field: "productSearchAccSystem", value: systemId },
+                { field: "productSearchAccYear", value: yearId },
+                { field: "productSearchPage", value: 1 },
+              ]
+            : undefined,
+        fieldSearch:
+          item.accessor === "product" ? "productSearchSearch" : undefined,
+        fetchNextPage:
+          item.accessor === "product" ? productSearchFetchNextPage : undefined,
+        hasNextPage:
+          item.accessor === "product" ? productSearchHasNextPage : undefined,
+        isFetchingNextPage:
+          item.accessor === "product" ? isProductSearchFetchingNextPage : false,
         Cell:
           item.accessor === "icons"
             ? ({ row }: any) => {
@@ -307,7 +326,7 @@ const ProductPriceForm = ({
             : item.Cell,
       };
     });
-  }, [products, setSearch]);
+  }, [products,systemId ,yearId,productSearchFetchNextPage,productSearchHasNextPage,isProductSearchFetchingNextPage ]);
   ////////////////////////////////////////////////////////
   //for excel head cells
   const excelHeadCells: TableColumns = [
@@ -376,10 +395,10 @@ const ProductPriceForm = ({
     );
   };
   ///////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", brandSearch);
-  }, [brandSearch, systemId]);
+  }, [brandSearch, systemId]);*/
   ///////////////////////////////////////////////////////
   const newRow: ProductPriceListItemTable = {
     id: 0,
@@ -465,7 +484,7 @@ const ProductPriceForm = ({
   ////////////////////////////////////////////////////////
 
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
+  /*useEffect(() => {
     if (canEditForm1) {
       setProductField("productSearchAccSystem", systemId);
       setProductField("productSearchAccYear", yearId);
@@ -489,7 +508,7 @@ const ProductPriceForm = ({
       setProductField(field as keyof ProductSearchRequest, value);
     }, 500),
     [setProductField]
-  );
+  );*/
   ////////////////////////////////////////////////////////
   const handleSubmit = async (
     e?: React.MouseEvent<HTMLButtonElement>,
@@ -583,20 +602,45 @@ const ProductPriceForm = ({
           id: item.id,
           pId: item.pId,
           ordr: 0,
-          p1: Number(currencyStringToNumber(convertToLatinDigits(item.p1?.toString())) ?? 0),
-          p2: Number(currencyStringToNumber(convertToLatinDigits(item.p2?.toString())) ?? 0),
-          p3: Number(currencyStringToNumber(convertToLatinDigits(item.p3?.toString())) ?? 0),
-          p4: Number(currencyStringToNumber(convertToLatinDigits(item.p4?.toString())) ?? 0),
-          p5: Number(currencyStringToNumber(convertToLatinDigits(item.p5?.toString())) ?? 0),  
+          p1: Number(
+            currencyStringToNumber(convertToLatinDigits(item.p1?.toString())) ??
+              0
+          ),
+          p2: Number(
+            currencyStringToNumber(convertToLatinDigits(item.p2?.toString())) ??
+              0
+          ),
+          p3: Number(
+            currencyStringToNumber(convertToLatinDigits(item.p3?.toString())) ??
+              0
+          ),
+          p4: Number(
+            currencyStringToNumber(convertToLatinDigits(item.p4?.toString())) ??
+              0
+          ),
+          p5: Number(
+            currencyStringToNumber(convertToLatinDigits(item.p5?.toString())) ??
+              0
+          ),
           dtlDsc: item.dtlDsc,
           deleted: item.isDeleted,
         };
         if (
-          Number(currencyStringToNumber(convertToLatinDigits(item.p1?.toString()))) !== 0 ||
-          Number(currencyStringToNumber(convertToLatinDigits(item.p2?.toString()))) !== 0 ||
-          Number(currencyStringToNumber(convertToLatinDigits(item.p3?.toString()))) !== 0 ||
-          Number(currencyStringToNumber(convertToLatinDigits(item.p4?.toString()))) !== 0 ||
-          Number(currencyStringToNumber(convertToLatinDigits(item.p5?.toString()))) !== 0
+          Number(
+            currencyStringToNumber(convertToLatinDigits(item.p1?.toString()))
+          ) !== 0 ||
+          Number(
+            currencyStringToNumber(convertToLatinDigits(item.p2?.toString()))
+          ) !== 0 ||
+          Number(
+            currencyStringToNumber(convertToLatinDigits(item.p3?.toString()))
+          ) !== 0 ||
+          Number(
+            currencyStringToNumber(convertToLatinDigits(item.p4?.toString()))
+          ) !== 0 ||
+          Number(
+            currencyStringToNumber(convertToLatinDigits(item.p5?.toString()))
+          ) !== 0
         ) {
           return dtl;
         } else {
@@ -662,7 +706,7 @@ const ProductPriceForm = ({
   ///////////////////////////////////////////////////////
   useEffect(() => {
     if (isNew) {
-      setGuid(uuidv4()); 
+      setGuid(uuidv4());
     } else {
       setGuid(selectedProductPrice?.guid ?? "");
     }
@@ -698,7 +742,7 @@ const ProductPriceForm = ({
         setDsc={setDsc}
         brand={brand}
         setBrand={setBrand}
-        setBrandSearch={setBrandSearch}
+        //setBrandSearch={setBrandSearch}
         canEditForm1={canEditForm1}
         definitionDateTime={definitionDateTime}
         childButton={

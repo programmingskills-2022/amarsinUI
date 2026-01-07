@@ -30,6 +30,9 @@ import { colors } from "../../../utilities/color";
 import useCalculateTableHeight from "../../../hooks/useCalculateTableHeight";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
 import { TableColumns } from "../../../types/general";
+import { useBrandStore } from "../../../store/brandStore";
+import { useProductStore } from "../../../store/productStore";
+import { useCustomerStore } from "../../../store/customerStore";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -42,6 +45,8 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
     productGraceDoFirstFlowResponse,
     productGraceDelResponse,
   } = useProductGraceStore();
+  const {setField:setProductField}=useProductStore()
+  const { setField: setCustomerField } = useCustomerStore();
   const {
     productGrace,
     productGraceTotalCount,
@@ -61,6 +66,7 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
   } = useProductGrace();
 
   //const { setField: setProductOfferField } = useProductOfferStore();
+  const {setField:setBrandField}=useBrandStore()
   const [data, setData] = useState<any[]>([]);
   const [dataDtl, setDataDtl] = useState<ProductGraceDtl[]>([]);
   const { yearId, systemId, chartId ,defaultRowsPerPage} = useGeneralContext();
@@ -237,7 +243,9 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
     setField("srchAccepted", srchAccepted);
     setField("srchUsrName", srchUsrName);
     setField("srchStep", srchStep);
-  }, []);
+    setProductField("productSearchAccSystem",-1)
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query    
+  }, [srchId,srchDate,srchTime,srchDsc,srchAccepted,srchUsrName,srchStep]);
 
   useEffect(() => {
     setField("sortId", sortId);
@@ -409,6 +417,10 @@ const ProductGrace = ({ definitionDateTime, definitionInvironment }: Props) => {
   };
 
   const handleEdit = () => {
+    setBrandField("accSystem",-1)
+    setProductField("productSearchAccSystem",-1)
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query       
+    setCustomerField("systemIdCustomerSearch",-1)
     setIsEdit(true);
   };
 

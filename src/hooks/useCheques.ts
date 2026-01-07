@@ -295,7 +295,7 @@ export function useCheques() {
         data: {
           result: {
             err: 0,
-            sayadiStatus: 0,
+            sayadiStatus: -10,
             msg: "",
             response: {
               amountDiscrepancy: 0,

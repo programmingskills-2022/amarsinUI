@@ -6,6 +6,8 @@ import { useProductPermStore } from "../../store/productPermStore";
 import { ProductPerm } from "../../types/productPerm";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
+import { useProductStore } from "../../store/productStore";
+import { useBrandStore } from "../../store/brandStore";
 
 
 type Props = {
@@ -28,6 +30,8 @@ const ProductPermForWorkFlow = ({ workFlowRowSelectResponse, definitionDateTime,
   } = useProductPerm();
 
   const { setField,id } = useProductPermStore();
+  const {setField:setProductField}= useProductStore()
+  const {setField:setBrandField}= useBrandStore()
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedProductPerm, setSelectedProductPerm] =
     useState<ProductPerm | null>(null);
@@ -64,6 +68,9 @@ const ProductPermForWorkFlow = ({ workFlowRowSelectResponse, definitionDateTime,
         ) || null
       );
       setSelectedId(workFlowRowSelectResponse.workTableRow.formId);
+      setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+      setProductField("acc_YearIndentRequest",-1)  
+      setBrandField("accSystem",-1)
     }
   }, [
     workFlowRowSelectResponse.workTableRow.formId,

@@ -38,7 +38,7 @@ export function useInvoiceReceipt() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: mrsId!==-1 , // Only fetch if param is available
+    enabled: mrsId!==-1 && mrsId!==0 , // Only fetch if param is available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {

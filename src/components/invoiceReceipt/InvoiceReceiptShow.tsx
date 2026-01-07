@@ -27,6 +27,7 @@ import { useProductStore } from "../../store/productStore";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
 import { useBrandStore } from "../../store/brandStore";
 import { useCustomers } from "../../hooks/useCustomers";
+import { useCustomerStore } from "../../store/customerStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -61,15 +62,16 @@ const InvoiceReceiptShow = ({
   setIsEdit,
   definitionDateTime,
   isFromWorkFlow,
-}: 
-Props) => {
+}: Props) => {
   const canEditForm = workFlowRowSelectResponse.workTableForms.canEditForm1;
   const { setField, mrsId: mrsIdStore } = useInvoiceReceiptStore();
   const { setField: setProductField } = useProductStore();
   const { setField: setBrandField } = useBrandStore();
-  const {customers} = useCustomers();
+  const { setField: setCustomerField } = useCustomerStore();
+  const { customers } = useCustomers();
   const { indentMrsResponse, isLoading, getIndentMrsResponse } =
-  useInvoiceReceipt();  const {
+    useInvoiceReceipt();
+  const {
     salesPricesSearchResponse,
     addProductList,
     //products,
@@ -129,16 +131,21 @@ Props) => {
     },
   ];
   // Set mrsId BEFORE useInvoiceReceipt hook runs to prevent stale queries
-  if (mrsIdStore !== workFlowRowSelectResponse.workTableRow.formId) {
+  if (
+    mrsIdStore !== workFlowRowSelectResponse.workTableRow.formId 
+  ) {
     setField("mrsId", workFlowRowSelectResponse.workTableRow.formId);
   }
 
   useEffect(() => {
-    setBrandField("accSystem", -1);
-    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query
-    setProductField("pId", -1);
-    setProductField("mrsId", -1);
-  }, []);
+    //if (workFlowRowSelectResponse.workTableRow.formId !== 0) {
+      setBrandField("accSystem", -1);
+      setProductField("salesPricesSearchPage", -1); // Disable salesPrices query
+      setProductField("pId", -1);
+      setProductField("mrsId", -1);
+      setCustomerField("systemIdCustomerSearch", -1);
+    //}
+  }, [workFlowRowSelectResponse.workTableRow.formId]);
 
   const [fields, setFields] = useState<Fields>({
     customer: {
@@ -331,7 +338,7 @@ Props) => {
             item.pId === 0
           );
         });
-        
+
         // Map all products at once
         const newProducts = res.data.result.map((product) => ({
           id: product.id,
@@ -362,7 +369,7 @@ Props) => {
           recieptDsc: "",
           isDeleted: false,
         }));
-        
+
         // Add new empty row in the SAME update to avoid second state update
         return [
           ...filteredPrev,
@@ -401,7 +408,7 @@ Props) => {
   ////////////////////////////////////////////////////////
   // Track initialization to prevent infinite loops
   const hasInitializedRef = useRef(false);
-  
+
   useEffect(() => {
     // Only initialize once when isNew is true and list is empty
     if (isNew && addList.length === 0 && !hasInitializedRef.current) {
@@ -415,6 +422,7 @@ Props) => {
   }, [isNew]); // Only depend on isNew to avoid reading stale addList.length
 
   useEffect(() => {
+    console.log(indentMrsResponse,"indentMrsResponse")
     const tempData = indentMrsResponse.data.result.indentDtls.map(
       (dtl, index) => {
         return {
@@ -434,7 +442,7 @@ Props) => {
     );
     setExcelData(tempData);
   }, [indentMrsResponse.data.result.indentDtls]);
-  
+
   return (
     <div className="w-full flex flex-col">
       <InvoiceReceipShowHeader

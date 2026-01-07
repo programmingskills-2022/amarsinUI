@@ -1,23 +1,26 @@
 import { useBrand } from "../../hooks/useBrands";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import Input from "../controls/Input";
-import { DefaultOptionTypeStringId } from "../../types/general";
+import {  DefaultOptionTypeStringId } from "../../types/general";
 import {
   convertToFarsiDigits,
   convertToPersianDate,
 } from "../../utilities/general";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ProductOffer } from "../../types/productOffer";
 import { ProductPerm } from "../../types/productPerm";
 import { ProductGrace } from "../../types/productGrace";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
+import { useBrandStore } from "../../store/brandStore";
+import { useGeneralContext } from "../../context/GeneralContext";
 
 type Props = {
   isNew: boolean; //for check if isNew new else edit
   selectedProductOffer: ProductOffer | ProductPerm | ProductGrace | null; //for edit
   brand: DefaultOptionTypeStringId[] | null;
   setBrand: (brand: DefaultOptionTypeStringId[]) => void;
-  setBrandSearch: React.Dispatch<React.SetStateAction<string>>;
+  //setBrandSearch: React.Dispatch<React.SetStateAction<string>>;
   dat: string;
   tim: string;
   dsc: string;
@@ -34,7 +37,7 @@ const ProductOfferFormParams = ({
   selectedProductOffer,
   brand,
   setBrand,
-  setBrandSearch,
+  //setBrandSearch,
   dat,
   tim,
   dsc,
@@ -46,6 +49,9 @@ const ProductOfferFormParams = ({
   definitionDateTime
 }: Props) => {
   const { brands } = useBrand();
+  const {setField: setBrandField}=useBrandStore()
+  const [isBrandsEntered,setIsBrandsEntered ]= useState(false)
+  const {systemId}= useGeneralContext()
   //const { definitionDateTime } = useDefinitionInvironment();
   useEffect(() => {
     setDat(
@@ -113,7 +119,38 @@ const ProductOfferFormParams = ({
             <label className="text-lg font-bold">شرایط</label>
             <hr className="w-full border-2 border-gray-300" />
           </div>
-          <div className="w-full flex items-center">
+          <AutoCompleteSearch
+              label="برند"
+              labelWidth="w-20"
+              setField={setBrandField}
+              fieldValues={[
+                { field: "accSystem", value:systemId  },
+              ]}
+              fieldSearch="search"
+              selectedOption={brand}
+              setSelectedOption={(newValue) => {
+                setBrand(
+                  Array.isArray(newValue) 
+                    ? newValue as DefaultOptionTypeStringId[]
+                    : newValue 
+                    ? [newValue as DefaultOptionTypeStringId]
+                    : []
+                );
+              }}
+              options={brands.map((b: any) => ({
+                id: b.id,
+                text: b.text,
+              }))}
+              isEntered={isBrandsEntered}
+              setIsEntered={setIsBrandsEntered}
+              multiple={true}
+              placeholder={
+                Array.isArray(brand) && brand.length > 0
+                  ? undefined
+                  : "برند را انتخاب کنید..."
+              }
+            />
+          {/*<div className="w-full flex items-center">
             <label className="p-1 w-24 text-left">برند:</label>
             <div className="bg-slate-50 flex w-full">
               <AutoComplete
@@ -136,7 +173,7 @@ const ProductOfferFormParams = ({
                 }
               />
             </div>
-          </div>
+          </div>*/}
         </>
       )}
     </form>

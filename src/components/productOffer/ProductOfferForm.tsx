@@ -4,10 +4,8 @@ import RestoreIcon from "../../assets/images/GrayThem/restore_gray_16.png";
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import ProductOfferFormParams from "./ProductOfferFormParams";
@@ -35,9 +33,7 @@ import {
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/productStore";
-import { debounce } from "lodash";
-import { ProductSearchRequest } from "../../types/product";
-import { useBrandStore } from "../../store/brandStore";
+//import { useBrandStore } from "../../store/brandStore";
 import { EditableInput } from "../controls/TTable";
 import { useProductOfferStore } from "../../store/productOfferStore";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
@@ -245,10 +241,10 @@ const ProductOfferForm = ({
   definitionDateTime,
 }: Props) => {
   const [addList, setAddList] = useState<ProductOfferProductTable[]>([]);
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [showDeleted, setShowDeleted] = useState(true);
   const [brand, setBrand] = useState<DefaultOptionTypeStringId[] | null>([]);
-  const [brandSearch, setBrandSearch] = useState<string>("");
+  //const [brandSearch, setBrandSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileName = "data_export.xlsx";
   const {
@@ -260,7 +256,7 @@ const ProductOfferForm = ({
   } = useProducts();
   const { setField: setProductField } = useProductStore();
   const { yearId, systemId, chartId } = useGeneralContext();
-  const { setField: setBrandField } = useBrandStore();
+  //const { setField: setBrandField } = useBrandStore();
   const { setField: setProductOfferDtlHistoryField } = useProductOfferStore();
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [originalData, setOriginalData] = useState<ProductOfferProductTable2[]>(
@@ -295,8 +291,19 @@ const ProductOfferForm = ({
           item.accessor === "product" ? productSearchHasNextPage : undefined,
         isFetchingNextPage:
           item.accessor === "product" ? isProductSearchFetchingNextPage : false,
-        setSearch: item.accessor === "product" ? setSearch : undefined,
+        //setSearch: item.accessor === "product" ? setSearch : undefined,
         isLoading: item.accessor === "product" ? isProductSearchLoading : false,
+        setField: item.accessor === "product" ? setProductField : undefined,
+        fieldValues:
+          item.accessor === "product"
+            ? [
+                { field: "productSearchAccSystem", value: systemId },
+                { field: "productSearchAccYear", value: yearId },
+                { field: "productSearchPage", value: 1 },
+              ]
+            : undefined,
+        fieldSearch:
+          item.accessor === "product" ? "productSearchSearch" : undefined,        
         Cell:
           item.accessor === "icons"
             ? ({ row }: any) => {
@@ -322,7 +329,7 @@ const ProductOfferForm = ({
             : item.Cell,
       };
     });
-  }, [products, setSearch]);
+  }, [products]);
 
   ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
@@ -392,10 +399,10 @@ const ProductOfferForm = ({
     );
   };
   ///////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", brandSearch);
-  }, [brandSearch, systemId]);
+  }, [brandSearch, systemId]);*/
 
   const newRow: ProductOfferProductTable = {
     id: 0,
@@ -499,7 +506,7 @@ const ProductOfferForm = ({
   ////////////////////////////////////////////////////////
 
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
+  /*useEffect(() => {
     if (canEditForm1) {
       setProductField("productSearchAccSystem", systemId);
       setProductField("productSearchAccYear", yearId);
@@ -520,7 +527,7 @@ const ProductOfferForm = ({
       setProductField(field as keyof ProductSearchRequest, value);
     }, 500),
     [setProductField]
-  );
+  );*/
   ////////////////////////////////////////////////////////
   const handleSubmit = async (
     e?: React.MouseEvent<HTMLButtonElement>,
@@ -748,7 +755,7 @@ const ProductOfferForm = ({
         setDsc={setDsc}
         brand={brand}
         setBrand={setBrand}
-        setBrandSearch={setBrandSearch}
+        //setBrandSearch={setBrandSearch}
         canEditForm1={canEditForm1}
         definitionDateTime={definitionDateTime}
       />

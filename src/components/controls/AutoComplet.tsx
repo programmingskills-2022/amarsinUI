@@ -104,13 +104,16 @@ const AutoComplet = forwardRef(
     // Get display value
     const getDisplayValue = () => {
       // When focused or editing, always show inputValue to allow typing
+      // In multiple mode, always show inputValue when focused to allow continuous selection
       if (isFocused || isEditing) {
         return inputValue || "";
       }
       // When not focused and a value is selected, show the selected value
       if (value) {
         if (multiple && Array.isArray(value)) {
-          return value.map(v => v.title).join(", ");
+          // In multiple mode, don't show selected values in input when not focused
+          // They will be shown as chips instead
+          return "";
         }
         return (value as T).title;
       }
@@ -126,9 +129,10 @@ const AutoComplet = forwardRef(
     // Check if option is selected
     const isOptionSelected = (option: T): boolean => {
       if (multiple && Array.isArray(value)) {
-        return value.some(v => v.id === option.id);
+        // Use strict comparison with type conversion to handle string/number ID mismatches
+        return value.some(v => String(v.id) === String(option.id));
       }
-      return value !== null && value !== undefined && (value as T).id === option.id;
+      return value !== null && value !== undefined && String((value as T).id) === String(option.id);
     };
 
     // Handle input change
@@ -164,11 +168,33 @@ const AutoComplet = forwardRef(
     const handleOptionSelect = (option: T) => {
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
-        const isSelected = currentValue.some(v => v.id === option.id);
-        const newValue = isSelected
-          ? currentValue.filter(v => v.id !== option.id)
-          : [...currentValue, option];
+        // Use strict comparison with type conversion to handle string/number ID mismatches
+        // Also check both ID and title to be extra safe
+        const isSelected = currentValue.some(v => 
+          String(v.id) === String(option.id) || 
+          (v.title && option.title && v.title === option.title)
+        );
+        // In multiple mode, prevent duplicate selections - do nothing if already selected
+        if (isSelected) {
+          // If already selected, do nothing (prevent duplicate selection)
+          // Keep dropdown open and input focused for next selection
+          setIsOpen(true);
+          inputRef.current?.focus();
+          return;
+        }
+        // If not selected, add it
+        const newValue = [...currentValue, option];
         handleChange(null, newValue as T[]);
+        // In multiple mode, keep input focused and clear it for next selection
+        //setInternalInputValue("");
+        /*if (onInputChange) {
+          onInputChange(null, "");
+        } else if (setSearch) {
+          setSearch("");
+        }*/
+        // Keep dropdown open in multiple mode
+        setIsOpen(true);
+        inputRef.current?.focus();
       } else {
         handleChange(null, option);
         setIsOpen(false);
@@ -196,6 +222,16 @@ const AutoComplet = forwardRef(
         setInternalInputValue("");
       }
       handleChange(null, null);
+      inputRef.current?.focus();
+    };
+
+    // Handle removing a single selected item in multiple mode
+    const handleRemoveChip = (e: React.MouseEvent, itemToRemove: T) => {
+      e.stopPropagation();
+      if (multiple && Array.isArray(value)) {
+        const newValue = value.filter(v => v.id !== itemToRemove.id);
+        handleChange(null, newValue.length > 0 ? newValue : null);
+      }
       inputRef.current?.focus();
     };
 
@@ -323,6 +359,7 @@ const AutoComplet = forwardRef(
     const hasValue = value !== null && value !== undefined && (multiple ? (Array.isArray(value) && value.length > 0) : true);
     const showClear = showClearIcon && hasValue && !disabled;
     const showDropdown = isOpen && !disabled;
+    const selectedItems = multiple && Array.isArray(value) ? value : [];
 
     // Dynamic styles that can't be easily converted to Tailwind
     const dynamicInputStyle: React.CSSProperties = {
@@ -361,10 +398,12 @@ const AutoComplet = forwardRef(
       showBorder || (showBorderFocused && isFocused)
         ? "border border-gray-300"
         : "border-none"
-    } ${disabled ? "bg-gray-100" : "bg-transparent"}`;
+    } ${disabled ? "bg-gray-100" : "bg-transparent"} ${
+      multiple && selectedItems.length > 0 ? "flex-wrap" : ""
+    }`;
 
     // Input classes
-    const inputClasses = `w-full border-none outline-none bg-transparent whitespace-normal break-words ${
+    const inputClasses = `${multiple && selectedItems.length > 0 ? "flex-1 min-w-[120px]" : "w-full"} border-none outline-none bg-transparent whitespace-normal break-words ${
       showBold ? "font-bold" : "font-normal"
     } ${
       textAlign === "center"
@@ -393,6 +432,29 @@ const AutoComplet = forwardRef(
           </label>
         )}
         <div className={inputWrapperClasses} style={dynamicWrapperStyle}>
+          {/* Show selected chips in multiple mode */}
+          {multiple && selectedItems.length > 0 && (
+            <div className="flex flex-wrap gap-1 items-center flex-shrink-0 py-1 px-1">
+              {selectedItems.map((item) => (
+                <span
+                  key={item.id}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-800 rounded text-xs flex-shrink-0"
+                >
+                  <span className="truncate max-w-[150px]">{item.title}</span>
+                  {!disabled && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveChip(e, item)}
+                      className="ml-1 text-gray-600 hover:text-gray-800 focus:outline-none font-bold"
+                      tabIndex={-1}
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
           <input
             ref={inputRef}
             type="text"
@@ -457,7 +519,7 @@ const AutoComplet = forwardRef(
                     <li
                       key={option.id}
                       ref={isLastItem && hasNextPage ? intersectionRef : null}
-                      className={`py-2 px-3 cursor-pointer ${
+                      className={`py-2 px-3 cursor-pointer flex items-center justify-between ${
                         isHighlighted || isSelected
                           ? "bg-blue-50"
                           : "bg-transparent"
@@ -476,7 +538,10 @@ const AutoComplet = forwardRef(
                       onMouseEnter={() => setHighlightedIndex(index)}
                       onClick={() => handleOptionSelect(option)}
                     >
-                      {option.title}
+                      <span className="flex-1">{option.title}</span>
+                      {multiple && isSelected && (
+                        <span className="ml-2 text-blue-600 text-sm">✓</span>
+                      )}
                     </li>
                   );
                 })}

@@ -123,7 +123,7 @@ export const useChequeStore = create<ChequeState>()((set) => ({
     data: {
       result: {
         err: 0,
-        sayadiStatus: 0,
+        sayadiStatus: -10,
         msg: "",
         response: {
           amountDiscrepancy: 0,

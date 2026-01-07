@@ -172,42 +172,6 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
     }, 100);
   };
   ///////////////////////////////////////////////////////////////////
-  //for api/Payment/bankSearch
-  /*useEffect(() => {
-    setField("page", 1);
-    setField("lastId", 0);
-    setField("search", bankSearch);
-  }, [bankSearch]);*/
-  /////////////////////////////////////////////////////////////////////
-  // Set search-related fields when search changes
-  //for api/Payment/cashPosSystemSearch
-  /*useEffect(() => {
-    setChequeField("search", cashPosSystemSerch);
-    setChequeField("page", 1);
-    setChequeField("lastId", 0);
-    setChequeField("systemId", initData?.systemId ?? -1);
-    if (payKind !== 2) setChequeField("payKind", payKind);
-  }, [cashPosSystemSerch, initData?.systemId, payKind]);*/
-
-  // Initialize systemId and payKind only once per record for /api/cheque/cashPosSystemSearch
-  /*useEffect(() => {
-    const newSystemId = initData?.systemId ?? -1;
-    const newPayKind = payKind;
-
-    // Only set if payKind is valid and we haven't initialized yet for this record
-    if (
-      newPayKind !== -1 &&
-      newPayKind !== 2 &&
-      !hasInitializedPayKind.current &&
-      canEditForm
-    ) {
-      setChequeField("systemId", newSystemId);
-      setChequeField("payKind", newPayKind);
-      hasInitializedPayKind.current = true;
-    }
-  }, [payKind, initData?.systemId]);*/
-
-  ///////////////////////////////////////////////////////////////////
   useEffect(() => {
     console.log(yearSearch, systemSearch);
     setChequeField("id", workFlowRowSelectResponse.workTableRow.formId);
@@ -340,6 +304,8 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
   }, [loadPaymentResponse.data.result?.sayadiStatus]);
   ///////////////////////////////////////////////////////////////////
   useEffect(() => {
+    if (sayadChequeInquiryByPaymentIdResponse.data.result?.sayadiStatus===-10)
+      return;
     switch (
       sayadChequeInquiryByPaymentIdResponse.data.result &&
       sayadChequeInquiryByPaymentIdResponse.data.result?.sayadiStatus
@@ -358,7 +324,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
         break;
     }
   }, [sayadChequeInquiryByPaymentIdResponse.data.result?.sayadiStatus]);
-  ///////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////
   // Enhanced setChequeFields with validation
   const setChequeFields1 = (
     fieldName: string,
@@ -506,31 +472,6 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
         }
         setIsModalOpen(true);
       }
-      // for updating parent table row in changing dsc , prsn , amountT
-      /*const workTableRow = data.find(
-        (item: any) =>
-          Number(convertToLatinDigits(item.id)) ===
-          workFlowRowSelectResponse.workTableRow.id
-      );
-      console.log(
-        updateFieldsResponse,
-        "updateFieldsResponse.meta.errorCode in reg recieved cheque info"
-      );
-      if (
-        workTableRow &&
-        updateFieldsResponse.meta.errorCode <= 0 &&
-        (fieldName === "amountT" || fieldName === "dsc" || fieldName === "prsn")
-      ) {
-        workTableRow.dsc = `${convertToFarsiDigits(
-          cheque.prsn
-        )} : ${convertToFarsiDigits(cheque.dsc)}`;
-        workTableRow.formCost = convertToFarsiDigits(
-          formatNumberWithCommas(
-            currencyStringToNumber(convertToLatinDigits(cheque.amountT))
-          )
-        );
-        setData(data);
-      }*/
       if (
         fieldName !== "bank" &&
         fieldName !== "year" &&
@@ -664,7 +605,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
         </div>
       )}
       <div className="flex justify-between w-full">
-        <div className="flex w-1/2 justify-center items-center gap-2">
+        <div className="flex w-2/3 justify-center items-center gap-2">
           <label className="w-24 text-left">
             <span className="text-red-500">* </span>سیستم:
           </label>
@@ -697,8 +638,8 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
             {showValidationError("systemId")}
           </div>
         </div>
-        <div className="flex w-1/2 justify-center items-center gap-2">
-          <label className="w-24 text-left">
+        <div className="flex w-1/3 justify-center items-center gap-1">
+          <label className="w-36 text-left">
             <span className="text-red-500">* </span>سال مالی:
           </label>
           <div className="flex w-full justify-center items-center gap-2">
@@ -736,7 +677,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
       </div>
       <div className="flex justify-between w-full">
         {payKind === 2 && (
-          <div className="flex w-full justify-center items-center gap-2">
+          <div className="flex w-2/3 justify-center items-center gap-2">
             <Input
               disabled={!canEditForm}
               name="prsn"
@@ -757,7 +698,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
           </div>
         )}
         {payKind === 2 && (
-          <div className="flex w-full justify-center items-center gap-2">
+          <div className="flex w-1/3 justify-center items-center gap-2">
             <Input
               disabled={!canEditForm}
               name="sayadi"
@@ -770,27 +711,13 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
                 updateCheque("sayadi", e.target.value)
               }
               widthDiv="w-full"
-              widthLabel="w-24"
-              widthInput="w-full-minus-24"
+              widthLabel="w-32"
+              widthInput="w-full-minus-32"
               variant="outlined"
             />
             {showValidationError("sayadi")}
           </div>
         )}
-        {/*payKind === 1 && (
-          <div className="flex w-full justify-center items-center gap-2">
-            <Input
-              disabled={payKind === 1 || !canEditForm}
-              name="cash_PosSystemTitle"
-              label="پایانه:"
-              value={cheque.cash_PosSystem.title}
-              widthDiv="w-full"
-              widthLabel="w-24"
-              widthInput="w-full-minus-24"
-              variant="outlined"
-            />
-          </div>
-        )*/}
         {(payKind === 0 || payKind === 9 || payKind === 1) && (
           <div className="flex w-full justify-center items-center gap-2">
             <AutoCompleteSearch
@@ -824,43 +751,6 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
             {showValidationError("cash_PosSystem")}
           </div>
         )}
-        {/*
-        {(payKind === 0 || payKind === 9 || payKind === 1) && (
-          <div className="flex w-full justify-center items-center gap-2">
-            <label className="w-24 text-left">
-              {payKind === 0 ? "صندوق:" : payKind === 9 ? "بانک:" : "پایانه:"}
-            </label>
-            <div className="flex w-full justify-center items-center gap-2">
-              <AutoComplete
-                disabled={!canEditForm}
-                required={true}
-                showClearIcon={false}
-                textColor={colors.gray_600}
-                options={cashPosSystemSearch.map((item: any) => ({
-                  id: item.id,
-                  title: item.text,
-                }))}
-                value={cheque.cash_PosSystem}
-                handleChange={(_event, newValue) => {
-                  setChequeFields1(
-                    "cash_PosSystem",
-                    newValue as DefaultOptionType
-                  );
-                }}
-                setSearch={setCashPosSystemSerch}
-                showLabel={false}
-                inputPadding="0 !important"
-                backgroundColor={
-                  updateStatus.cash_PosSystem?.validationError
-                    ? "#fef2f2"
-                    : "white"
-                }
-                ref={systemRef}
-              />
-              {showValidationError("cash_PosSystem")}
-            </div>
-          </div> 
-        )} */}
       </div>
       <div className="flex justify-between w-full">
         <Input
@@ -874,7 +764,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
           onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
             updateCheque("srName", e.target.value)
           }
-          widthDiv="w-1/2"
+          widthDiv="w-2/3"
           widthLabel="w-24"
           widthInput="w-full-minus-24"
           disabled
@@ -891,16 +781,16 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
           onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
             updateCheque("marketerSrName", e.target.value)
           }
-          widthDiv="w-1/2"
-          widthLabel="w-24"
-          widthInput="w-full-minus-24"
+          widthDiv="w-1/3"
+          widthLabel="w-32"
+          widthInput="w-full-minus-32"
           disabled
           variant="outlined"
         />
       </div>
       {payKind === 2 && (
         <div className="flex justify-between w-full">
-          <div className="flex w-1/2 justify-center items-center gap-2">
+          <div className="flex w-2/3 justify-center items-center gap-2">
             <AutoCompleteSearch
               label="بانک"
               labelWidth="w-20"
@@ -924,40 +814,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
             />
             {showValidationError("bankId")}
           </div>
-          {/*<div className="flex w-1/2 justify-center items-center gap-2">
-            <label className="w-24 text-left">
-              <span className="text-red-500">* </span>بانک:
-            </label>
-            <div className="flex w-full justify-center items-center gap-2">
-              <AutoComplete
-                disabled={!canEditForm}
-                required={true}
-                showClearIcon={false}
-                textColor={colors.gray_600}
-                options={banks.map((b) => ({
-                  id: b.id,
-                  title: b.text,
-                }))}
-                value={cheque.bank}
-                handleChange={(_event, newValue) => {
-                  setChequeFields1("bank", newValue as DefaultOptionType);
-                }}
-                setSearch={setBankSearch}
-                showLabel={false}
-                inputPadding="0 !important"
-                backgroundColor={
-                  !canEditForm
-                    ? "inherit"
-                    : updateStatus.bankId.validationError && !isLoadingBanks
-                    ? "#fef2f2"
-                    : "white"
-                }
-                ref={bankRef}
-              />
-              {showValidationError("bankId")}
-            </div>  
-          </div> */}
-          <div className="flex w-1/2 justify-center items-center gap-2">
+          <div className="flex w-1/3 justify-center items-center gap-2">
             <Input
               disabled={!canEditForm}
               name="transferenceOwner"
@@ -970,8 +827,8 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
                 updateCheque("transferenceOwner", e.target.value)
               }
               widthDiv="w-full"
-              widthLabel="w-24"
-              widthInput="w-full-minus-24"
+              widthLabel="w-32"
+              widthInput="w-full-minus-32"
               variant="outlined"
             />
             {showValidationError("transferenceOwner")}
@@ -980,26 +837,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
       )}
       {payKind === 2 && (
         <div className="flex justify-between w-full">
-          <div className="flex w-1/2 justify-center items-center gap-2">
-            <Input
-              disabled={!canEditForm}
-              name="sarDate"
-              label="سررسید:"
-              value={cheque.sarDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setChequeFields("sarDate", e.target.value)
-              }
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateCheque("sarDate", e.target.value)
-              }
-              widthDiv="w-full"
-              widthLabel="w-24"
-              widthInput="w-full-minus-24"
-              variant="outlined"
-            />
-            {showValidationError("sarDate")}
-          </div>
-          <div className="flex w-1/2 justify-center items-center gap-2">
+          <div className="flex w-2/3   justify-center items-center gap-2">
             <Input
               disabled={!canEditForm}
               name="accNo"
@@ -1018,10 +856,29 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
             />
             {showValidationError("accNo")}
           </div>
+          <div className="flex w-1/3 justify-center items-center gap-2">
+            <Input
+              disabled={!canEditForm}
+              name="sarDate"
+              label="سررسید:"
+              value={cheque.sarDate}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setChequeFields("sarDate", e.target.value)
+              }
+              onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
+                updateCheque("sarDate", e.target.value)
+              }
+              widthDiv="w-full"
+              widthLabel="w-32"
+              widthInput="w-full-minus-32"
+              variant="outlined"
+            />
+            {showValidationError("sarDate")}
+          </div>          
         </div>
       )}
       <div className="flex justify-between items-center w-full">
-        <div className="flex w-1/2 items-center gap-1">
+        <div className="flex w-2/3 items-center gap-1">
           <label className="w-24 text-left">شماره:</label>
           <div className="flex w-full-minus-24 justify-center items-center gap-2">
             <div className="flex w-full justify-center items-center gap-2">
@@ -1063,7 +920,7 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
             )}
           </div>
         </div>
-        <div className="flex w-1/2 justify-center items-center gap-2">
+        <div className="flex w-1/3 justify-center items-center gap-2">
           <Input
             disabled={!canEditForm}
             name="amountT"
@@ -1076,15 +933,15 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
               updateCheque("amountT", e.target.value)
             }
             widthDiv="w-full"
-            widthLabel="w-24"
-            widthInput="w-full-minus-24"
+            widthLabel="w-32"
+            widthInput="w-full-minus-32"
             variant="outlined"
           />
           {showValidationError("amountT")}
         </div>
       </div>
-      <div className="flex justify-center items-center gap-2">
-        <div className="flex justify-between items-center w-full">
+      <div className="flex justify-between items-center gap-2 w-full">
+        <div className={`flex justify-between items-center ${payKind===2 ? "w-2/3" : "w-full"}`}>
           <Input
             disabled={!canEditForm}
             name="dsc"
@@ -1111,23 +968,17 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
               checked={cheque.eCheck}
               disabled={!canEditForm}
               onChange={(e) => console.log(e.target.checked)}
-              /*onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setChequeFields("eCheck", e.target.checked)
-          }
-          onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
-            updateCheque("eCheck", e.target.checked)
-          }*/
             />
             <label>الکترونیکی</label>
             {showValidationError("eCheck")}
           </div>
         )}
       </div>
-      <div className="flex justify-between items-center w-full">
+      <div className="flex justify-end items-center w-full">
         <Input
           disabled={!canEditForm}
           name="delayAdvanceDays"
-          label="مدت تاخیر/تعجیل:"
+          label="تاخیر/تعجیل:"
           value={cheque.delayAdvanceDays}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setChequeFields("delayAdvanceDays", e.target.value)
@@ -1135,9 +986,9 @@ const RegRecievedChequeInfo: React.FC<Props> = ({
           onBlur={(e: React.ChangeEvent<HTMLInputElement>) =>
             updateCheque("delayAdvanceDays", e.target.value)
           }
-          widthDiv="w-full"
-          widthLabel="w-24"
-          widthInput="w-full"
+          widthDiv="w-1/3"
+          widthLabel="w-32"
+          widthInput="w-full-minus-32"
           variant="outlined"
         />
         {showValidationError("delayAdvanceDays")}

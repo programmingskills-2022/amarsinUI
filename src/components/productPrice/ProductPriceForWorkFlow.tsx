@@ -6,6 +6,8 @@ import { useProductPriceStore } from "../../store/productPriceStore";
 import ProductPriceForm from "./ProductPriceForm";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
+import { useProductStore } from "../../store/productStore";
+import { useBrandStore } from "../../store/brandStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -27,17 +29,23 @@ const ProductPriceForWorkFlow = ({ workFlowRowSelectResponse,definitionDateTime,
   } = useProductPrice();
 
   const { setField,id } = useProductPriceStore();
+  const {setField:setProductField}= useProductStore()
+  const {setField:setBrandField}= useBrandStore()
+  
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedProductPrice, setSelectedProductPrice] =
   useState<ProductPrice | null>(null);
   
   const {yearId, systemId  }=useGeneralContext() 
   if (id!==workFlowRowSelectResponse.workTableRow.formId){
+    console.log("enter...")
     setField("yearId", -1);
     setField("systemId", -1);
     setField("yearIdDtl", yearId);
     setField("systemIdDtl", systemId);
     setField("id", workFlowRowSelectResponse.workTableRow.formId);
+    setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+    setProductField("acc_YearIndentRequest",-1)  
   }
   /*useEffect(() => {
     setField("yearId", yearId);
@@ -56,7 +64,7 @@ const ProductPriceForWorkFlow = ({ workFlowRowSelectResponse,definitionDateTime,
   }, [refetchSwitch]);
   ////////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    console.log(productPriceDtlData);
+    console.log("enter..",productPriceDtlData);
     console.log(
       productPriceDtlData?.productPrices?.find(
         (item) => item.id === workFlowRowSelectResponse.workTableRow.formId
@@ -69,6 +77,9 @@ const ProductPriceForWorkFlow = ({ workFlowRowSelectResponse,definitionDateTime,
         ) || null
       );
       setSelectedId(workFlowRowSelectResponse.workTableRow.formId);
+      setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+      setProductField("acc_YearIndentRequest",-1)  
+      setBrandField("accSystem",-1)
     }
   }, [
     workFlowRowSelectResponse.workTableRow.formId,

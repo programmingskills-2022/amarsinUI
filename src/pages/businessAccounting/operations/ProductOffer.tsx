@@ -29,6 +29,9 @@ import {
   DefinitionInvironment,
 } from "../../../types/definitionInvironment";
 import { TableColumns } from "../../../types/general";
+import { useBrandStore } from "../../../store/brandStore";
+import { useProductStore } from "../../../store/productStore";
+import { useCustomerStore } from "../../../store/customerStore";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -134,6 +137,8 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
     id: prevId,
     productOfferDelResponse,
   } = useProductOfferStore();
+  const {setField:setProductField}=useProductStore()
+  const { setField: setCustomerField } = useCustomerStore();
   const {
     productOffer,
     productOfferTotalCount,
@@ -154,6 +159,7 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
   } = useProductOffer();
 
   //const { setField: setProductOfferField } = useProductOfferStore();
+  const {setField:setBrandField}=useBrandStore()
   const [data, setData] = useState<any[]>([]);
   const [dataDtl, setDataDtl] = useState<ProductOfferDtlTable[]>([]);
   const { yearId, systemId, chartId, defaultRowsPerPage } = useGeneralContext();
@@ -253,7 +259,9 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
     setField("srchAccepted", srchAccepted);
     setField("srchUsrName", srchUsrName);
     setField("srchStep", srchStep);
-  }, []);
+    setProductField("productSearchAccSystem",-1)
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query    
+  }, [srchId,srchDate,srchTime,srchDsc,srchAccepted,srchUsrName,srchStep]);
 
   useEffect(() => {
     setField("sortId", sortId);
@@ -473,6 +481,11 @@ const ProductOffer = ({ definitionDateTime, definitionInvironment }: Props) => {
   };
 
   const handleEdit = () => {
+    setBrandField("accSystem",-1)
+    setProductField("productSearchAccSystem",-1)
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query      
+    setProductField("acc_YearIndentRequest",-1)  
+    setCustomerField("systemIdCustomerSearch",-1)
     setIsEdit(true);
   };
 

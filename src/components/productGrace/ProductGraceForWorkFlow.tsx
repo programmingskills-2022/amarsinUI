@@ -6,6 +6,8 @@ import { ProductGrace } from "../../types/productGrace";
 import { useProductGraceStore } from "../../store/productGraceStore";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { DefinitionDateTime } from "../../types/definitionInvironment";
+import { useProductStore } from "../../store/productStore";
+import { useBrandStore } from "../../store/brandStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
@@ -32,6 +34,8 @@ const ProductGraceForWorkFlow = ({
   } = useProductGrace();
 
   const { setField, id } = useProductGraceStore();
+  const {setField:setProductField}= useProductStore()
+  const {setField:setBrandField}= useBrandStore()
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedProductGrace, setSelectedProductGrace] =
     useState<ProductGrace | null>(null);
@@ -71,6 +75,9 @@ const ProductGraceForWorkFlow = ({
         ) || null
       );
       setSelectedId(workFlowRowSelectResponse.workTableRow.formId);
+      setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+      setProductField("acc_YearIndentRequest",-1)  
+      setBrandField("accSystem",-1)
     }
   }, [
     workFlowRowSelectResponse.workTableRow.formId,

@@ -129,8 +129,15 @@ export const convertPersianDate = (dateStr: string): string => {
     .join("/");
 };
 // format number with commas
-export const formatNumberWithCommas = (num: number): string => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const formatNumberWithCommas = (num: number | string | null | undefined): string => {
+  if (num === null || num === undefined || num === "") {
+    return "";
+  }
+  const numValue = typeof num === "string" ? parseFloat(num) || 0 : num;
+  if (isNaN(numValue)) {
+    return "";
+  }
+  return numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 // convert currency string to number
 export const currencyStringToNumber = (currencyStr: string): number => {

@@ -27,6 +27,8 @@ import Card from "../../../components/controls/Card";
 import { colors } from "../../../utilities/color";
 import useCalculateTableHeight from "../../../hooks/useCalculateTableHeight";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
+import { useBrandStore } from "../../../store/brandStore";
+import { useCustomerStore } from "../../../store/customerStore";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -39,6 +41,7 @@ const PurchaseRequestIndent = ({ definitionDateTime, definitionInvironment }: Pr
     indentDoFirstFlowResponse,
     indentDelResponse,
   } = useProductStore();
+  const { setField: setCustomerField } = useCustomerStore();
   const {
     indentList,
     indentListDtl,
@@ -92,6 +95,8 @@ const PurchaseRequestIndent = ({ definitionDateTime, definitionInvironment }: Pr
   const [sortStep, setSortStep] = useState<number>(0);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in productGrace table
   const [selectedRowIndexDtl, setSelectedRowIndexDtl] = useState<number>(0); //for selected row index in productGraceDtl table
+
+  const {setField:setBrandField}=useBrandStore()
 
   const columns = [
     {
@@ -348,6 +353,7 @@ const PurchaseRequestIndent = ({ definitionDateTime, definitionInvironment }: Pr
   useEffect(() => {
     const currentIndent = indentList.find((item) => item.id === selectedId);
     if (currentIndent && prevId !== selectedId) {
+      console.log("mrsIdIndentRequest", currentIndent.mrsId)
       setField("mrsIdIndentRequest", currentIndent.mrsId);
     }
     //if (selectedId!==0) setField("mrsIdIndentRequest", selectedId);
@@ -458,6 +464,10 @@ const PurchaseRequestIndent = ({ definitionDateTime, definitionInvironment }: Pr
   };
 
   const handleEdit = () => {
+    setBrandField("accSystem",-1)
+    setField("productSearchAccSystem",-1)
+    setField("salesPricesSearchPage", -1); // Disable salesPrices query
+    setCustomerField("systemIdCustomerSearch",-1)
     setIsEdit(true);
   };
 

@@ -306,8 +306,12 @@ const PaymentInvoiceShowTable = ({
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
     const currentRow = data[rowIndex];
     if (!currentRow) return;
-
-    (currentRow as any)[columnId] = value;
+    let val="";
+    if (columnId==="pd")
+      val=currencyStringToNumber(convertToLatinDigits(value)).toString()
+    else 
+      val=value;
+    (currentRow as any)[columnId] = val;
     /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -334,8 +338,9 @@ const PaymentInvoiceShowTable = ({
     ) {
       return colors.green150;
     } else if (
-      row.original.check && Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0))>0 &&
-      (columnId === "rem" || columnId === "amnt") 
+      row.original.check &&
+      Number(convertToLatinDigits(colsInfo?.[15]?.value ?? 0)) > 0 &&
+      (columnId === "rem" || columnId === "amnt")
     ) {
       return colors.green50;
     }
@@ -472,6 +477,7 @@ const PaymentInvoiceShowTable = ({
     console.log(request);
     try {
       const response = await paymentInvoicesSave(request);
+      console.log(response,"response")
       setIsModalOpen(true);
       return response;
       //console.log("response");

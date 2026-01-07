@@ -108,6 +108,8 @@ interface WarehouseTemporaryReceiptPurchaseDtls {
   pOffer: number;  
   tax: number;  
   graceDays: number;  
+  sC: number;
+  cC: number;
   perm: boolean;  
   regCnt: number;  
   regOffer: number;  

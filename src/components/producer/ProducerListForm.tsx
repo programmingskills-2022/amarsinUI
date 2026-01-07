@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
-import { useBrandStore } from "../../store/brandStore";
+//import { useBrandStore } from "../../store/brandStore";
 import Skeleton from "../layout/Skeleton";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/GeneralContext";
@@ -44,7 +44,7 @@ export default function ProviderListForm({
 
   const { systemId, yearId } = useGeneralContext();
 
-  const { setField: setBrandField } = useBrandStore();
+  //const { setField: setBrandField } = useBrandStore();
   const { setField } = useProducerStore();
 
   const navigate = useNavigate();
@@ -52,15 +52,15 @@ export default function ProviderListForm({
 
   useEffect(() => {
     if (error) {
-      console.log(error);
+      console.log(error,search);
       navigate("/login");
     }
   }, [error, navigate]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", search);
-  }, [search, systemId]);
+  }, [search, systemId]);*/
 
   useEffect(() => {
     setField("accSystem", systemId);

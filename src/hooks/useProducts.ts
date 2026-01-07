@@ -201,14 +201,20 @@ export function useProducts() {
     enabled: productSearchAccYear !== -1 && productSearchAccSystem !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
+    refetchOnMount: false, // Don't refetch when component mounts (use cached data)
+    staleTime: Infinity, // Data never becomes stale, always use cache unless explicitly invalidated
   });
 
   // Update store with combined data from all pages for backward compatibility
   useEffect(() => {
-    const infiniteData = productSearchQuery.data as InfiniteData<ProductSearchResponse> | undefined;
+    const infiniteData = productSearchQuery.data as
+      | InfiniteData<ProductSearchResponse>
+      | undefined;
     if (infiniteData?.pages && infiniteData.pages.length > 0) {
       const lastPage = infiniteData.pages[infiniteData.pages.length - 1];
-      const allProducts = infiniteData.pages.flatMap((page: ProductSearchResponse) => page.data.result.searchResults);
+      const allProducts = infiniteData.pages.flatMap(
+        (page: ProductSearchResponse) => page.data.result.searchResults
+      );
       // Update store with combined response
       setProductSearchResponse({
         ...lastPage,
@@ -340,7 +346,7 @@ export function useProducts() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: acc_YearIndentRequest !== -1 && acc_YearIndentRequest !== -1,
+    enabled: acc_YearIndentRequest !== -1 && acc_SystemIndentRequest !== -1,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
@@ -348,11 +354,11 @@ export function useProducts() {
     },
   } as UseQueryOptions<IndentResponse, Error, IndentResponse, unknown[]>);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (indentListQuery.data) {
       setIndentResponse(indentListQuery.data);
     }
-  }, [indentListQuery.data, setIndentResponse]);
+  }, [indentListQuery.data]);*/
   //for api/Indent/list?Id=6430&OrdrId=-1&MrsId=0&Acc_Year=0&Acc_System=0&State=0&ShowDeletedInentDtl=false
   const indentListDtlQuery = useQuery<
     IndentResponse,
@@ -473,7 +479,9 @@ export function useProducts() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: acc_YearIndentRequest !== -1 && acc_YearIndentRequest !== -1,
+    enabled:
+      acc_YearIndentRequest !== -1 &&
+      acc_SystemIndentRequest !== -1 && mrsIdIndentRequest!==0 && mrsIdIndentRequest!==-1 ,
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
@@ -561,7 +569,14 @@ export function useProducts() {
     isProductSearchLoading: productSearchQuery.isLoading,
     isProductSearchFetchingNextPage: productSearchQuery.isFetchingNextPage,
     productSearchError: productSearchQuery.error,
-    products: (productSearchQuery.data as InfiniteData<ProductSearchResponse> | undefined)?.pages.flatMap((page: ProductSearchResponse) => page.data.result.searchResults) ?? [],
+    products:
+      (
+        productSearchQuery.data as
+          | InfiniteData<ProductSearchResponse>
+          | undefined
+      )?.pages.flatMap(
+        (page: ProductSearchResponse) => page.data.result.searchResults
+      ) ?? [],
     productSearchFetchNextPage: productSearchQuery.fetchNextPage,
     productSearchHasNextPage: productSearchQuery.hasNextPage,
     productSearchIsFetching: productSearchQuery.isFetching,

@@ -19,6 +19,9 @@ import { DefinitionInvironment } from "../../types/definitionInvironment";
 import ExcelIcon from "../../assets/images/GrayThem/excel24.png";
 import { useEffect, useState } from "react";
 import { convertToLatinDigits, currencyStringToNumber } from "../../utilities/general";
+import { useBrandStore } from "../../store/brandStore";
+import { useProductStore } from "../../store/productStore";
+import { useCustomerStore } from "../../store/customerStore";
 type Props = {
   columns: TableColumns;
   setIsNew: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,6 +52,9 @@ const ProductOfferHeader = ({
   definitionInvironment,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const {setField:setBrandField}=useBrandStore()
+  const {setField:setProductField}=useProductStore()
+  const { setField: setCustomerField } = useCustomerStore();
   const [processedDataForExcel, setProcessedDataForExcel] = useState<any[]>([]);
   useEffect(() => {
     if (data) {
@@ -84,6 +90,10 @@ const ProductOfferHeader = ({
           className="flex flex-col items-center cursor-pointer hover:font-bold hover:bg-gray-300 rounded-md p-1"
           onClick={() => {
             console.log("new");
+            setBrandField("accSystem",-1)
+            setProductField("productSearchAccSystem",-1)
+            setProductField("salesPricesSearchPage", -1); // Disable salesPrices query
+            setCustomerField("systemIdCustomerSearch",-1)
             setIsNew(true);
           }} // for new
         >

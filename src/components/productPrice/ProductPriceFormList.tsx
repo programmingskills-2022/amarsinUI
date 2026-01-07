@@ -21,7 +21,7 @@ import ModalForm from "../layout/ModalForm";
 import ShowMessages from "../controls/ShowMessages";
 import { ShowProductListRequest } from "../../types/productOperation";
 import { useGeneralContext } from "../../context/GeneralContext";
-import { normalizeInputForSearch } from "../../utilities/general";
+import { convertToLatinDigits, currencyStringToNumber, normalizeInputForSearch } from "../../utilities/general";
 
 type Props = {
   setIsNew: (isNew: boolean) => void;
@@ -193,12 +193,17 @@ const ProductPriceFormList = ({
     // Just find and update the row directly, no state updates needed
     // The mutation persists in the object, React will see it when state is read
     const currentRow = data[rowIndex];
-    (currentRow as any)[columnId] = value;
+    let val="";
+    if (columnId==="p1" || columnId==="p2" || columnId==="p3" || columnId==="p4" || columnId==="p5")
+      val=currencyStringToNumber(convertToLatinDigits(value)).toString()
+    else 
+      val=value;    
+    (currentRow as any)[columnId] = val;
     if (!currentRow) return;
     
     const rowInOriginal = originalData.find((row) => row.index === currentRow.index);
     if (rowInOriginal) {
-      (rowInOriginal as any)[columnId] = value;
+      (rowInOriginal as any)[columnId] = val;
     }
   };
   ////////////////////////////////////////////////////

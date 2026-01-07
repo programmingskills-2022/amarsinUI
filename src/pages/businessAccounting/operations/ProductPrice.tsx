@@ -29,6 +29,9 @@ import ProductPriceForm from "../../../components/productPrice/ProductPriceForm"
 import ErrorPage from "../../../components/common/ErrorPage";
 import { DefinitionDateTime, DefinitionInvironment } from "../../../types/definitionInvironment";
 import { TableColumns } from "../../../types/general";
+import { useBrandStore } from "../../../store/brandStore";
+import { useProductStore } from "../../../store/productStore";
+import { useCustomerStore } from "../../../store/customerStore";
 
 type Props = {
   definitionDateTime: DefinitionDateTime;
@@ -41,6 +44,10 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
     productPriceDoFirstFlowResponse,
     productPriceDelResponse,
   } = useProductPriceStore();
+  const {
+    setField:setProductField
+  } = useProductStore();
+  const { setField: setCustomerField } = useCustomerStore();
   const {
     productPrice,
     productPriceTotalCount,
@@ -61,6 +68,7 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
   } = useProductPrice();
 
   //const { setField: setProductOfferField } = useProductOfferStore();
+  const {setField:setBrandField}=useBrandStore()
   const [data, setData] = useState<any[]>([]);
   const [dataDtl, setDataDtl] = useState<ProductPriceDtl[]>([]);
   const { yearId, systemId, chartId, defaultRowsPerPage } = useGeneralContext();
@@ -265,7 +273,9 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
     setField("srchAccepted", srchAccepted);
     setField("srchUsrName", srchUsrName);
     setField("srchStep", srchStep);
-  }, []);
+    setProductField("salesPricesSearchPage", -1); // for not fetching salesPrice in useProduct()
+    setProductField("acc_YearIndentRequest",-1)  
+  }, [srchId,srchDate,srchTime,srchDsc,srchAccepted,srchUsrName,srchStep]);
 
   useEffect(() => {
     setField("sortId", sortId);
@@ -447,6 +457,10 @@ const ProductPrice = ({ definitionDateTime, definitionInvironment }: Props) => {
   };
 
   const handleEdit = () => {
+    setBrandField("accSystem",-1)
+    setProductField("productSearchAccSystem",-1)
+    setProductField("salesPricesSearchPage", -1); // Disable salesPrices query    
+    setCustomerField("systemIdCustomerSearch",-1)
     setIsEdit(true);
   };
 

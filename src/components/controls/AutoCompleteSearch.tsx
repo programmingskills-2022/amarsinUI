@@ -15,18 +15,25 @@ type Props = {
   setField: (field: string, value: string | number) => void;
   fieldValues: FieldValues[];
   fieldSearch: string;
-  selectedOption: DefaultOptionType | DefaultOptionTypeStringId;
-  setSelectedOption?: (option: DefaultOptionType | DefaultOptionTypeStringId | null) => void;
+  selectedOption: DefaultOptionType | DefaultOptionTypeStringId | DefaultOptionTypeStringId[] | null;
+  setSelectedOption?: (option: DefaultOptionType | DefaultOptionTypeStringId | DefaultOptionTypeStringId[] | null) => void;
   options: { id: string | number; text: string }[];
   disabled?: boolean;
   isEntered?: boolean;
   setIsEntered?: (isEntered: boolean) => void;
   handleChange?: (
     event: React.ChangeEvent<HTMLInputElement>,
-    newValue: DefaultOptionType | null
+    newValue: DefaultOptionType | DefaultOptionType[] | null
   ) => void;
   textAlign?: "left" | "center" | "right";
   placeholder?: string;
+  multiple?: boolean;
+  isLoading?: boolean;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  desktopfontsize?:string
+
 };
 
 const AutoCompleteSearch = ({
@@ -44,6 +51,12 @@ const AutoCompleteSearch = ({
   handleChange = () => {},
   textAlign = "right",
   placeholder = "",
+  multiple = false,
+  isLoading = false,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  desktopfontsize
 }: Props) => {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +65,7 @@ const AutoCompleteSearch = ({
     //if user entered the search box, then call the api
     if (isEntered || isOpen) {
       fieldValues.forEach((fieldValue) => {
-        //console.log(fieldValue.field, fieldValue.value, "fieldValue in AutoCompleteSearch");
+        console.log(fieldValue.field, fieldValue.value, "fieldValue in AutoCompleteSearch");
         setField(fieldValue.field, fieldValue.value);
       });
       handleDebounceFilterChange(fieldSearch, search); // for search change
@@ -87,21 +100,39 @@ const AutoCompleteSearch = ({
             id: b.id,
             title: convertToFarsiDigits(b.text),
           }))}
-          value={{
-            id: selectedOption?.id ?? "",
-            title: convertToFarsiDigits(selectedOption?.title ?? ""),
-          }}
+          value={
+            multiple && Array.isArray(selectedOption)
+              ? selectedOption.map((opt) => ({
+                  id: opt.id,
+                  title: convertToFarsiDigits(opt.title ?? ""),
+                }))
+              : selectedOption && !Array.isArray(selectedOption)
+              ? {
+                  id: selectedOption.id ?? "",
+                  title: convertToFarsiDigits(selectedOption.title ?? ""),
+                }
+              : null
+          }
           handleChange={
             handleChange !== undefined && setSelectedOption === undefined
               ? (_event, newValue) =>
-                  handleChange(_event, newValue as DefaultOptionType | null)
+                  handleChange(_event, newValue as DefaultOptionType | DefaultOptionType[] | null)
               : (_event, newValue) => {
-                  return setSelectedOption?.({
-                    id: (newValue as DefaultOptionType)?.id ?? "",
-                    title: convertToFarsiDigits(
-                      (newValue as DefaultOptionType)?.title ?? ""
-                    ),
-                  });
+                  if (multiple && Array.isArray(newValue)) {
+                    return setSelectedOption?.(
+                      newValue.map((opt) => ({
+                        id: String(opt.id),
+                        title: opt.title,
+                      })) as DefaultOptionTypeStringId[]
+                    );
+                  } else if (newValue && !Array.isArray(newValue)) {
+                    return setSelectedOption?.({
+                      id: String(newValue.id),
+                      title: newValue.title,
+                    } as DefaultOptionTypeStringId);
+                  } else {
+                    return setSelectedOption?.(null);
+                  }
                 }
           }
           setSearch={setSearch}
@@ -115,6 +146,12 @@ const AutoCompleteSearch = ({
           textAlign={textAlign}
           placeholder={placeholder}
           onIsOpenChange={setIsOpen}
+          multiple={multiple} 
+          isLoading={isLoading}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          desktopfontsize={desktopfontsize}
         />
       </div>
     </div>

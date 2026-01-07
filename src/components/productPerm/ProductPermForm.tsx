@@ -5,10 +5,8 @@ import Accept from "../../assets/images/GrayThem/img24_3.png";
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
@@ -22,9 +20,7 @@ import {
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/productStore";
-import { debounce } from "lodash";
-import { ProductSearchRequest } from "../../types/product";
-import { useBrandStore } from "../../store/brandStore";
+//import { useBrandStore } from "../../store/brandStore";
 import { EditableInput } from "../controls/TTable";
 import ProductOfferFormParams from "../productOffer/ProductOfferFormParams";
 import {
@@ -157,16 +153,22 @@ const ProductPermForm = ({
   definitionDateTime,
 }: Props) => {
   const [addList, setAddList] = useState<ProductPermListItemTable[]>([]);
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [showDeleted, setShowDeleted] = useState(true);
   const [brand, setBrand] = useState<DefaultOptionTypeStringId[] | null>([]);
-  const [brandSearch, setBrandSearch] = useState<string>("");
+  //const [brandSearch, setBrandSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileName = "data_export.xlsx";
-  const { products, isProductSearchLoading } = useProducts();
+  const {
+    products,
+    isProductSearchLoading,
+    productSearchFetchNextPage,
+    productSearchHasNextPage,
+    isProductSearchFetchingNextPage,
+  } = useProducts();
   const { setField: setProductField } = useProductStore();
   const { yearId, systemId, chartId } = useGeneralContext();
-  const { setField: setBrandField } = useBrandStore();
+  //const { setField: setBrandField } = useBrandStore();
   const { setField: setProductPermDtlHistoryField } = useProductPermStore();
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [originalData, setOriginalData] = useState<ProductPermListItemTable2[]>(
@@ -189,8 +191,25 @@ const ProductPermForm = ({
                 title: p.n,
               }))
             : undefined,
-        setSearch: item.accessor === "product" ? setSearch : undefined,
+        //setSearch: item.accessor === "product" ? setSearch : undefined,
         isLoading: item.accessor === "product" ? isProductSearchLoading : false,
+        setField: item.accessor === "product" ? setProductField : undefined,
+        fieldValues:
+          item.accessor === "product"
+            ? [
+                { field: "productSearchAccSystem", value: systemId },
+                { field: "productSearchAccYear", value: yearId },
+                { field: "productSearchPage", value: 1 },
+              ]
+            : undefined,
+        fieldSearch:
+          item.accessor === "product" ? "productSearchSearch" : undefined,
+        fetchNextPage:
+          item.accessor === "product" ? productSearchFetchNextPage : undefined,
+        hasNextPage:
+          item.accessor === "product" ? productSearchHasNextPage : undefined,
+        isFetchingNextPage:
+          item.accessor === "product" ? isProductSearchFetchingNextPage : false,        
         Cell:
           item.accessor === "icons"
             ? ({ row }: any) => {
@@ -216,7 +235,7 @@ const ProductPermForm = ({
             : item.Cell,
       };
     });
-  }, [products, setSearch]);
+  }, [products]);
   ////////////////////////////////////////////////////////
   //for excel head cells
   const excelHeadCells: TableColumns = [
@@ -269,10 +288,10 @@ const ProductPermForm = ({
     );
   };
   ///////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", brandSearch);
-  }, [brandSearch, systemId]);
+  }, [brandSearch, systemId]); */
   ///////////////////////////////////////////////////////
   const newRow: ProductPermListItemTable = {
     id: 0,
@@ -347,8 +366,8 @@ const ProductPermForm = ({
   ////////////////////////////////////////////////////////
 
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
-    if (canEditForm1) {
+  /*useEffect(() => {
+    if (canEditForm1 && (productPermDtls?.length ?? 0)>0 ) {
       setProductField("productSearchAccSystem", systemId);
       setProductField("productSearchAccYear", yearId);
       handleDebounceFilterChange("productSearchSearch", search);
@@ -371,7 +390,7 @@ const ProductPermForm = ({
       setProductField(field as keyof ProductSearchRequest, value);
     }, 500),
     [setProductField]
-  );
+  );*/
   ////////////////////////////////////////////////////////
   const handleSubmit = async (
     e?: React.MouseEvent<HTMLButtonElement>,
@@ -516,7 +535,7 @@ const ProductPermForm = ({
         setDsc={setDsc}
         brand={brand}
         setBrand={setBrand}
-        setBrandSearch={setBrandSearch}
+        //setBrandSearch={setBrandSearch}
         canEditForm1={canEditForm1}
         definitionDateTime={definitionDateTime}
       />

@@ -31,7 +31,6 @@ import TTable, { EditableInput } from "../controls/TTable";
 import {
   DefaultOptionType,
   TableColumns,
-  UpdateResult,
 } from "../../types/general";
 import {
   Detail,
@@ -49,6 +48,7 @@ import InvoiceReceiptShowTableSummery from "./InvoiceReceiptShowTableSummery";
 import { debounce } from "lodash";
 import { useProducts } from "../../hooks/useProducts";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
+import ModalMessage from "../layout/ModalMessage";
 
 type Props = {
   isNew?: boolean;
@@ -69,7 +69,7 @@ type Props = {
   fields: Fields;
   newRow: IndentDtlTable;
   //products: DefaultOptionType[];
-  saveList: (request: IndentSaveRequest) => Promise<UpdateResult>;
+  saveList: (request: IndentSaveRequest) => Promise<any>;
   isLoadingSaveList: boolean;
   isDtHistoryLoading: boolean;
   getIndentMrsResponse: () => void;
@@ -237,11 +237,15 @@ const InvoiceReceiptShowTable = ({
   const { yearId, systemId } = useGeneralContext();
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in invoiceReceiptShowTable table
 
-  const { setField: setProductField, indentDtlHistoryResponse } =
-    useProductStore();
+  const {
+    setField: setProductField,
+    indentDtlHistoryResponse,
+    indentSaveResponse,
+  } = useProductStore();
 
   const [search, setSearch] = useState<string>("");
   const { products, isProductSearchLoading } = useProducts();
+  const [isModalSaveOpen, setIsModalSaveOpen] = useState(false);
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
   useEffect(() => {
     if (canEditForm) {
@@ -396,6 +400,33 @@ const InvoiceReceiptShowTable = ({
   const [deletedData, setDeletedData] = useState<IndentDtlTable[]>([]);
   const [data, setData] = useState<IndentDtlTable[]>([]);
 
+  /////////////////////////////////////////////////////////////
+  // Use ref to store timeout ID to prevent closure issues and repeated executions
+  const modalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    // Clear any existing timeout before setting a new one
+    if (modalTimeoutRef.current) {
+      clearTimeout(modalTimeoutRef.current);
+      modalTimeoutRef.current = null;
+    }
+
+    // Only set timeout if modal is open
+    if (isModalSaveOpen) {
+      modalTimeoutRef.current = setTimeout(() => {
+        setIsModalSaveOpen(false);
+        modalTimeoutRef.current = null;
+      }, 3000);
+    }
+
+    // Cleanup function
+    return () => {
+      if (modalTimeoutRef.current) {
+        clearTimeout(modalTimeoutRef.current);
+        modalTimeoutRef.current = null;
+      }
+    };
+  }, [isModalSaveOpen]);
   ///////////////////////////////////////////////////////
   useEffect(() => {
     if (isNew) {
@@ -419,69 +450,86 @@ const InvoiceReceiptShowTable = ({
     }
   }, [indentMrsResponse.data.result.indentDtls]);
   ////////////////////////////////////////////////////////
-  // Filter data based on search terms
-  useEffect(() => {
+  // Memoize filtered data to prevent expensive recalculations
+  // This prevents performance violations when originalData changes frequently
+  const filteredData = useMemo(() => {
+    if (originalData.length === 0) return [];
+
     const normalizedProductSearch = normalizeInputForSearch(productSearch);
     const normalizedBrandSearch = normalizeInputForSearch(brandSearch);
     const normalizedDtlDscSearch = normalizeInputForSearch(dtlDscSearch);
 
-    if (originalData.length > 0) {
-      const filtered = originalData
-        .filter(
-          (dtl) =>
-            normalizeInputForSearch(dtl.bName).includes(
-              normalizedBrandSearch
-            ) &&
-            normalizeInputForSearch(dtl.product).includes(
-              normalizedProductSearch
-            ) &&
-            normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
-        )
-        .map((row, idx) => ({ ...row, index: idx + 1 }));
-
-      setData(filtered);
-    }
+    return originalData
+      .filter(
+        (dtl) =>
+          normalizeInputForSearch(dtl.bName).includes(normalizedBrandSearch) &&
+          normalizeInputForSearch(dtl.product).includes(normalizedProductSearch) &&
+          normalizeInputForSearch(dtl.dtlDsc).includes(normalizedDtlDscSearch)
+      )
+      .map((row, idx) => ({ ...row, index: idx + 1 }));
   }, [brandSearch, productSearch, dtlDscSearch, originalData]);
+
+  // Update data when filteredData changes
+  useEffect(() => {
+    setData(filteredData);
+  }, [filteredData]);
   //////////////////////////////////////////////////////
   // Use refs to track changes efficiently without expensive JSON.stringify
   const lastProcessedAddListLengthRef = useRef<number>(0);
   const lastProcessedAddListIdsRef = useRef<Set<number>>(new Set());
-  
+  const rafIdRef = useRef<number | null>(null);
+
   useEffect(() => {
+    // Cancel any pending requestAnimationFrame
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+
     // Quick check: only process if length changed or if we detect new IDs
-    const currentIds = new Set(addList.map(item => item.id));
-    const hasNewItems = addList.length !== lastProcessedAddListLengthRef.current ||
-      addList.some(item => !lastProcessedAddListIdsRef.current.has(item.id));
-    
+    const currentIds = new Set(addList.map((item) => item.id));
+    const hasNewItems =
+      addList.length !== lastProcessedAddListLengthRef.current ||
+      addList.some((item) => !lastProcessedAddListIdsRef.current.has(item.id));
+
     if (hasNewItems) {
       lastProcessedAddListLengthRef.current = addList.length;
       lastProcessedAddListIdsRef.current = currentIds;
-      
+
       // Use requestAnimationFrame to defer the expensive operation
       // This prevents blocking the main thread
-      requestAnimationFrame(() => {
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
         setOriginalData((old) => {
           // Filter out empty rows from existing data
           const temp = old.filter(
             (item) => item.id !== 0 && item.product !== "" && item.pId !== 0
           );
-          
+
           // Get existing IDs to avoid duplicates
-          const existingIds = new Set(temp.map(item => item.id));
-          
+          const existingIds = new Set(temp.map((item) => item.id));
+
           // Add new items from addList that aren't duplicates
           const newItems = addList
-            .filter(item => !existingIds.has(item.id))
+            .filter((item) => !existingIds.has(item.id))
             .map((item, idx) => ({
               ...item,
               index: temp.length + idx + 1,
               isDeleted: false,
             }));
-          
+
           return [...temp, ...newItems];
         });
       });
     }
+
+    // Cleanup function to cancel pending animation frame
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
   }, [addList]);
   ////////////////////////////////////////////////////////
   useEffect(() => {
@@ -544,27 +592,33 @@ const InvoiceReceiptShowTable = ({
   };
   /////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    console.log(
+    /*console.log(
       rowIndex,
       columnId,
       value,
       "come to updateMyData in InvoiceReceiptShowTable"
-    );
+    );*/
     // Direct mutation - fastest approach
     // Just find and update the row directly, no state updates needed
     // The mutation persists in the object, React will see it when state is read
+    let val="";
+    if (columnId==="cost" || columnId==="dcrmnt")
+      val=currencyStringToNumber(convertToLatinDigits(value)).toString()
+    else 
+      val=value
     const currentRow = data[rowIndex];
     if (!currentRow) return;
 
     // Update data array (what's displayed in the table)
-    (data as any)[rowIndex][columnId] = value;
+    console.log(val, "value");
+    (data as any)[rowIndex][columnId] = val;
 
     // Also update originalData to keep them in sync
     const rowInOriginal = originalData.find(
       (row) => row.index === currentRow.index
     );
     if (rowInOriginal) {
-      (rowInOriginal as any)[columnId] = value;
+      (rowInOriginal as any)[columnId] = val;
     }
 
     // Force re-render by creating a new array reference for calculated fields
@@ -632,7 +686,7 @@ const InvoiceReceiptShowTable = ({
         "come to changeRowValues in InvoiceReceiptShowTable"
       );
     },
-    [calculateTotal, data]
+    []
   );
   /////////////////////////////////////////////////////
   // Custom cell click handler for Table
@@ -645,7 +699,7 @@ const InvoiceReceiptShowTable = ({
   ////////////////////////////////////////////////////////
   const handleSubmitSave = async (
     e?: React.MouseEvent<HTMLButtonElement>
-  ): Promise<UpdateResult | undefined> => {
+  ): Promise<any | undefined> => {
     if (e) e.preventDefault();
     let request: IndentSaveRequest;
     const dtls: Detail[] = originalData
@@ -694,12 +748,15 @@ const InvoiceReceiptShowTable = ({
           : convertPersianDate(fields.tdate.toLocaleDateString("fa-IR")),
       dtls,
     };
-    console.log(request);
+    console.log(request, "request");
     try {
       const response = await saveList(request);
+      setIsModalSaveOpen(true);
       getIndentMrsResponse();
-      setIsNew(false);
-      setIsEdit(false);
+      if (response.meta.errorCode <= 0) {
+        setIsNew(false);
+        setIsEdit(false);
+      }
       return response;
     } catch (error) {
       console.error("Error ثبت :", error);
@@ -806,6 +863,18 @@ const InvoiceReceiptShowTable = ({
         isDtHistoryLoading={isDtHistoryLoading}
         indentDtlHistoryResponse={indentDtlHistoryResponse}
         columnsHistory={columnsHistory}
+      />
+      <ModalMessage
+        isOpen={isModalSaveOpen}
+        backgroundColor={
+          indentSaveResponse?.meta?.errorCode === -1
+            ? "bg-green-200"
+            : "bg-red-200"
+        }
+        color="text-white"
+        onClose={() => setIsModalSaveOpen(false)}
+        message={indentSaveResponse?.meta?.message || ""}
+        visibleButton={false}
       />
     </>
   );

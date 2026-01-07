@@ -5,7 +5,7 @@ import { useBrandStore } from "../../store/brandStore";
 import { useBrand } from "../../hooks/useBrands";
 import Skeleton from "../layout/Skeleton";
 import { useNavigate } from "react-router-dom";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { useGeneralContext } from "../../context/GeneralContext";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import TTable, { EditableInput } from "../controls/TTable";
@@ -24,6 +24,7 @@ import {
   RefetchOptions,
   UseMutateFunction,
 } from "@tanstack/react-query";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 type Props = {
   isFetching: boolean;
@@ -55,6 +56,7 @@ export default function ClearBookShow({
   setProduct,
 }: Props) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in clearBookShow table
+  const [isBrandEntered, setIsBrandEntered] = useState<boolean>(false);
   const columns: TableColumns = [
     {
       Header: "ردیف",
@@ -103,7 +105,7 @@ export default function ClearBookShow({
 
   const { systemId, yearId } = useGeneralContext();
 
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [brand, setBrand] = useState<{ id: string; title: string } | null>({
     id: "0",
     title: "",
@@ -122,10 +124,10 @@ export default function ClearBookShow({
     }
   }, [error, navigate]);
   /////////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", search);
-  }, [search, systemId]);
+  }, [search, systemId]);*/
   const { brands } = useBrand();
   /////////////////////////////////////////////////////////
   useEffect(() => {
@@ -231,7 +233,24 @@ export default function ClearBookShow({
   return (
     <>
       <Paper className="p-2 m-2 w-full h-fit md:h-full">
-        <div className="flex xl:w-1/4 justify-center items-center gap-2">
+        <AutoCompleteSearch
+          label="برند"
+          labelWidth="w-20"
+          setField={setBrandField}
+          fieldValues={[{ field: "accSystem", value: systemId }]}
+          fieldSearch="search"
+          selectedOption={brand}
+          setSelectedOption={(newValue) => {
+            setBrand(newValue as DefaultOptionTypeStringId);
+          }}
+          options={brands.map((b: any) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isBrandEntered}
+          setIsEntered={setIsBrandEntered}
+        />
+        {/*<div className="flex xl:w-1/4 justify-center items-center gap-2">
           <label htmlFor="year" className="">
             برند:
           </label>
@@ -248,7 +267,7 @@ export default function ClearBookShow({
             showLabel={false}
             inputPadding="0 !important"
           />
-        </div>
+        </div>*/}
 
         {error ? (
           <ErrorPage

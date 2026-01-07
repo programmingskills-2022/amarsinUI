@@ -30,46 +30,23 @@ const WarehouseShowHeader = ({
   //const [search, setSearch] = useState<string>("");
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
 
-  /*useEffect(() => {
-    setCusomerField("systemIdCustomerSearch", systemId);
-    setCusomerField("yearIdCustomerSearch", yearId);
-    setCusomerField("page", 1);
-    setCusomerField("lastId", 0);
-    setCusomerField("centerType", 0);
-    setCusomerField("search", search);
-  }, [search, systemId, yearId]);*/
-
   useEffect(() => {
-    setCustomer({
-      id: warehouseShowIdResponse.data.result.response.warehouseTemporaryReceiptMst.cId.toString(),
-      title:
-        warehouseShowIdResponse.data.result.response
-          .warehouseTemporaryReceiptMst.srName,
-    });
-  }, [warehouseShowIdResponse]);
+    const warehouseMst = warehouseShowIdResponse.data.result.response.warehouseTemporaryReceiptMst;
+    if (warehouseMst?.cId !== undefined && warehouseMst?.srName !== undefined) {
+      setCustomer({
+        id: warehouseMst.cId.toString(),
+        title: warehouseMst.srName,
+      });
+    }
+  }, [
+    warehouseShowIdResponse.data.result.response.warehouseTemporaryReceiptMst?.cId,
+    warehouseShowIdResponse.data.result.response.warehouseTemporaryReceiptMst?.srName,
+    setCustomer,
+  ]);
 
   return (
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       <div className="flex items-center justify-between gap-2 w-full">
-        {/*<div className="w-3/4 flex justify-center items-center">
-          <label className="p-1 w-24 text-left">تامین کننده:</label>
-          <div className="bg-slate-50 flex w-full">
-            <AutoComplete
-              options={customers.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={customer}
-              handleChange={(_event, newValue) => {
-                return setCustomer(newValue as Customer);
-              }}
-              setSearch={setSearch}
-              showLabel={false}
-              inputPadding="0 !important"
-              showClearIcon={false}
-            />
-          </div>
-        </div>*/}
         <AutoCompleteSearch
           label="تامین کننده"
           labelWidth="w-20"

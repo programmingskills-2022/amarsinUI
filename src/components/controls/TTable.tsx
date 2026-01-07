@@ -9,12 +9,12 @@ import {
 } from "../../utilities/general";
 import { colors } from "../../utilities/color";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
-import AutoComplet from "./AutoComplet";
 import PersianDatePicker from "./PersianDatePicker";
 import {
   parsePersianDateString,
   convertToPersianDate,
 } from "../../utilities/general";
+import AutoCompleteSearch from "./AutoCompleteSearch";
 
 type TableProps<T extends object> = {
   canEditForm?: boolean;
@@ -103,7 +103,29 @@ export function EditableInput<T extends object>({
     isFetchingNextPage,
     //search,
   } = column as any;
-  const [value, setValue] = React.useState<string | boolean>(initialValue);
+  // Initialize with default values to ensure controlled component
+  const getInitialValue = () => {
+    if (
+      initialValue &&
+      initialValue.props?.children?.props.type === "checkbox"
+    ) {
+      return initialValue.props.children.props.checked;
+    } else if (typeof initialValue === "boolean") {
+      return initialValue;
+    } else if (type === "date") {
+      return (initialValue as string) ?? "";
+    } else if (isCurrency) {
+      return initialValue !== undefined && initialValue !== null
+        ? convertToFarsiDigits(formatNumberWithCommas(initialValue))
+        : "";
+    } else {
+      return initialValue !== undefined && initialValue !== null
+        ? convertToFarsiDigits(String(initialValue))
+        : "";
+    }
+  };
+
+  const [value, setValue] = React.useState<string | boolean>(getInitialValue());
   const [isFocused, setIsFocused] = React.useState(false);
   const [dateValue, setDateValue] = React.useState<Date | null>(null);
 
@@ -117,23 +139,24 @@ export function EditableInput<T extends object>({
       setValue(initialValue);
     } else if (type === "date") {
       // Convert string date to Date object for date picker
-      const date = parsePersianDateString(initialValue as string);
+      const date = parsePersianDateString((initialValue as string) ?? "");
       setDateValue(date);
-      setValue(initialValue as string);
+      setValue((initialValue as string) ?? "");
     } else {
-      setValue(
-        convertToFarsiDigits(
-          isCurrency ? formatNumberWithCommas(initialValue) : initialValue
-        )
-      );
+      const displayValue = isCurrency
+        ? formatNumberWithCommas(initialValue ?? 0)
+        : initialValue ?? "";
+      setValue(convertToFarsiDigits(displayValue));
     }
   }, [initialValue, type, isCurrency]);
 
   // Handle date change from PersianDatePicker
-  const handleDateChange = (event: { target: { name: string; value: Date | null } }) => {
+  const handleDateChange = (event: {
+    target: { name: string; value: Date | null };
+  }) => {
     const date = event.target.value;
     setDateValue(date);
-    
+
     // Convert Date to Persian date string format (YYYY/MM/DD)
     const dateString = date ? convertToPersianDate(date) : "";
     setValue(dateString);
@@ -194,7 +217,7 @@ export function EditableInput<T extends object>({
       setValue(newValue);
       updateData(newValue);
     }
-    
+
     // Handle calculated fields
     if (
       calculatedFieldfns &&
@@ -222,6 +245,7 @@ export function EditableInput<T extends object>({
         }
       });
     }
+    changeRowValues(e.target.value, index, id);
   };
 
   // Handle blur event
@@ -240,6 +264,7 @@ export function EditableInput<T extends object>({
       }
     }
     // Notify parent (it handles the update efficiently with direct mutation)
+    console.log(index, id, value, "index, id , value")
     updateMyData(index, id, value as string);
     setIsFocused(false);
   };
@@ -271,30 +296,55 @@ export function EditableInput<T extends object>({
     );
   }
   if (type === "autoComplete") {
+    // Map autoOptions to AutoCompleteSearch format (id, text)
+    const mappedOptions = (autoOptions || []).map((opt: DefaultOptionType) => ({
+      id: opt.id,
+      text: opt.title ?? "",
+    }));
+
+    // Map current value to selectedOption format
+    const selectedOption = value
+      ? { id: String(value), title: value as string }
+      : null;
+
+    // Get column-specific props for AutoCompleteSearch
+    const columnProps = column as any;
+    const setField = columnProps.setField || (() => {});
+    const fieldValues = columnProps.fieldValues || [];
+    const fieldSearch = columnProps.fieldSearch || "search";
+    const multiple = columnProps.multiple || false;
+    const [isEntered, setIsEntered] = React.useState(false);
+
     return (
-      <AutoComplet
+      <AutoCompleteSearch
+        label=""
+        labelWidth="w-0"
+        setField={setField}
+        fieldValues={fieldValues}
+        fieldSearch={fieldSearch}
+        selectedOption={selectedOption}
+        setSelectedOption={(newValue) => {
+          if (newValue && !Array.isArray(newValue)) {
+            handleAutoCompleteChange(null, newValue);
+          } else if (Array.isArray(newValue) && newValue.length > 0) {
+            // For multiple mode, use the first item or handle accordingly
+            handleAutoCompleteChange(null, newValue[0]);
+          } else {
+            handleAutoCompleteChange(null, null);
+          }
+        }}
+        options={mappedOptions}
         disabled={!canEditForm}
-        options={autoOptions || []}
-        value={value ? { id: 0, title: value as string } : null}
-        handleChange={handleAutoCompleteChange}
-        setSearch={setSearch}
-        showLabel={false}
-        inputPadding="0 !important"
-        outlinedInputPadding="5px"
+        isEntered={isEntered}
+        setIsEntered={setIsEntered}
         placeholder={placeholder}
-        showBold={false}
-        desktopfontsize="12px"
-        showClearIcon={false}
-        showBorder={false}
-        changeColorOnFocus={true}
-        showBorderFocused={true}
-        textColor={colors.gray_600}
-        backgroundColor={!canEditForm ? "inherit" : "white"}
-        textAlign={align}
-        isLoading={isLoading}
+        textAlign={align || "right"}
+        multiple={multiple}
+        isLoading={isLoading || false}
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
+        desktopfontsize="12px"
       />
     );
   }
@@ -349,7 +399,7 @@ export function EditableInput<T extends object>({
             : bgColor || "white",
       }}
       //style={{ backgroundColor: isFocused && canEditForm ? "white" :  "inherit" }}
-      value={value as string}
+      value={typeof value === "string" ? value : ""}
       onChange={handleChange} //changeRowValues(e.target.value, index, id);
       onBlur={handleBlur}
       onFocus={() => {

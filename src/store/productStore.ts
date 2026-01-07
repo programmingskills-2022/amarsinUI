@@ -58,11 +58,16 @@ export const useProductStore = create<ProductState>()((set) => ({
     dtls: [],
   },
   indentSaveResponse: {
-    systemId: 0,
-    id: 0,
-    err: 0,
-    msg: "",
-    hasFlow: false,
+    meta: { errorCode: 0, message: "", type: "" },
+    data: {
+      result: {
+        systemId: 0,
+        id: 0,
+        err: 0,
+        msg: "",
+        hasFlow: false,
+      },
+    },
   },
   indentDtlHistoryResponse: {
     meta: { errorCode: 0, message: "", type: "" },
@@ -74,7 +79,7 @@ export const useProductStore = create<ProductState>()((set) => ({
   acc_YearIndentRequest: -1,
   showDeletedInentDtl: false,
   ordrIdIndentRequest: 0,
-  mrsIdIndentRequest: 0,
+  mrsIdIndentRequest: -1,
   state: -1,
   regFDate: "",
   regTDate: "",

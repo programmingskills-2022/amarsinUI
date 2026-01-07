@@ -52,7 +52,7 @@ const ReceiptPurchaseShowTable = ({
   warehouseTemporaryReceiptSalesPricesResponse,
   isLoadingWarehouseTemporaryReceiptPurchaseReg,
   warehouseTemporaryReceiptPurchaseRegResponse,
-  definitionDateTime
+  definitionDateTime,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   //for offer history show in ReceiptPurchaseShowTableHeader.tsx
@@ -164,44 +164,63 @@ const ReceiptPurchaseShowTable = ({
 
     {
       Header: "کنترل",
-      width: "23%",
+      width: "21%",
       backgroundColor: colors.orang100,
       columns: [
         {
           Header: "موجودی",
           accessor: "stock",
-          width: "4%",
+          width: "7%",
           backgroundColor: colors.orang100,
         },
         {
           Header: "سقف آفر",
           accessor: "pOffer",
-          width: "5%",
+          width: "4%",
           backgroundColor: colors.orang100,
         },
         {
           Header: "مالیات",
           accessor: "tax",
-          width: "4%",
+          width: "3%",
           backgroundColor: colors.orang100,
         },
         {
           Header: "مجوز",
           accessor: "permImage",
-          width: "5%",
+          width: "4%",
           backgroundColor: colors.orang100,
         },
         {
           Header: "فرجه",
           accessor: "graceDays",
-          width: "5%",
+          width: "3%",
+          backgroundColor: colors.orang100,
+        },
+      ],
+    },
+    {
+      Header: "پورسانت",
+      width: "6%",
+      backgroundColor: colors.orang100,
+      columns: [
+        {
+          Header: "فروش",
+          accessor: "sC",
+          width: "3%",
+          backgroundColor: colors.orang100,
+        },
+        {
+          Header: "وصول",
+          accessor: "cC",
+          width: "3%",
           backgroundColor: colors.orang100,
         },
       ],
     },
     {
       Header: "اطلاعات ثبت",
-      width: "18%",
+      width: "16%",
       backgroundColor: colors.indigo50,
       columns: [
         {
@@ -213,7 +232,7 @@ const ReceiptPurchaseShowTable = ({
         {
           Header: "آفر",
           accessor: "regOffer",
-          width: "5%",
+          width: "3%",
           backgroundColor: colors.indigo50,
         },
         {
@@ -245,7 +264,7 @@ const ReceiptPurchaseShowTable = ({
     },
     {
       Header: "فاکتور خرید",
-      width: "15%",
+      width: "13%",
       backgroundColor: colors.green50,
       columns: [
         {
@@ -257,7 +276,7 @@ const ReceiptPurchaseShowTable = ({
         {
           Header: "آفر",
           accessor: "tOffer",
-          width: "5%",
+          width: "3%",
           backgroundColor: colors.green50,
         },
         {
@@ -320,6 +339,8 @@ const ReceiptPurchaseShowTable = ({
           tOffer: convertToFarsiDigits(item.tOffer),
           salePrice: convertToFarsiDigits(0),
           iocId: item.iocId,
+          sC: item.sC===-1 ? null : convertToFarsiDigits(item.sC),
+          cC: item.cC===-1 ? null : convertToFarsiDigits(item.cC),
         })
       );
     setBaseData(tempData);

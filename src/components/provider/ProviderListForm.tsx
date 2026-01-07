@@ -191,7 +191,7 @@ export default function ProviderListForm({
 
   useEffect(() => {
     if (error) {
-      console.log(error);
+      console.log(error,search);
       navigate("/login");
     }
   }, [error, navigate]);

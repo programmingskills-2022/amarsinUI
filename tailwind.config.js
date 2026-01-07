@@ -13,6 +13,7 @@ export default {
         'sans': ['Vazir', 'Tahoma', 'Arial', 'sans-serif'],
       },
       width: {
+        'full-minus-48': 'calc(100% - 48px)',
         'full-minus-40': 'calc(100% - 40px)',
         'full-minus-32': 'calc(100% - 32px)',
         'full-minus-24': 'calc(100% - 24px)',

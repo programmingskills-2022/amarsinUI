@@ -4,10 +4,8 @@ import RestoreIcon from "../../assets/images/GrayThem/restore_gray_16.png";
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { DefaultOptionTypeStringId, TableColumns } from "../../types/general";
@@ -21,9 +19,7 @@ import {
 } from "../../utilities/general";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/productStore";
-import { debounce } from "lodash";
-import { ProductSearchRequest } from "../../types/product";
-import { useBrandStore } from "../../store/brandStore";
+//import { useBrandStore } from "../../store/brandStore";
 import { EditableInput } from "../controls/TTable";
 import ProductOfferFormParams from "../productOffer/ProductOfferFormParams";
 
@@ -202,17 +198,23 @@ const ProductGraceForm = ({
   definitionDateTime,
 }: Props) => {
   const [addList, setAddList] = useState<ProductGraceListItemTable[]>([]);
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [showDeleted, setShowDeleted] = useState(true);
   const [brand, setBrand] = useState<DefaultOptionTypeStringId[] | null>([]);
-  const [brandSearch, setBrandSearch] = useState<string>("");
+  //const [brandSearch, setBrandSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalEmptyOpen, setIsModalEmptyOpen] = useState(false);
   const fileName = "data_export.xlsx";
-  const { products, isProductSearchLoading } = useProducts();
+  const {
+    products,
+    isProductSearchLoading,
+    productSearchFetchNextPage,
+    productSearchHasNextPage,
+    isProductSearchFetchingNextPage,
+  } = useProducts();
   const { setField: setProductField } = useProductStore();
   const { yearId, systemId, chartId } = useGeneralContext();
-  const { setField: setBrandField } = useBrandStore();
+  //const { setField: setBrandField } = useBrandStore();
   const { setField: setProductGraceDtlHistoryField } = useProductGraceStore();
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [originalData, setOriginalData] = useState<
@@ -234,8 +236,25 @@ const ProductGraceForm = ({
                 title: p.n,
               }))
             : undefined,
-        setSearch: item.accessor === "product" ? setSearch : undefined,
+        //setSearch: item.accessor === "product" ? setSearch : undefined,
         isLoading: item.accessor === "product" ? isProductSearchLoading : false,
+        setField: item.accessor === "product" ? setProductField : undefined,
+        fieldValues:
+          item.accessor === "product"
+            ? [
+                { field: "productSearchAccSystem", value: systemId },
+                { field: "productSearchAccYear", value: yearId },
+                { field: "productSearchPage", value: 1 },
+              ]
+            : undefined,
+        fieldSearch:
+          item.accessor === "product" ? "productSearchSearch" : undefined,
+        fetchNextPage:
+          item.accessor === "product" ? productSearchFetchNextPage : undefined,
+        hasNextPage:
+          item.accessor === "product" ? productSearchHasNextPage : undefined,
+        isFetchingNextPage:
+          item.accessor === "product" ? isProductSearchFetchingNextPage : false,         
         Cell:
           item.accessor === "icons"
             ? ({ row }: any) => {
@@ -261,7 +280,7 @@ const ProductGraceForm = ({
             : item.Cell,
       };
     });
-  }, [products, setSearch]);
+  }, [products]);
   ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
   //for excel head cells
@@ -314,10 +333,10 @@ const ProductGraceForm = ({
     );
   };
   ///////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", brandSearch);
-  }, [brandSearch, systemId]);
+  }, [brandSearch, systemId]);*/
   ///////////////////////////////////////////////////////
   const newRow: ProductGraceListItemTable = {
     id: 0,
@@ -416,7 +435,7 @@ const ProductGraceForm = ({
   ////////////////////////////////////////////////////////
 
   //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
+  /*useEffect(() => {
     if (canEditForm1) {
       setProductField("salesPricesSearchPage",-1)
       setProductField("productSearchAccSystem", systemId);
@@ -441,7 +460,7 @@ const ProductGraceForm = ({
       setProductField(field as keyof ProductSearchRequest, value);
     }, 500),
     [setProductField]
-  );
+  );*/
   ////////////////////////////////////////////////////////
   const handleSubmit = async (
     e?: React.MouseEvent<HTMLButtonElement>,
@@ -600,7 +619,7 @@ const ProductGraceForm = ({
         setDsc={setDsc}
         brand={brand}
         setBrand={setBrand}
-        setBrandSearch={setBrandSearch}
+        //setBrandSearch={setBrandSearch}
         canEditForm1={canEditForm1}
         definitionDateTime={definitionDateTime}
       />

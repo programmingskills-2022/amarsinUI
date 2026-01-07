@@ -44,8 +44,8 @@ const ReceiptPurchaseShowTableHeader = ({
 }: Props) => {
   const { salesPricesSearchResponse } = useProducts();
   const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
-  const { setField: setSalesPriceField } = useProductStore();//useWarehouseStore()
-  const {setField:setSalesPriceFieldInWarehouse}= useWarehouseStore()
+  const { setField: setSalesPriceField } = useProductStore(); //useWarehouseStore()
+  const { setField: setSalesPriceFieldInWarehouse } = useWarehouseStore();
   const [isSalesPricesEntered, setIsSalesPricesEntered] = useState(false);
   //for api/Product/salesPricesSearch req
   /*useEffect(() => {
@@ -80,7 +80,7 @@ const ReceiptPurchaseShowTableHeader = ({
 
   //change purchase sales price
   const changeSalesPrice = (newValue: DefaultOptionType) => {
-    console.log(salesPriceSearch)
+    console.log(salesPriceSearch);
     setSalesPriceFieldInWarehouse(
       "id",
       warehouseTemporaryReceiptPurchaseShowResponse.data.result.result
@@ -110,6 +110,7 @@ const ReceiptPurchaseShowTableHeader = ({
           const columnGroup = item as ColumnGroup;
           return (
             <div
+              key={columnGroup.Header}
               className="bg-gray-200 p-1 border-r border-y last:border-x border-gray-300 text-center"
               style={{
                 width: columnGroup.width,
@@ -136,7 +137,8 @@ const ReceiptPurchaseShowTableHeader = ({
                   if (column.accessor === "salePrice")
                     return (
                       <div
-                        className="bg-gray-200  border-gray-300 text-center flex items-center justify-center border-r last:border-l border-b"
+                        key={column.accessor || column.Header}
+                        className="bg-gray-200  border-gray-300 text-center flex items-center justify-center border-r"
                         style={{
                           width:
                             (
@@ -183,7 +185,8 @@ const ReceiptPurchaseShowTableHeader = ({
                   )
                     return (
                       <div
-                        className="bg-gray-200  border-gray-300 text-center flex items-center justify-center gap-2 border-r last:border-l border-b"
+                        key={column.accessor || column.Header}
+                        className="bg-gray-200  border-gray-300 text-center flex items-center justify-center gap-1 border-r last:border-l"
                         style={{
                           width:
                             (
@@ -209,6 +212,7 @@ const ReceiptPurchaseShowTableHeader = ({
                     );
                   return (
                     <div
+                      key={column.accessor || column.Header}
                       className="bg-gray-200 border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l"
                       style={{
                         width:

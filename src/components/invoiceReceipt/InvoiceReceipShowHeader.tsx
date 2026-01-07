@@ -3,7 +3,6 @@ import {
   convertToFarsiDigits,
   convertToLatinDigits,
 } from "../../utilities/general";
-import AutoComplete from "../controls/AutoComplete";
 import { useGeneralContext } from "../../context/GeneralContext";
 import { useCustomerStore } from "../../store/customerStore";
 import { useBrandStore } from "../../store/brandStore";
@@ -39,9 +38,10 @@ const InvoiceReceipShowHeader = ({
 }: Props) => {
   //const [cusomerSearch, setCusomerSearch] = useState<string>("");
   const [isCustomerEntered, setIsCustomerEntered] = useState<boolean>(false);
-  const [customerSearchCondition, setCustomerSearchCondition] =
-    useState<string>("");
-  const [brandsearch, setBrandSearch] = useState<string>("");
+  const [isCustomerConditionEntered, setIsCustomerConditionEntered] =
+    useState(false);
+  const [isBrandsEntered, setIsBrandsEntered] = useState(false);
+  //const [brandsearch, setBrandSearch] = useState<string>("");
   //const [salesPricesearch, setSalesPriceSearch] = useState<string>("");
   const [isSalesPricesEntered, setIsSalesPricesEntered] =
     useState<boolean>(false);
@@ -49,21 +49,21 @@ const InvoiceReceipShowHeader = ({
   const { setField: setCusomerField } = useCustomerStore();
   const { setField: setBrandField } = useBrandStore();
   const { setField: setSalesPriceField } = useProductStore();
-  const {brands} = useBrand();
+  const { brands } = useBrand();
 
-  useEffect(() => {
+  /*useEffect(() => {
     setCusomerField("systemIdCustomerSearch", systemId);
     setCusomerField("yearIdCustomerSearch", yearId);
     setCusomerField("search", customerSearchCondition);
-  }, [customerSearchCondition, systemId, yearId]);
+  }, [customerSearchCondition, systemId, yearId]);*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", brandsearch);
     //setBrandField("page", 1);
     //setBrandField("lastId", 0);
     //setBrandField("usrPerm", 0);
-  }, [brandsearch, systemId]);
+  }, [brandsearch, systemId]);*/
 
   const { isModalOpen, setIsModalOpen } = useGeneralContext();
   useEffect(() => {
@@ -123,6 +123,12 @@ const InvoiceReceipShowHeader = ({
           }))}
           isEntered={isCustomerEntered}
           setIsEntered={setIsCustomerEntered}
+          placeholder={
+            Array.isArray(fields.customerCondition) &&
+            fields.customerCondition.length > 0
+              ? undefined
+              : "تامین کننده را انتخاب کنید..."
+          }          
         />
         <div className="flex">
           <label className="p-1 w-24 text-left">سررسید:</label>
@@ -207,9 +213,41 @@ const InvoiceReceipShowHeader = ({
     <div className="mt-2 text-sm w-full flex flex-col gap-2 border border-gray-400 rounded-md p-2">
       {canEditForm && (
         <div className="flex items-center justify-between gap-2">
-          <div className="w-full flex items-center">
+          <AutoCompleteSearch
+            label="تامین کننده"
+            labelWidth="w-20"
+            setField={setCusomerField}
+            fieldValues={[
+              { field: "systemIdCustomerSearch", value: systemId },
+              { field: "yearIdCustomerSearch", value: yearId },
+              { field: "page", value: 1 },
+              { field: "lastId", value: 0 },
+              { field: "centerType", value: 0 },
+            ]}
+            fieldSearch="search"
+            selectedOption={fields.customerCondition}
+            setSelectedOption={(newValue) => {
+              setFields((prev: Fields) => ({
+                ...prev,
+                customerCondition: newValue as DefaultOptionTypeStringId[],
+              }));
+            }}
+            options={customers.map((b: any) => ({
+              id: b.id,
+              text: b.text,
+            }))}
+            isEntered={isCustomerConditionEntered}
+            setIsEntered={setIsCustomerConditionEntered}
+            multiple={true}
+            placeholder={
+              Array.isArray(customers) && customers.length > 0
+                ? undefined
+                : "تامین کننده را انتخاب کنید..."
+            }
+          />
+          {/*<div className="w-full flex items-center">
             <label className="p-1 w-32 md:w-24 text-left">تامین کننده:</label>
-            <div className="bg-slate-50 flex w-full">
+            <div className="bg-slate-50 flex w-full">           
               <AutoComplete
                 options={customers.map((b) => ({
                   id: b.id,
@@ -238,40 +276,41 @@ const InvoiceReceipShowHeader = ({
                 }
               />
             </div>
-          </div>
+          </div>*/}
         </div>
       )}
       {canEditForm && (
-        <div className="w-full flex items-center">
-          <label className="p-1 w-32 md:w-24 text-left">برند:</label>
-          <div className="bg-slate-50 flex w-full">
-            <AutoComplete
-              options={brands.map((b) => ({
-                id: b.id,
-                title: b.text,
-              }))}
-              value={fields.brand as DefaultOptionTypeStringId[]}
-              handleChange={(_event, newValue) => {
-                return setFields((prev: Fields) => {
-                  return {
-                    ...prev,
-                    brand: newValue as DefaultOptionTypeStringId[],
-                  };
-                });
-              }}
-              multiple={true}
-              setSearch={setBrandSearch}
-              showLabel={false}
-              showClearIcon={false}
-              outlinedInputPadding="10px"
-              placeholder={
-                Array.isArray(fields.brand) && fields.brand.length > 0
-                  ? undefined
-                  : "برند را انتخاب کنید..."
-              }
-            />
-          </div>
-        </div>
+        <AutoCompleteSearch
+          label="برند"
+          labelWidth="w-20"
+          setField={setBrandField}
+          fieldValues={[{ field: "accSystem", value: systemId }]}
+          fieldSearch="search"
+          selectedOption={fields.brand}
+          setSelectedOption={(newValue) => {
+            setFields((prev: Fields) => ({
+              ...prev,
+              brand: Array.isArray(newValue)
+                ? (newValue as DefaultOptionTypeStringId[])
+                : newValue
+                ? [newValue as DefaultOptionTypeStringId]
+                : [],
+            }));
+          }}
+          options={brands.map((b: any) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isBrandsEntered}
+          setIsEntered={setIsBrandsEntered}
+          multiple={true}
+          placeholder={
+            Array.isArray(fields.customerCondition) &&
+            fields.customerCondition.length > 0
+              ? undefined
+              : "برند را انتخاب کنید..."
+          }
+        />
       )}
       <div className="flex flex-col md:flex-row w-full md:justify-center md:items-center">
         <AutoCompleteSearch
