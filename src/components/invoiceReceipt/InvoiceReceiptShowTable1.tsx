@@ -19,8 +19,8 @@ import {
   normalizeInputForSearch,
 } from "../../utilities/general";
 import InvoiceReceiptShowTableHeader from "./InvoiceReceiptShowTableHeader";
-import InvoiceReceiptHistory from "./InvoiceReceiptHistory";
 import InvoiceReceiptShowTableSummery from "./InvoiceReceiptShowTableSummery";
+import InvoiceReceiptHistory from "./invoiceReceiptHistory";
 
 type Props = {
   setIsNew: (isNew: boolean) => void;
