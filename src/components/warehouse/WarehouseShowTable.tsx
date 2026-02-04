@@ -9,15 +9,17 @@ import {
 import HistoryIcon from "../../assets/images/GrayThem/history_gray_16.png";
 import EditIcon from "../../assets/images/GrayThem/edit_gray16.png";
 import { grey, red } from "@mui/material/colors";
-import { convertToFarsiDigits } from "../../utilities/general";
+import {
+  convertToFarsiDigits,
+  convertToLatinDigits,
+} from "../../utilities/general";
 import { useWarehouseStore } from "../../store/warehouseStore";
 import ConfirmCard from "../layout/ConfirmCard";
 import Button from "../controls/Button";
 import { useAuthStore } from "../../store/authStore";
 import { WorkflowRowSelectResponse } from "../../types/workflow";
-import { useWarehouse } from "../../hooks/useWarehouse";
-import React from "react";
-import TTable from "../controls/TTable";
+import React, { useState } from "react";
+import TTable, { EditableInput } from "../controls/TTable";
 import { colors } from "../../utilities/color";
 
 type Props = {
@@ -31,6 +33,7 @@ type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
   warehouseShowIdResponse: WarehouseShowIdResponse;
   isLoadingWarehouseShowId: boolean;
+  reg: (request: RegRequest) => Promise<any>;
 };
 
 const WarehouseShowTable = ({
@@ -44,10 +47,13 @@ const WarehouseShowTable = ({
   workFlowRowSelectResponse,
   warehouseShowIdResponse,
   isLoadingWarehouseShowId,
+  reg,
 }: Props) => {
-  const { reg } = useWarehouse();
   const { authApiResponse } = useAuthStore();
   const { setField } = useWarehouseStore();
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in warehouseShowTable table
+  const canEditTable =
+    workFlowRowSelectResponse.workTableForms.canEditForm1Dtl1; // for editing table(تعداد و آفر)
 
   const columns = React.useMemo(
     () => [
@@ -95,13 +101,13 @@ const WarehouseShowTable = ({
           {
             Header: "بچ",
             accessor: "code",
-            width: "5%",
+            width: "6%",
             Cell: ({ value }: any) => convertToFarsiDigits(value),
           },
           {
             Header: "کد",
             accessor: "pCode",
-            width: "5%",
+            width: "4%",
             Cell: ({ value }: any) => convertToFarsiDigits(value),
           },
           {
@@ -177,14 +183,18 @@ const WarehouseShowTable = ({
             accessor: "rCnt",
             width: "5%",
             backgroundColor: colors.indigo50,
-            Cell: ({ value }: any) => convertToFarsiDigits(value),
+            Cell: canEditTable
+              ? EditableInput
+              : ({ value }: any) => convertToFarsiDigits(value),
           },
           {
             Header: "آفر",
             accessor: "rOffer",
             width: "5%",
             backgroundColor: colors.indigo50,
-            Cell: ({ value }: any) => convertToFarsiDigits(value),
+            Cell: canEditTable
+              ? EditableInput
+              : ({ value }: any) => convertToFarsiDigits(value),
           },
           {
             Header: " ",
@@ -206,6 +216,17 @@ const WarehouseShowTable = ({
     []
   );
 
+  ///////////////////////////////////////////////////////////
+  const updateMyData = (rowIndex: number, columnId: string, value: string) => {
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
+  };
+  ///////////////////////////////////////////////////////////
   // Custom cell click handler for Table
   const handleCellColorChange = (row: any) => {
     if (row.original.statusOriginal > 0) {
@@ -221,6 +242,7 @@ const WarehouseShowTable = ({
 
   const handleEditClick = (dtl: any) => {
     setField("iocId", dtl.original.iocId);
+    setField("iocIdTrigger", Date.now());
     setIocId(dtl.original.iocId);
     console.log(dtl, "dtl");
     setEditClicked(true);
@@ -285,15 +307,15 @@ const WarehouseShowTable = ({
     let request: RegRequest;
     let indents: IndentRequest[] = [];
 
-    let dataReg =
-      warehouseShowIdResponse.data.result.response
-        .warehouseTemporaryReceiptIndentDtls;
+    //let dataReg = warehouseShowIdResponse.data.result.response.warehouseTemporaryReceiptIndentDtls;
+    let dataReg = data;
 
+    console.log(data, "data in handleSubmit in WarehouseShowTable");
     dataReg.map((item) => {
       return indents.push({
         id: item.iocId,
-        cnt: Number(item.rCnt),
-        offer: Number(item.rOffer),
+        cnt: Number(convertToLatinDigits(item.rCnt.toString())),
+        offer: Number(convertToLatinDigits(item.rOffer.toString())),
       });
     });
 
@@ -303,7 +325,7 @@ const WarehouseShowTable = ({
       customerId: customerId,
       dtls: indents,
     };
-    //console.log(request, "request");
+    console.log(request, "request");
     try {
       const response = await reg(request);
       if (response.meta.errorCode === 1) setConfirmHasError(true);
@@ -319,17 +341,19 @@ const WarehouseShowTable = ({
       <Paper className="p-2 mt-2 w-full">
         {isLoadingWarehouseShowId ? (
           <div className="text-center">{<Skeleton />}</div>
-        ) : warehouseShowIdResponse.meta.errorCode !== -1 ? (
+        ) : warehouseShowIdResponse.meta.errorCode > 0 ? (
           <p className="p-6 text-red-400 text-sm md:text-base font-bold">
             {warehouseShowIdResponse.meta.message}
           </p>
         ) : (
           <div className="w-full mt-2">
             <TTable
+              canEditForm={canEditTable}
               columns={columns}
+              selectedRowIndex={selectedRowIndex}
+              setSelectedRowIndex={setSelectedRowIndex}
               data={data}
-              //updateMyData={updateMyData}
-              //skipPageReset={skipPageReset}
+              updateMyData={updateMyData}
               fontSize="0.75rem"
               changeRowSelectColor={true}
               CellColorChange={handleCellColorChange}

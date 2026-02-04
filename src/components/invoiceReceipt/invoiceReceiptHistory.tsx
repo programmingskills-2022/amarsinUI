@@ -4,19 +4,18 @@ import {
   convertToFarsiDigits,
   formatNumberWithCommas,
 } from "../../utilities/general";
-import { IndentDtlHistoryResponse } from "../../types/product";
 import Skeleton from "../layout/Skeleton";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
+import { IndentDtlHistory } from "../../types/purchaseRequest";
 
 type Props = {
   showHistory: boolean;
   setShowHistory: (showHistory: boolean) => void;
   isDtHistoryLoading: boolean;
-  indentDtlHistoryResponse: IndentDtlHistoryResponse;
+  indentDtlHistoryResponse: IndentDtlHistory[];
   columnsHistory: any[];
 };
-
-const invoiceReceiptHistory = ({
+const InvoiceReceiptHistory = ({
   showHistory,
   setShowHistory,
   isDtHistoryLoading,
@@ -24,12 +23,14 @@ const invoiceReceiptHistory = ({
   columnsHistory,
 }: Props) => {
   const { height, width } = useCalculateTableHeight();
+  //console.log(indentDtlHistoryResponse.data.result.indentDtlHistories)
   return (
     <ModalForm
       isOpen={showHistory}
       onClose={() => setShowHistory(false)}
       title="سوابق درخواست خرید"
       width="2/3"
+      isCloseable={true}
     >
       {isDtHistoryLoading ? (
         <div className="text-center">{<Skeleton />}</div>
@@ -40,7 +41,7 @@ const invoiceReceiptHistory = ({
         >
           <TTable
             columns={columnsHistory}
-            data={indentDtlHistoryResponse.data.result.indentDtlHistories.map(
+            data={indentDtlHistoryResponse.map(
               (item, index) => ({
                 ...item,
                 index: convertToFarsiDigits(index + 1),
@@ -67,4 +68,4 @@ const invoiceReceiptHistory = ({
   );
 };
 
-export default invoiceReceiptHistory;
+export default InvoiceReceiptHistory;

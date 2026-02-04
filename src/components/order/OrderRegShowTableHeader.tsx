@@ -1,70 +1,51 @@
-import { useEffect, useState } from "react";
-import { useProducts } from "../../hooks/useProducts";
 import {
   ColumnGroup,
   TableColumns,
   Column,
   DefaultOptionType,
+  SearchItem,
 } from "../../types/general";
-import AutoComplete from "../controls/AutoComplete";
-import { OrderRegShowResponse } from "../../types/order";
-import { useOrderStore } from "../../store/orderStore";
-import { useWarehouse } from "../../hooks/useWarehouse";
-import { convertToFarsiDigits, convertToLatinDigits } from "../../utilities/general";
+//import AutoComplete from "../controls/AutoComplete";
+import { WarehouseSearchResponse } from "../../types/warehouse";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
+import { convertToFarsiDigits } from "../../utilities/general";
+import { useWarehouseStore } from "../../store/warehouseStore";
+import { useState } from "react";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
-  orderRegShowResponse: OrderRegShowResponse;
   columns: TableColumns;
   salesPrice: DefaultOptionType | null;
   warehouse: DefaultOptionType | null;
-  setSalesPrice: React.Dispatch<React.SetStateAction<DefaultOptionType | null>>;
-  setWarehouse: React.Dispatch<React.SetStateAction<DefaultOptionType | null>>;
+  //setSalesPriceSearch: React.Dispatch<React.SetStateAction<string>>;
+  changeSalesPrice: (newValue: DefaultOptionType) => void;
+  changeWarehouse: (newValue: DefaultOptionType) => void;
+  salesPricesSearchResponse: SearchItem[];
+  warehouseSearchResponse: WarehouseSearchResponse;
 };
 
 const OrderRegShowTableHeader = ({
-  orderRegShowResponse,
   columns,
   salesPrice,
   warehouse,
-  setSalesPrice,
-  setWarehouse,
+  //setSalesPriceSearch,
+  changeSalesPrice,
+  changeWarehouse,
+  salesPricesSearchResponse,
+  warehouseSearchResponse,
 }: Props) => {
-  const { salesPricesSearchResponse } = useProducts();
-  const { warehouseSearchResponse } = useWarehouse();
-  const [salesPriceSearch, setSalesPriceSearch] = useState<string>("");
-  const [warehouseSearch, setWarehouseSearch] = useState<string>("");
-  const {setField:setSalesPriceField,setField:setWarehouseField}=useOrderStore()
-
-
-  useEffect(() => {
-    setSalesPriceField("salesPricesSearch", salesPriceSearch);
-    setSalesPriceField("salesPricesSearchPage", 1);
-    setSalesPriceField("lastId", 0);
-  }, [salesPriceSearch]);
-
-  useEffect(() => {
-    //console.log(convertToLatinDigits(warehouseSearch),"warehouseSearch");
-    setWarehouseField("search", convertToLatinDigits(warehouseSearch) ? null :"ا");
-    setWarehouseField("page", 1);
-    setWarehouseField("pageSize", 30);
-    setWarehouseField("lastId", 0);
-    setWarehouseField("CustomerTypeId", -1);
-    setWarehouseField("PartKey", 0);
-  }, [warehouseSearch]);
-
-  useEffect(() => {
-    setSalesPrice({
-      id: orderRegShowResponse.data.result.defaultPriceId,
-      title: convertToFarsiDigits(orderRegShowResponse.data.result.priceTitle),
-    });
-    setWarehouse({
-      id: orderRegShowResponse.data.result.defaultWarehouseId,
-      title: convertToFarsiDigits(orderRegShowResponse.data.result.warehouseName),
-    });
-  }, [orderRegShowResponse]);
-
+  const { setField: setWarehouseField } = useWarehouseStore();
+  const {setField : setPriceField}= useProductStore()
+  const [isWarehouseEntered, setIsWarehouseEntered] = useState<boolean>(false);
+  const [isPriceEntered, setIsPriceEntered] = useState<boolean>(false); 
   const calculateMergedWidth = (columnGroup: ColumnGroup) => {
-    const mergedColumns = ["cupCode", "cupCnt", "cupOCnt", "cupEDate", "editIcon2"];
+    const mergedColumns = [
+      "cupCode",
+      "cupCnt",
+      "cupOCnt",
+      "cupEDate",
+      "editIcon2",
+    ];
     let totalWidth = 0;
     columnGroup.columns.forEach((column) => {
       if (mergedColumns.includes(column.accessor)) {
@@ -73,20 +54,6 @@ const OrderRegShowTableHeader = ({
       }
     });
     return (totalWidth * 100) / Number(columnGroup.width?.slice(0, -1)) + "%";
-  };
-//change order sales price
-  const changeSalesPrice = (newValue: DefaultOptionType) => {
-    //console.log(newValue);
-    setSalesPriceField("orderIdForSalesPrice", orderRegShowResponse.data.result.orderMst.id);
-    setSalesPriceField("salesPriceId", newValue.id);
-    setSalesPrice(newValue);
-    setSalesPriceSearch(newValue.title);
-  };
-//change warehouse
-  const changeWarehouse = (newValue: DefaultOptionType) => {
-    //console.log(newValue);
-    setWarehouse(newValue);
-    setWarehouseSearch(newValue?.title ?? "ا");
   };
 
   return (
@@ -98,6 +65,7 @@ const OrderRegShowTableHeader = ({
           const columnGroup = item as ColumnGroup;
           return (
             <div
+              key={columnGroup.Header}
               className="bg-gray-200 p-1 border-r border-y last:border-x border-gray-300 text-center"
               style={{
                 width: columnGroup.width,
@@ -133,31 +101,38 @@ const OrderRegShowTableHeader = ({
                   if (column.accessor === "cupCode") {
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l border-b"
                         style={{
                           width: mergedWidth,
                           backgroundColor: column.backgroundColor,
                         }}
                       >
-                        <AutoComplete
-                          disabled={false}
-                          options={warehouseSearchResponse.data.result.searchResults.map((b) => ({
-                            id: b.id,
-                            title: b.text,
-                          }))}
-                          value={warehouse}
+                        <AutoCompleteSearch
+                          label=""
+                          labelWidth="w-16"
+                          setField={setWarehouseField}
+                          fieldValues={[
+                            { field: "page", value: 1 },
+                            { field: "pageSize", value: 30 },
+                            { field: "lastId", value: 0 },
+                            { field: "CustomerTypeId", value: -1 },
+                            { field: "PartKey", value: 0 },
+                          ]}
+                          fieldSearch="search"
+                          options={warehouseSearchResponse.data.result.searchResults.map(
+                            (b) => ({
+                              id: b.id,
+                              text: convertToFarsiDigits(b.text),
+                            })
+                          )}
+                          selectedOption={warehouse as DefaultOptionType}
+                          isEntered={isWarehouseEntered}
+                          setIsEntered={setIsWarehouseEntered}
                           handleChange={(_event, newValue) => {
                             changeWarehouse(newValue as DefaultOptionType);
                           }}
-                          setSearch={setWarehouseSearch}
-                          showLabel={false}
-                          outlinedInputPadding="10px"
-                          backgroundColor={"white"}
-                          showClearIcon={false}
-                          inputPadding="0 !important"
                           textAlign="center"
-                          desktopfontsize="12px"
-                          placeholder="انبار را انتخاب کنید..."
                         />
                       </div>
                     );
@@ -166,6 +141,7 @@ const OrderRegShowTableHeader = ({
                   else if (column.accessor === "salePrice")
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l border-b"
                         style={{
                           width:
@@ -176,7 +152,31 @@ const OrderRegShowTableHeader = ({
                           backgroundColor: column.backgroundColor,
                         }}
                       >
-                        <AutoComplete
+                        <AutoCompleteSearch
+                          label=""
+                          labelWidth="w-16"
+                          setField={setPriceField}
+                          fieldValues={[
+                            { field: "salesPricesSearchPage", value: 1 },
+                            { field: "salesPricesSearchLastId", value: 0 },
+                          ]}
+                          fieldSearch="salesPricesSearchSearch"
+                          options={salesPricesSearchResponse.map(
+                            (b) => ({
+                              id: b.id,
+                              text: convertToFarsiDigits(b.text),
+                            })
+                          )}
+                          selectedOption={salesPrice as DefaultOptionType}
+                          isEntered={isPriceEntered}
+                          setIsEntered={setIsPriceEntered}
+                          handleChange={(_event, newValue) => {
+                            changeSalesPrice(newValue as DefaultOptionType);
+                          }}
+                          textAlign="center"
+                          placeholder="قیمت را انتخاب کنید..."
+                        />
+                        {/*<AutoComplete
                           disabled={false}
                           options={salesPricesSearchResponse.map((b) => ({
                             id: b.id,
@@ -195,12 +195,14 @@ const OrderRegShowTableHeader = ({
                           textAlign="center"
                           desktopfontsize="12px"
                           placeholder="قیمت را انتخاب کنید..."
-                        />
+                        />*/}
+
                       </div>
                     );
                   else if (!isMergedColumn && column.accessor !== "cupCnt")
                     return (
                       <div
+                        key={column.accessor}
                         className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l"
                         style={{
                           width:
@@ -214,6 +216,7 @@ const OrderRegShowTableHeader = ({
                         <p className="py-1"></p>
                       </div>
                     );
+                  return null;
                 })}
               </div>
             );
@@ -231,6 +234,7 @@ const OrderRegShowTableHeader = ({
               >
                 {columnGroup.columns.map((column) => (
                   <div
+                    key={column.accessor}
                     className="bg-gray-200  border-gray-300 text-center flex flex-col items-center justify-center border-r last:border-l"
                     style={{
                       width:

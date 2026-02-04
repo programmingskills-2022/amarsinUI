@@ -9,19 +9,23 @@ import {
   convertToFarsiDigits,
   formatPersianDate,
 } from "../../utilities/general";
-import { useDefinitionInvironment } from "../../hooks/useDefinitionInvironment";
 import { colors } from "../../utilities/color";
 import { useLocation } from "react-router-dom";
 import { DefaultOptionType } from "../../types/general";
+import { DefinitionInvironment } from "../../types/definitionInvironment";
+import packageJson from '../../../package.json'
 
-const SideMenu = () => {
+type Props = {
+  definitionInvironment: DefinitionInvironment;
+}
+const SideMenu = ({ definitionInvironment }: Props) => {
   const {
     isMenuOpened,
     setChartId,
     //  , chartId
   } = useGeneralContext();
-  const { definitionInvironment } = useDefinitionInvironment();
-  const { authApiResponse, logout } = useAuthStore();
+  //const { definitionInvironment } = useDefinitionInvironment();
+  const { authApiResponse } = useAuthStore();
 
   const userInfo = authApiResponse?.data.result.login;
   const initData = authApiResponse?.data.result.initData;
@@ -47,16 +51,14 @@ const SideMenu = () => {
     }
   }, [isMenuOpened]);
 
-  const openLogin = () => {
-    console.log(search);
-    logout();
-  };
 
   useEffect(() => {
     if (chart?.id !== undefined && chart.id !== 0) {
       setChartId(Number(chart.id));
+      console.log(search, "search");
     }
   }, [chart]);
+
 
   const formatted = formatPersianDate(
     definitionInvironment.curDay,
@@ -79,20 +81,20 @@ const SideMenu = () => {
         <div className="flex flex-col w-full items-center justify-center">
           {/* User Info */}
           <div
-            className={`${colors.cyan} w-full flex items-center justify-center border-b-2 p-2 hover:cursor-pointer`}
-            onClick={openLogin}
+            className={`${colors.cyan} w-full flex items-center justify-center border-b-2 p-2`}
+            //onClick={openLogin}
           >
             <label className=" text-white px-3 py-1 rounded">{formatted}</label>
           </div>
           {/* User Info */}
           <div
-            className="w-full flex items-center justify-center border-b-2 p-2 hover:cursor-pointer"
-            onClick={openLogin}
+            className="w-full flex items-center justify-center border-b-2 p-2"
+            //onClick={openLogin}
           >
             {userInfo?.nam || "کاربر سیستم"}
           </div>
           {/* سمت */}
-          <div className="w-full flex justify-center items-center">
+          <div className="w-full flex justify-center items-center hover:cursor-pointer">
             <AutoComplete
               options={
                 definitionInvironment?.charts !== undefined
@@ -133,12 +135,12 @@ const SideMenu = () => {
       </div>
 
       {/* Logout Icon */}
-      {/* <div
-        className="flex border-y-2 w-full justify-end p-2"
-        onClick={handleLogout}
+       <div
+        className="flex border-y-2 w-full justify-center p-2"
+        onClick={()=> console.log("gfg")}
       >
-        <PowerSettingsNewIcon className="text-gray-400 hover:cursor-pointer" />
-      </div> */}
+        <p className="text-gray-400 hover:cursor-pointer">ویرایش {convertToFarsiDigits(packageJson.version)}</p> 
+      </div> 
     </aside>
   );
 };

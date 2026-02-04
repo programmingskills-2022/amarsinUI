@@ -56,22 +56,6 @@ export interface InvoiceOutStandingResponse {
   data: Data;
 }
 
-export interface InvoiceOutStandingState extends InvoiceOutStandingRequest,PaymentInvoicesSaveRequest {
-  dsc: string;
-  rem: number;
-  invoiceOutStandingResponse: InvoiceOutStandingResponse;
-  paymentInvoicesSaveResponse: PaymentInvoicesSaveResponse;
-  setField: (
-    field: keyof InvoiceOutStandingRequest | "dsc" | "rem",
-    value: any
-  ) => void;
-  setInvoiceOutStandingResponse: (
-    invoiceOutStandingResponse: InvoiceOutStandingResponse
-  ) => void;
-  setPaymentInvoicesSaveResponse: (
-    paymentInvoicesSaveResponse: PaymentInvoicesSaveResponse
-  ) => void;
-}
 // for Payment/paymentInvoicesSave
 interface PaymentInvoice {
   id: number;
@@ -88,17 +72,53 @@ interface PaymentInvoicesSaveRequest {
 }
 
 interface PaymentInvoicesSaveResponse {
-    meta: {
-      errorCode: number;
-      message: string;
-      type: string;
+  meta: {
+    errorCode: number;
+    message: string;
+    type: string;
+  };
+  data: {
+    result: {
+      id: number;
+      err: number;
+      msg: string;
+      dtlErrMsgs: any[]; // Assuming array of any type; specify types if known
     };
-    data: {
-      result: {
-        id: number;
-        err: number;
-        msg: string;
-        dtlErrMsgs: any[]; // Assuming array of any type; specify types if known
-      };
-    };
-  }
+  };
+}
+///api/Payment/settlementAverages
+
+interface SettlementAveragesResult {
+  id: number;
+  minSum: number;
+  maxSum: number;
+  days: number;
+}
+export interface SettlementAveragesResponse {
+  meta: Meta;
+  data: {
+    result: SettlementAveragesResult[];
+  };
+}
+export interface InvoiceOutStandingState
+  extends InvoiceOutStandingRequest,
+    PaymentInvoicesSaveRequest {
+  dsc: string;
+  rem: number;
+  invoiceOutStandingResponse: InvoiceOutStandingResponse;
+  paymentInvoicesSaveResponse: PaymentInvoicesSaveResponse;
+  settlementAveragesResponse: SettlementAveragesResponse;//for Payment/settlementAverages
+  setField: (
+    field: keyof InvoiceOutStandingRequest | "dsc" | "rem",
+    value: any
+  ) => void;
+  setInvoiceOutStandingResponse: (
+    invoiceOutStandingResponse: InvoiceOutStandingResponse
+  ) => void;
+  setPaymentInvoicesSaveResponse: (
+    paymentInvoicesSaveResponse: PaymentInvoicesSaveResponse
+  ) => void;
+  setSettlementAveragesResponse: (
+    settlementAveragesResponse: SettlementAveragesResponse
+  ) => void;
+}

@@ -15,17 +15,20 @@ type Props = {
   paymentAttachmentResponse: PaymentAttachmentResponse;
   isLoadingPaymentAttachment: boolean;
   setField: (field: string, value: any) => void;
+  setShowAttachment: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const RegRecievedChequeImg = ({
   paymentAttachmentResponse,
   isLoadingPaymentAttachment,
   setField,
+  setShowAttachment,
 }: Props) => {
   const { authApiResponse } = useAuthStore();
   const token = authApiResponse?.data.result.login.token ?? "";
 
   const imageUrl = paymentAttachmentResponse?.data?.result?.path ?? "";
+  const fileExtension = paymentAttachmentResponse?.data?.result?.extension ?? undefined;
 
   const [actCode, setActCode] = useState("Last");
   const [curId, setCurId] = useState(0);
@@ -53,13 +56,14 @@ const RegRecievedChequeImg = ({
 
   // Function to handle rotation to the left (counter-clockwise)
   const handleRotateLeft = () => {
-    if (paymentAttachmentResponse.data.result.path!==null) {
+    if (paymentAttachmentResponse.data.result.path !== null) {
       setRotation((prevRotation) => (prevRotation - 90) % 360);
     }
   };
 
   const handleRotateRight = () => {
-    if (paymentAttachmentResponse.data.result.path!==null) {
+    if (paymentAttachmentResponse.data.result.path !== null) {
+      console.log((rotation + 90) % 360);
       setRotation((prevRotation) => (prevRotation + 90) % 360);
     }
   };
@@ -72,13 +76,21 @@ const RegRecievedChequeImg = ({
           <img
             src={RotateLeft}
             alt="rotate-left"
-            className={`${paymentAttachmentResponse?.data?.result?.path!==null ? "hover:cursor-pointer" : "hover:cursor-not-allowed"}`}
+            className={`${
+              paymentAttachmentResponse?.data?.result?.path !== null
+                ? "hover:cursor-pointer"
+                : "hover:cursor-not-allowed"
+            }`}
             onClick={handleRotateLeft}
           />
           <img
             src={RotateRight}
             alt="rotate-right"
-            className={`${paymentAttachmentResponse?.data?.result?.path!==null ? "hover:cursor-pointer" : "hover:cursor-not-allowed"}`}
+            className={`${
+              paymentAttachmentResponse?.data?.result?.path !== null
+                ? "hover:cursor-pointer"
+                : "hover:cursor-not-allowed"
+            }`}
             onClick={handleRotateRight}
           />
           <img
@@ -88,7 +100,11 @@ const RegRecievedChequeImg = ({
                 : NextDisabled
             }
             alt="next-disabled"
-            className={`${paymentAttachmentResponse?.data?.result?.hasNext ? "hover:cursor-pointer" : "hover:cursor-not-allowed"}`}
+            className={`${
+              paymentAttachmentResponse?.data?.result?.hasNext
+                ? "hover:cursor-pointer"
+                : "hover:cursor-not-allowed"
+            }`}
             onClick={handleNext}
           />
           <img
@@ -98,10 +114,19 @@ const RegRecievedChequeImg = ({
                 : PrevDisabled
             }
             alt="prev-disabled"
-            className={`${paymentAttachmentResponse?.data?.result?.hasPrev ? "hover:cursor-pointer" : "hover:cursor-not-allowed"}`}
+            className={`${
+              paymentAttachmentResponse?.data?.result?.hasPrev
+                ? "hover:cursor-pointer"
+                : "hover:cursor-not-allowed"
+            }`}
             onClick={handlePrev}
           />
-          <img src={Attach} alt="attach" className="hover:cursor-pointer" />
+          <div
+            className="hover:cursor-pointer"
+            onClick={() => setShowAttachment(true)}
+          >
+            <img src={Attach} alt="attach" className="hover:cursor-pointer" />
+          </div>
         </div>
       </div>
       <div>
@@ -122,6 +147,7 @@ const RegRecievedChequeImg = ({
                     height: "auto",
                     transform: `rotate(${rotation}deg)`, // rotation is here
                   },
+                  fileExtension: fileExtension,
                   onError: (error) =>
                     console.error("Image failed to load:", error),
                 }}

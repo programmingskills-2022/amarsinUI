@@ -5,14 +5,14 @@ export const useCustomerStore = create<CustomerState>()((set) => ({
     meta: { errorCode: 0, message: null, type: "" },
     data: { result: { total_count: 0, err: 0, msg: null, searchResults: [] } },
   },
-  systemId: 0,
-  yearId: 0,
+  systemIdCustomerSearch: -1,
+  yearIdCustomerSearch: -1,
   centerType: 0,
   search: "",
   page: 1, // Provide a default value for page
   lastId: 0, // Provide a default value for lastId
   usrPerm: false, // Provide a default value for usrPerm
-  setField: (field: string, value: any) =>
+  setField: (field: string | number | symbol, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setCustomerSearchResponse: (customerSearchResponse) =>
     set({ customerSearchResponse }),

@@ -30,7 +30,7 @@ const RegRecievedChequeInfoSanad = ({
       <div className="flex items-center justify-center w-full">
         <Input
           label="شماره سند:"
-          widthDiv="w-full"
+          widthDiv="w-2/3"
           widthLabel="w-24"
           widthInput="w-full-minus-24"
           name="sanadNo"
@@ -39,7 +39,7 @@ const RegRecievedChequeInfoSanad = ({
           variant="outlined"
           disabled={true}
         />
-        <div className="flex w-full justify-center items-center gap-2">
+        <div className="flex w-1/3 justify-center items-center gap-2">
           <Input
             label="تاریخ سند:"
             name="sanadDate"
@@ -51,8 +51,8 @@ const RegRecievedChequeInfoSanad = ({
               updateCheque("sanadDate", e.target.value)
             }
             widthDiv="w-full"
-            widthLabel="w-24"
-            widthInput="w-full-minus-24"
+            widthLabel="w-32"
+            widthInput="w-full-minus-32"
             variant="outlined"
             //placeholder="اینجا را کلیک کنید..."
             disabled={true}

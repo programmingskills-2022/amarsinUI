@@ -11,7 +11,6 @@ type Props = {
   setShowHistory: (showHistory: boolean) => void;
   isDtlHistoryLoading: boolean;
   productOfferDtlHistory: ProductOfferDtlHistory[];
-  columnsHistory: TableColumns;
 };
 
 const ProductOfferFormListHistory = ({
@@ -19,14 +18,66 @@ const ProductOfferFormListHistory = ({
   setShowHistory,
   isDtlHistoryLoading,
   productOfferDtlHistory,
-  columnsHistory,
 }: Props) => {
+  const columnsHistory: TableColumns = [
+    {
+      Header: "ردیف",
+      accessor: "index",
+      width: "5%",
+    },
+    {
+      Header: "تغییر",
+      accessor: "date",
+      width: "10%",
+    },
+    {
+      Header: "تایید",
+      accessor: "accepted",
+      width: "5%",
+    },
+    {
+      Header: "پ 1",
+      accessor: "s1O",
+      width: "10%",
+    },
+    {
+      Header: "پ 2",
+      accessor: "s2O",
+      width: "10%",
+    },
+    {
+      Header: "پ 3",
+      accessor: "s3O",
+      width: "10%",
+    },
+    {
+      Header: "پ 4",
+      accessor: "s4O",
+      width: "10%",
+    },
+    {
+      Header: "پ 5",
+      accessor: "s5O",
+      width: "10%",
+    },
+    {
+      Header: "شرح",
+      accessor: "dtlDsc",
+      width: "25%",
+    },
+    {
+      Header: "بدون آفر",
+      accessor: "no",
+      width: "5%",
+    },
+  ];  
   return (
     <ModalForm
       isOpen={showHistory}
       onClose={() => setShowHistory(false)}
       title="سوابق آفر"
       width="1/2"
+      isCloseable={true}
     >
       {isDtlHistoryLoading ? (
         <div className="text-center">{<Skeleton />}</div>

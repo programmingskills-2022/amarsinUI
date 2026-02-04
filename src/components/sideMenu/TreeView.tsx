@@ -66,6 +66,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level, currentPath }) => {
       if (window.innerWidth < 640) {
         setIsMenuOpened(false);
       }
+      console.log("item.path", item.path);
       navigate(item.path);
     }
     if (!hasChildren) setTreeNodeTitle(item.name);

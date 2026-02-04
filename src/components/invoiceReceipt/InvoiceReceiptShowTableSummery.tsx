@@ -1,8 +1,7 @@
-import { IndentDtlTable } from '../../types/invoiceReceipt';
-import { convertToFarsiDigits, convertToLatinDigits, formatNumberWithCommas } from '../../utilities/general'
+import { convertToFarsiDigits, convertToLatinDigits, currencyStringToNumber, formatNumberWithCommas } from '../../utilities/general'
 
 type Props = {
-    data: IndentDtlTable[];
+    data: any[] //IndentDtlTable[]; 
 }
 
 const InvoiceReceiptShowTableSummery = ({data}: Props) => {
@@ -32,7 +31,7 @@ const InvoiceReceiptShowTableSummery = ({data}: Props) => {
       مالیات:{" "}
       {convertToFarsiDigits(
         formatNumberWithCommas(
-          data.reduce((acc, row) => acc + row.taxValue, 0)
+          data.reduce((acc, row) => acc + currencyStringToNumber(convertToLatinDigits(row.taxValue.toString())), 0)
         )
       )}
     </p>
@@ -42,7 +41,7 @@ const InvoiceReceiptShowTableSummery = ({data}: Props) => {
         formatNumberWithCommas(
           data.reduce(
             (acc, row) =>
-              acc + Number(convertToLatinDigits(row.dcrmnt.toString())),
+              acc + currencyStringToNumber(convertToLatinDigits(row.dcrmnt.toString())),
             0
           )
         )
@@ -52,7 +51,7 @@ const InvoiceReceiptShowTableSummery = ({data}: Props) => {
       جمع:{" "}
       {convertToFarsiDigits(
         formatNumberWithCommas(
-          data.reduce((acc, row) => acc + row.total, 0)
+          data.reduce((acc, row) => acc + currencyStringToNumber(convertToLatinDigits(row.total.toString())), 0)
         )
       )}
     </p>

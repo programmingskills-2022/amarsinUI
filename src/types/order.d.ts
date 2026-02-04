@@ -86,21 +86,6 @@ interface OrderRegShowResponse {
   data: Data;
 }
 
-export interface OrderState extends OrderCupListRequest{
-  orderId: number;
-  orderIdForSalesPrice:number
-  salesPriceId: number;
-  orderRegShowResponse: OrderRegShowResponse;
-  orderSalesPricesResponse: OrderSalesPricesResponse;
-  orderCupListResponse: OrderCupListResponse;
-  orderRegResponse: OrderRegResponse;
-  setField: (field: string | number | symbol, value: any) => void;
-  setOrderRegShowResponse: (orderRegShowResponse: OrderRegShowResponse) => void;
-  setOrderRegResponse: (orderRegResponse: orderRegResponse) => void;
-  setOrderSalesPricesResponse: (orderSalesPricesResponse: OrderSalesPricesResponse) => void;
-  setOrderCupListResponse: (orderCupListResponse: OrderCupListResponse) => void;
-}
-
 //for /Order/orderReg
 interface DtlsItem {
   id: number;
@@ -187,6 +172,7 @@ interface OrderSalesPricesResponse {
 //http://apitest.dotis.ir/api/Order/orderCupList?OrderDtlId=4172334&WarehauseId=8
 interface OrderCupListRequest {
   OrderDtlId: number;
+  OrderDtlIdTrigger: number;
   WarehauseId: number;
 }
 
@@ -204,8 +190,8 @@ interface OrderCupList {
 
 interface OrderCupListTbl extends OrderCupList {
   index: string;
-  cnt:number,
-  oCnt:number
+  cnt: number;
+  oCnt: number;
 }
 
 interface OrderCupListResponse {
@@ -223,7 +209,6 @@ interface OrderCupListResponse {
   };
 }
 
-
 interface InOuts {
   index: string;
   fCode: string;
@@ -234,4 +219,42 @@ interface InOuts {
   cnt: number;
   oCnt: number;
   iocId: number;
+}
+
+// api/Order/DtlUpdate
+export interface DtlUpdateRequest {
+  otId: number;
+  pId: number;
+  cnt: string;
+  oCnt: string;
+  dcrmntPrcnt: string;
+  dcrmnt: string;
+  cost: string;
+  idempotencyKey: string;
+}
+
+export interface DtlUpdateResponse {
+  meta: Meta;
+  data: {
+    result: number;
+  };
+}
+
+export interface OrderState extends OrderCupListRequest {
+  orderId: number;
+  orderIdForSalesPrice: number;
+  salesPriceId: number;
+  orderRegShowResponse: OrderRegShowResponse;
+  orderSalesPricesResponse: OrderSalesPricesResponse;
+  orderCupListResponse: OrderCupListResponse;
+  orderRegResponse: OrderRegResponse;
+  dtlUpdateResponse:DtlUpdateResponse; //for api/Order/DtlUpdate
+  setField: (field: string | number | symbol, value: any) => void;
+  setOrderRegShowResponse: (orderRegShowResponse: OrderRegShowResponse) => void;
+  setOrderRegResponse: (orderRegResponse: orderRegResponse) => void;
+  setOrderSalesPricesResponse: (
+    orderSalesPricesResponse: OrderSalesPricesResponse
+  ) => void;
+  setOrderCupListResponse: (orderCupListResponse: OrderCupListResponse) => void;
+  setDtlUpdateResponse: (dtlUpdateResponse: DtlUpdateResponse) => void; //for api/Order/DtlUpdate
 }

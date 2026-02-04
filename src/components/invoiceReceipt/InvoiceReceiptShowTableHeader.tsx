@@ -1,4 +1,7 @@
-import { convertToFarsiDigits, convertToLatinDigits } from "../../utilities/general";
+import {
+  convertToFarsiDigits,
+  convertToLatinDigits,
+} from "../../utilities/general";
 
 type Props = {
   brandSearch: string;
@@ -9,7 +12,14 @@ type Props = {
   setDtlDscSearch: (dtlDscSearch: string) => void;
 };
 
-const InvoiceReceiptShowTableHeader = ({brandSearch,setBrandSearch,productSearch,setProductSearch,dtlDscSearch,setDtlDscSearch}: Props) => {
+const InvoiceReceiptShowTableHeader = ({
+  brandSearch,
+  setBrandSearch,
+  productSearch,
+  setProductSearch,
+  dtlDscSearch,
+  setDtlDscSearch,
+}: Props) => {
   return (
     <div
       className="w-full h-8 flex justify-center md:justify-end items-center text-gray-500"

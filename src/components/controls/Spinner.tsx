@@ -8,7 +8,7 @@ interface SpinnerProps {
 const Spinner: React.FC<SpinnerProps> = ({ size = 8, color = "#3b82f6" }) => {
   return (
     <div
-      className="border-4 border-t-transparent rounded-full animate-spin"
+      className="border-4 border-t-transparent rounded-full animate-spin mx-auto"
       style={{
         width: size * 4,
         height: size * 4,

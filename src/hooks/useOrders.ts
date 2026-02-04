@@ -1,7 +1,9 @@
-import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import api from "../api/axios";
 import { useOrderStore } from "../store/orderStore";
 import {
+  DtlUpdateRequest,
+  DtlUpdateResponse,
   OrderCupListResponse,
   orderRegRequest,
   OrderRegResponse,
@@ -18,9 +20,12 @@ export function useOrders() {
     salesPriceId,
     setOrderSalesPricesResponse,
     setOrderCupListResponse,
+    setDtlUpdateResponse,
     OrderDtlId,
+    OrderDtlIdTrigger,
     WarehauseId,
   } = useOrderStore();
+  const queryClient = useQueryClient();
   //for Order/orderCupList
   const orderCupListQuery = useQuery<
     OrderCupListResponse,
@@ -28,19 +33,20 @@ export function useOrders() {
     OrderCupListResponse,
     unknown[]
   >({
-    queryKey: ["orderCupList", OrderDtlId, WarehauseId],
+    queryKey: ["orderCupList", OrderDtlId, OrderDtlIdTrigger, WarehauseId],
     queryFn: async () => {
-      console.log(
-        `/api/Order/orderCupList?OrderDtlId=${OrderDtlId}&WarehauseId=${WarehauseId}`
-      );
-      const response = await api.get(
-        `/api/Order/orderCupList?OrderDtlId=${OrderDtlId}&WarehauseId=${WarehauseId}`
-      );
+      const url = `/api/Order/orderCupList?OrderDtlId=${OrderDtlId}&WarehauseId=${WarehauseId}`;
+      console.log(url, "url");
+      const response = await api.get(url);
+      console.log(response.data)
       return response.data;
     },
     onSuccess: (data: any) => {
       setOrderCupListResponse(data);
     },
+    enabled: OrderDtlId !== -1 && WarehauseId !== -1, // Only fetch if param is available
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
   } as UseQueryOptions<OrderCupListResponse, Error, OrderCupListResponse, unknown[]>);
   //for Order/orderSalesPrices
   const orderSalesPricesQuery = useQuery<
@@ -51,14 +57,12 @@ export function useOrders() {
   >({
     queryKey: ["orderSalesPrices", orderIdForSalesPrice, salesPriceId],
     queryFn: async () => {
-      console.log(
-        `/api/Order/orderSalesPrices?OrderId=${orderIdForSalesPrice}&SalesPriceId=${salesPriceId}`
-      );
-      const url: string = `api/Order/orderSalesPrices?OrderId=${orderIdForSalesPrice}&SalesPriceId=${salesPriceId}`;
+      const url = `/api/Order/orderSalesPrices?OrderId=${orderIdForSalesPrice}&SalesPriceId=${salesPriceId}`;
+      console.log(url, "url");
       const response = await api.get(url);
       return response.data;
     },
-    enabled: !!orderIdForSalesPrice && !!salesPriceId,
+    enabled: orderIdForSalesPrice !== -1 && salesPriceId !== -1,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     onSuccess: (data: any) => {
@@ -77,6 +81,19 @@ export function useOrders() {
       setOrderRegResponse(data);
     },
   });
+  //for Order/DtlUpdate
+  const dtlUpdatefn = useMutation({
+    mutationFn: async (request: DtlUpdateRequest) => {
+      const url: string = `/api/Order/DtlUpdate`;
+      const response = await api.put(url, request);
+      return response.data;
+    },
+    onSuccess: (data: DtlUpdateResponse) => {
+      console.log(data, "data in dtl update");
+      setDtlUpdateResponse(data);
+      queryClient.invalidateQueries({ queryKey: ["orders", orderId]  });
+    },
+  });
   //for Order/orderRegShow
   const orderRegShowQuery = useQuery<
     OrderRegShowResponse,
@@ -86,13 +103,12 @@ export function useOrders() {
   >({
     queryKey: ["orders", orderId],
     queryFn: async () => {
-      console.log(`/api/Order/orderRegShow?OrderId=${orderId}`);
-      const response = await api.get(
-        `/api/Order/orderRegShow?OrderId=${orderId}`
-      );
+      const url = `/api/Order/orderRegShow?OrderId=${orderId}`;
+      console.log(url, "url");
+      const response = await api.get(url);
       return response.data;
     },
-    enabled: !!orderId,
+    enabled: orderId !== 0,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     onSuccess: (data: any) => {
@@ -154,8 +170,22 @@ export function useOrders() {
         },
       },
     },
-
+    //output for Order/DtlUpdate
+    isLoadingDtlUpdate: dtlUpdatefn.isPending,
+    errorDtlUpdate: dtlUpdatefn.error,
+    dtlUpdate: dtlUpdatefn.mutateAsync,
+    dtlUpdateResponse: dtlUpdatefn.data ?? {
+      meta: {
+        errorCode: 0,
+        message: "",
+        type: "",
+      },
+      data: {
+        result: 0,
+      },
+    },
     //output for Order/orderRegShow
+    refetchOrderRegShow: () => orderRegShowQuery.refetch(),
     isLoadingOrderRegShow: orderRegShowQuery.isLoading,
     errorOrderRegShow: orderRegShowQuery.error,
     orderRegShowResponse: orderRegShowQuery.data ?? {

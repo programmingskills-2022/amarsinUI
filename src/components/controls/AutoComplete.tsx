@@ -1,6 +1,7 @@
 import { Autocomplete, TextField } from "@mui/material";
 import { colors } from "../../utilities/color";
 import React, { forwardRef } from "react";
+import { normalizeInputForSearch } from "../../utilities/general";
 
 type Props<T extends { id: string | number; title: string }> = {
   options: T[];
@@ -30,6 +31,7 @@ type Props<T extends { id: string | number; title: string }> = {
   required?: boolean;
   handleBlur?: () => void;
   disabled?: boolean;
+  isLoading?: boolean;
 };
 
 const AutoComplete = forwardRef(
@@ -61,6 +63,7 @@ const AutoComplete = forwardRef(
       required = false,
       handleBlur,
       disabled,
+      isLoading,
     }: Props<T>,
     ref: React.Ref<any>
   ) => {
@@ -143,11 +146,11 @@ const AutoComplete = forwardRef(
               "& .MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.muirtl-1tlcqt-MuiAutocomplete-root .MuiOutlinedInput-root":
                 {
                   paddingLeft:
-                    textAlign === "center"
+                    textAlign === "center" 
                       ? "0 !important"
                       : outlinedInputPadding,
                   paddingRight:
-                    textAlign === "center"
+                    textAlign === "center" 
                       ? "0 !important"
                       : outlinedInputPadding,
                 },
@@ -179,9 +182,9 @@ const AutoComplete = forwardRef(
         inputValue={inputValue}
         onInputChange={onInputChange}
         onChange={handleChange}
-        getOptionLabel={(option) => option.title || ""}
+        getOptionLabel={(option) => normalizeInputForSearch(option.title) || ""}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        noOptionsText="پیدا نشد"
+        noOptionsText={isLoading ? "در حال بارگذاری..." : options.length === 0 ? "نتیجه ای یافت نشد" : ""}
         size="small"
         multiple={multiple}
         className="w-full"

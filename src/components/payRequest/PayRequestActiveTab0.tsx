@@ -26,11 +26,10 @@ const PayRequestActiveTab0 = ({
   setRemSum,
   isLoading,
 }: Props) => {
-
   const [isChecked, setIsChecked] = useState(false);
   const { id, setField: setPayRequestInvoicesField } = usePayRequestStore();
   const { systemId, yearId } = useGeneralContext();
-
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in payRequestActiveTab0 table
   const columns: TableColumns = [
     {
       Header: "ردیف",
@@ -147,7 +146,6 @@ const PayRequestActiveTab0 = ({
     setRemSum(remSum);
   };
 
-
   useEffect(() => {
     setPayRequestInvoicesField("payRequestId", id);
     setPayRequestInvoicesField("systemIdPayRequestInvoice", systemId);
@@ -168,7 +166,13 @@ const PayRequestActiveTab0 = ({
       {isLoading ? (
         <Skeleton />
       ) : (
-        <TTable columns={columns} data={data} changeRowSelectColor={true} />
+        <TTable
+          columns={columns}
+          data={data}
+          changeRowSelectColor={true}
+          selectedRowIndex={selectedRowIndex}
+          setSelectedRowIndex={setSelectedRowIndex}
+        />
       )}
     </div>
   );

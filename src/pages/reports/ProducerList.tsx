@@ -11,6 +11,7 @@ import {
   formatNumberWithCommas,
 } from "../../utilities/general";
 import ExcelExport from "../../utilities/ExcelExport";
+import { DefinitionInvironment } from "../../types/definitionInvironment";
 
 export const columns = [
   {
@@ -64,7 +65,10 @@ export const columns = [
   },
 ];
 
-export default function ProducerList() {
+type Props = {
+  definitionInvironment: DefinitionInvironment;
+};
+export default function ProducerList({ definitionInvironment }: Props) {
   const { producerList } = useProducerList();
 
   const dynamicColumns = React.useMemo(
@@ -172,7 +176,7 @@ export default function ProducerList() {
       {/* Top header */}
       {!id ? (
         <header className="flex items-center justify-between border-gray-300">
-          <PageTitle />
+          <PageTitle definitionInvironment={definitionInvironment} />
           <ExcelExport data={data} headCells={allColumns} />
         </header>
       ) : null}

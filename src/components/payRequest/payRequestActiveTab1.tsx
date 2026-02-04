@@ -5,17 +5,17 @@ import {
   formatNumberWithCommas,
 } from "../../utilities/general";
 import { RpCustomerBillsResultWithIndex } from "../../types/sales";
-import Skeleton from "../layout/Skeleton";
+import { useState } from "react";
+import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
+import Spinner from "../controls/Spinner";
 
 type Props = {
   data: RpCustomerBillsResultWithIndex[];
   isLoading: boolean;
 };
 
-const PayRequestActiveTab1 = ({
-  data,
-  isLoading,
-}: Props) => {
+const PayRequestActiveTab1 = ({ data, isLoading }: Props) => {
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in payRequestActiveTab1 table
   const columns: TableColumns = [
     {
       Header: "ردیف",
@@ -27,7 +27,7 @@ const PayRequestActiveTab1 = ({
       Header: "تاریخ",
       accessor: "dat",
       width: "10%",
-      Cell: ({ value }: any) => convertToFarsiDigits(value),      
+      Cell: ({ value }: any) => convertToFarsiDigits(value),
     },
     {
       Header: "سند",
@@ -45,7 +45,8 @@ const PayRequestActiveTab1 = ({
       Header: "بدهکار",
       accessor: "bed",
       width: "10%",
-      Cell: ({ value }: any) => convertToFarsiDigits(formatNumberWithCommas(Number(value))),
+      Cell: ({ value }: any) =>
+        convertToFarsiDigits(formatNumberWithCommas(Number(value))),
     },
     {
       Header: "بستانکار",
@@ -69,6 +70,7 @@ const PayRequestActiveTab1 = ({
         convertToFarsiDigits(formatNumberWithCommas(value)),
     },
   ];
+  const { height, width } = useCalculateTableHeight();
 
   return (
     <div className="flex flex-col gap-2 border border-gray-300 rounded-lg p-2 shadow-lg bg-gray-100">
@@ -76,9 +78,22 @@ const PayRequestActiveTab1 = ({
         <hr className="border-gray-300 w-full" />
       </div>
       {isLoading ? (
-        <Skeleton />
+        <div className="h-full flex items-center justify-center">
+          <Spinner />
+        </div>
       ) : (
-        <TTable columns={columns} data={data} changeRowSelectColor={true} />
+        <div
+          className="mt-2 overflow-y-auto"
+          style={width > 640 ? { height: height - 300 } : { height: "fit" }}
+        >
+          <TTable
+            columns={columns}
+            data={data}
+            changeRowSelectColor={true}
+            selectedRowIndex={selectedRowIndex}
+            setSelectedRowIndex={setSelectedRowIndex}
+          />
+        </div>
       )}
     </div>
   );

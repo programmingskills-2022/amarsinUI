@@ -21,8 +21,8 @@ const ModalMessage = ({
 }: Props) => {
   if (!isOpen) return null;
 
-  const classname = `fixed flex bottom-6 left-1/4 -translate-x-1/2 p-4 border ${backgroundColor} shadow-lg rounded-lg z-50 animate-open-modalMsg`;
-
+  const classname = `fixed flex bottom-6 left-1/2 -translate-x-1/2 p-4 border ${backgroundColor} shadow-lg rounded-lg z-50 animate-open-modalMsg`;
+  
   return (
     <>
       {message !== '' && (

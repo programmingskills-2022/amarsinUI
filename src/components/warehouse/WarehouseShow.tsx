@@ -13,31 +13,74 @@ import { useWarehouse } from "../../hooks/useWarehouse";
 import WarehouseIndentTable from "./WarehouseIndentTable";
 import ShowMessages from "../controls/ShowMessages";
 import { colors } from "../../utilities/color";
+import { useProductStore } from "../../store/productStore";
 
 type Props = {
   workFlowRowSelectResponse: WorkflowRowSelectResponse;
+  refetchSwitch: boolean;
+  setRefetchSwitch: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
+const WarehouseShow = ({
+  workFlowRowSelectResponse,
+  refetchSwitch,
+  setRefetchSwitch,
+}: Props) => {
   const [isModalOpenReg, setIsModalOpenReg] = useState(false);
   const [statusClicked, setStatusClicked] = useState(false);
   const [confirmHasError, setConfirmHasError] = useState(false);
-  const { selectIndentsResponse, regResponse, formId } = useWarehouseStore();
+  const { selectIndentsResponse, regResponse, formIdWarehouseTemporaryReceipt, setField } =
+    useWarehouseStore();
+  const { setField: setProductField } = useProductStore();
+  //const { setField: setTTacField } = useTTacStore();
+
+  // Set formId BEFORE useWarehouse hook runs to prevent stale queries
+  if (formIdWarehouseTemporaryReceipt !== workFlowRowSelectResponse.workTableRow.formId) {
+    setField("formIdWarehouseTemporaryReceipt", workFlowRowSelectResponse.workTableRow.formId);
+    setField("formIdWarehouseTemporaryReceiptTitac", -1);
+    setField("receiptPurchaseId", -1);
+    setProductField("idProductCatalogRequest", -1); // Disable productCatalog query
+    setField("iocId", -1); // Disable indentList query
+    setField("id", -1); // Disable salesPrices query
+    setField("idReg", -1); // Disable purchaseReg query
+    setField("page", -1); //  Disable salesPrices query
+    setField("salesPriceId",0)
+  }
+
+  //console.log("jskdjskjd")
+  const {
+    warehouseShowIdResponse,
+    isLoadingWarehouseShowId,
+    refetchWarehouseShowId,
+    reg,
+    isLoadingWarehouseIndentList,
+    warehouseIndentList,
+    editIndents,
+  } = useWarehouse();
 
   const [editClicked, setEditClicked] = useState(false);
   const [iocId, setIocId] = useState(0);
   const [selectedProduct, setSelectedProduct] =
     useState<WarehouseTemporaryReceiptIndentDtl | null>(null);
-  const { setField } = useWarehouseStore();
 
+  //refetch warehouseShow if refetchSwitch is true
   useEffect(() => {
-    console.log(workFlowRowSelectResponse.workTableRow.formId, "formId in WarehouseShow");
+    if (!refetchSwitch) return;
+    if (refetchSwitch) {
+      refetchWarehouseShowId();
+      setRefetchSwitch(false);
+    }
+  }, [refetchSwitch]);
+
+  /*useEffect(() => {
+    console.log(
+      workFlowRowSelectResponse.workTableRow.formId,
+      "formId in WarehouseShow"
+    )
     if (formId !== workFlowRowSelectResponse.workTableRow.formId)
       setField("formId", workFlowRowSelectResponse.workTableRow.formId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workFlowRowSelectResponse.workTableRow.formId]);
-
-  const { warehouseShowIdResponse, isLoadingWarehouseShowId } = useWarehouse();
+  }, [workFlowRowSelectResponse.workTableRow.formId]);*/
 
   const [customer, setCustomer] = useState<{
     id: string;
@@ -63,7 +106,7 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
 
   const { isModalOpen, setIsModalOpen } = useGeneralContext();
   useEffect(() => {
-    let timeoutId: number;
+    let timeoutId: NodeJS.Timeout;
     if (isModalOpen || isModalOpenReg) {
       timeoutId = setTimeout(() => {
         setIsModalOpen(false);
@@ -96,6 +139,7 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
         workFlowRowSelectResponse={workFlowRowSelectResponse}
         warehouseShowIdResponse={warehouseShowIdResponse}
         isLoadingWarehouseShowId={isLoadingWarehouseShowId}
+        reg={reg}
       />
       {/*open product catalog if status is clicked*/}
       <ModalForm
@@ -103,8 +147,11 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
         onClose={handleProductCatalogueClose}
         title="کاتالوگ محصول"
         width="1/2"
+        isCloseable={true}
       >
-        {selectedProduct && <ProductCatalogue dtl={selectedProduct} />}
+        {selectedProduct && (
+          <ProductCatalogue dtl={selectedProduct} visible={true} />
+        )}
       </ModalForm>
       {/*open product catalog if status is clicked*/}
       <ModalForm
@@ -116,6 +163,9 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
         <WarehouseIndentTable
           iocId={iocId}
           handleWarehouseIndentListClose={handleWarehouseIndentListClose}
+          isLoadingWarehouseIndentList={isLoadingWarehouseIndentList}
+          warehouseIndentList={warehouseIndentList}
+          editIndents={editIndents}
         />
       </ModalForm>
 
@@ -125,8 +175,12 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
         onClose={handleWarehouseMessagesClose}
         title="پیام ها"
         width="2/3"
+        isCloseable={true}
       >
-        <ShowMessages dtlErrMsgs={regResponse.data.result.dtlErrMsgs} color={colors.yellow100} />
+        <ShowMessages
+          dtlErrMsgs={regResponse.data.result.dtlErrMsgs}
+          color={colors.yellow100}
+        />
       </ModalForm>
 
       <ModalMessage
@@ -146,7 +200,7 @@ const WarehouseShow = ({ workFlowRowSelectResponse }: Props) => {
         bgColorButtonHover="bg-green-600"
         color="text-white"
         onClose={() => setIsModalOpenReg(false)}
-        message={regResponse.meta.message}
+        message={regResponse.meta.message ?? ""}
         visibleButton={false}
       />
     </div>

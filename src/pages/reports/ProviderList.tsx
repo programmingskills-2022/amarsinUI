@@ -10,8 +10,12 @@ import ProviderListForm, {
 import ProviderListDetails from "../../components/provider/ProviderListDetails";
 import { useParams } from "react-router-dom";
 import ModalForm from "../../components/layout/ModalForm";
+import { DefinitionInvironment } from "../../types/definitionInvironment";
 
-export default function ProviderList() {
+type Props = {
+  definitionInvironment: DefinitionInvironment;
+};
+export default function ProviderList({ definitionInvironment }: Props) {
   const { providerList } = useProviderList();
   const { setField } = useBrandStore();
   const { systemId } = useGeneralContext();
@@ -59,7 +63,7 @@ export default function ProviderList() {
       {/* Top header */}
       {!id ? (
         <header className="flex items-center justify-between border-gray-300">
-          <PageTitle />
+          <PageTitle definitionInvironment={definitionInvironment} />
           <ExcelExport data={providerList.rpProviders} headCells={headCells} />
         </header>
       ) : null}

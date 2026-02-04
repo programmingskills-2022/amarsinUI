@@ -1,10 +1,15 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'http://apitest.dotis.ir',
-  //baseURL: 'http://localhost:5042',
-});
+// Use environment variable if available, otherwise default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: false,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 api.interceptors.request.use((config) => {
   // Retrieve the customer code from localStorage
   const customerCode = localStorage.getItem('customerCode');
@@ -26,7 +31,10 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response && error.response.status === 401) {
-      window.location.href = '/login'; // Adjust if your login route is different
+      // Only redirect to login if we're not already there
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -26,9 +26,9 @@ export function useProducerList() {
       const response = await api.get(url);
       return response.data;
     },
-    enabled: !!accSystem && !!accYear && !!brandId && !!sanadKind, // Only fetch if params are available
-    refetchOnWindowFocus: true, // Refetch data when the window is focused
-    refetchOnReconnect: true, // Refetch data when the network reconnects
+    enabled: accSystem!==-1 && accYear!==-1, // Only fetch if params are available
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
 
       setProducerList(data);

@@ -30,40 +30,6 @@ type ProviderListFormProps = {
   onShowDetails: (providerId: string) => void;
 };
 
-/*export const headCells: HeadCell<ProviderItem>[] = [
-  {
-    id: "index",
-    label: "ردیف",
-    disableSorting: true,
-    cellWidth: "5%",
-  },
-  { id: "name", label: "نام کالا", cellWidth: "60%" },
-  { id: "cnt", label: "تعداد", isNumber: true, cellWidth: "10%" },
-  {
-    id: "total",
-    label: "مبلغ",
-    isNumber: true,
-    isCurrency: true,
-    cellWidth: "10%",
-  },
-  { id: "offerCnt", label: "تعداد", isNumber: true, cellWidth: "10%" },
-  {
-    id: "id",
-    label: "گردش",
-    icon: ReportIcon,
-    hasDetails: true,
-    cellWidth: "5%",
-  },
-];*/
-
-/*const headerGroups: HeaderGroup[] = [
-  { label: "", colSpan: 1 },
-  { label: "", colSpan: 1 },
-  { label: "ریالی", colSpan: 2 },
-  { label: "آفر", colSpan: 1 },
-  { label: "", colSpan: 1 },
-];*/
-
 export const headCells:TableColumns = 
 [
   {
@@ -225,7 +191,7 @@ export default function ProviderListForm({
 
   useEffect(() => {
     if (error) {
-      console.log(error);
+      console.log(error,search);
       navigate("/login");
     }
   }, [error, navigate]);

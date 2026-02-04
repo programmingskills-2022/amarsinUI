@@ -1,13 +1,21 @@
 import { ReactNode } from "react";
+import { Meta } from "./general";
 
 // for api/Indent/showMrs
-export interface IndentMrsResponse {
-  err: number;
-  msg: string;
+export interface ResultIndentMrs {
+  totalCount: number;
   indents: Indents[];
   indentDtls: IndentDtl[];
 }
 
+interface DataIndentMrs {
+  result:ResultIndentMrs
+}
+
+export interface IndentMrsResponse {
+  meta:Meta
+  data:DataIndentMrs
+}
 interface Indents {
   id: number;
   ordr: number;
@@ -48,18 +56,18 @@ interface IndentDtl {
   cost: number;
   dcrmntPrcnt: number;
   dcrmnt: number;
+  tax: number;
   taxValue: number;
   total: number;
   dtlDsc: string;
   del: boolean;
   recieptId: number;
   recieptDsc: string;
-  isDeleted:boolean;
+  isDeleted: boolean;
 }
 
 export interface IndentDtlTable extends IndentDtl {
-  index:number;
-
+  index: number;
 }
 
 export interface InvoiceReceiptState {

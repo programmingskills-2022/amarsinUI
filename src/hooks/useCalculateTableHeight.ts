@@ -13,12 +13,13 @@ export default function useCalculateTableHeight(): UseCalculateTableHeightReturn
 
   //calculate table height based on screen size
   const calculateTableHeight = () => {
-    const { width, height } = screenDimensions;
-    return width > 1535
+    const { height } = screenDimensions;
+    return height - 170;
+    /*return width > 1535
       ? height - 200
       : width > 1024
       ? height - 250
-      : height - 350;
+      : height - 350;*/
   };
   useEffect(()=>{
     const handleResize=()=>{

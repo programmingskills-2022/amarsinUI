@@ -1,5 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
-import { ChangeEvent, SetStateAction, Dispatch, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  SetStateAction,
+  Dispatch,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useAttachments } from "../../hooks/useAttachments";
 import { useAttachmentStore } from "../../store/attachmentStore";
 import Add32 from "../../assets/images/GrayThem/add32.png";
@@ -7,25 +13,37 @@ import Refresh32 from "../../assets/images/GrayThem/rfrsh32.png";
 import TrashIcon from "../../assets/images/GrayThem/delete_gray_16.png";
 import { convertToFarsiDigits } from "../../utilities/general";
 import { TableColumns } from "../../types/general";
-import TTable from "../controls/TTable";
 import { AttachmentResult, Result } from "../../types/attachment";
-import AttachmentImageLoader from "../../utilities/AttachmentImageLoader";
 import { useAuthStore } from "../../store/authStore";
 import RestoreIcon from "../../assets/images/GrayThem/restore_gray_16.png";
 import { colors } from "../../utilities/color";
 import { useGeneralContext } from "../../context/GeneralContext";
+import AttachmentShowTable from "../attachment/AttachmentShowTable";
 
-type Props = { formId: number; setCnt: Dispatch<SetStateAction<number>> };
+type Props = {
+  formId: number;
+  prefix:string;
+  setCnt: Dispatch<SetStateAction<number>>;
+  guid: string;
+};
 
-const PayRequestAttachment = ({ formId, setCnt }: Props) => {
+const PayRequestAttachment = ({
+  formId,
+  prefix,
+  setCnt,
+  guid,
+}: Props) => {
   const {
+    isLoading,
+    isFetching,
     attachments,
     refetch,
     deleteAttachment,
     restoreAttachment,
     saveAttachment,
+    //attachmentSaveResponse : attachmentSaveResponseHook,
   } = useAttachments();
-  const { setField, attachmentSaveResponse, deleteRestoreResponse } =
+  const { setField, attachmentSaveResponse, deleteRestoreResponse, formId: formIdStore } =
     useAttachmentStore();
   const [data, setData] = useState<AttachmentResult[]>([]);
   const { authApiResponse } = useAuthStore();
@@ -34,6 +52,7 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { systemId, yearId } = useGeneralContext();
   const [attachmentId, setAttachmentId] = useState<number>(0);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in payRequestAttachment table
 
   const columns: TableColumns = [
     {
@@ -60,23 +79,38 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
       accessor: "del",
       width: "10%",
       Cell: ({ row }: any) => (
-        <img
-          src={row.original.isDeleted ? RestoreIcon : TrashIcon}
-          onClick={() => updateToDeleted(row)}
-          className="cursor-pointer"
-          alt="TrashIcon"
-        />
+        <button
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            updateToDeleted(row);
+          }}
+        >
+          <img
+            src={row.original.isDeleted ? RestoreIcon : TrashIcon}
+            style={{ width: "16px", height: "16px" }}
+            alt="TrashIcon"
+          />
+        </button>
       ),
     },
   ];
+
+  useEffect(() => {
+    //calculate attachment counts
+    setSelectedRowIndex(attachments.data.result.length-1);
+  }, [attachments.data.result.length]);
   /////////////////////////////////////////////////////////////////
+  //for setting the params for api/Attachment/list in useAttachmentStore
   useEffect(() => {
     setField("systemId", systemId);
     setField("yearId", yearId);
-    setField("formId", formId);
-    setField("prefix", "payrequest");
-    setField("GUID", "");
-  }, [formId]);
+    if (formId !== formIdStore) {
+      setField("formId", formId);
+    }
+    setField("prefix", prefix);
+    setField("GUID", guid);
+  }, [formId,systemId,yearId,guid,prefix]);
 
   useEffect(() => {
     let tempData: AttachmentResult[] = [];
@@ -89,7 +123,7 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
       setData(tempData);
     }
     //console.log(attachments, "attachments");
-    setSelectedId(tempData[0]?.id);
+    setSelectedId(tempData[tempData.length-1]?.id);
     //console.log(tempData);
   }, [attachments]);
   ////////////////////////////////////////////////////////////////
@@ -106,6 +140,7 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
   }, [attachments]);
   ////////////////////////////////////////////////////////////////
   const updateToDeleted = (row: any) => {
+    console.log("updateToDeleted", row.original.id);
     setData((old) =>
       old.map((origRow) => {
         if (origRow.id === row.original.id) {
@@ -121,7 +156,7 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
       deleteAttachment({
         idDeleteRestore: row.original.id,
         formIdDeleteRestore: formId,
-        prefixDeleteRestore: "payrequest",
+        prefixDeleteRestore: prefix,
       });
     } else {
       //if deleted, restore the attachment
@@ -130,13 +165,14 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
       restoreAttachment({
         idDeleteRestore: attachmentId,
         formIdDeleteRestore: formId,
-        prefixDeleteRestore: "payrequest",
+        prefixDeleteRestore: prefix,
       });
     }
   };
   ////////////////////////////////////////////////////////////////
   // Custom cell click handler for Table
   const handleCellColorChange = (row: any): string | null => {
+    //    console.log("handleCellColorChange", row.original);
     if (row.original.isDeleted) {
       return colors.red100;
     }
@@ -158,34 +194,23 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        console.error("Invalid file type. Please select an image.");
-        return;
-      }
-
-      // Create preview (optional)
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        console.log("Preview URL:", event.target?.result);
-      };
-      reader.readAsDataURL(file);
-
+      console.log(file, "file in handleFileChange");
       // Upload logic
-      const guid = uuidv4();
       const formData = new FormData();
       formData.append("img", file); // Keep file in FormData
 
       // Generate query parameters
       const params = new URLSearchParams({
-        prefix: "payrequest",
+        prefix: prefix,
         formId: formId.toString(),
         systemId: systemId.toString(),
         yearId: yearId.toString(),
         guid: guid,
       });
 
+      setField("GUID", guid);
       console.log("Request params:", params.toString());
-      saveAttachment({ formData, params });
+      saveAttachment({ formData, params});
     });
 
     if (e.target) {
@@ -199,7 +224,7 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
       <div className="flex px-4 items-center justify-end w-full bg-gray-200 rounded-md">
         <div
           onClick={onButtonClick}
-          className="flex flex-col items-center cursor-pointer border-2 hover:border-gray-300 rounded-md py-1 px-2"
+          className="flex flex-col items-center cursor-pointer border-2 hover:font-bold hover:bg-gray-300 rounded-md p-1"
         >
           <img src={Add32} alt="Add32" className="w-6 h-6" />
           <p className="text-xs">جدید</p>
@@ -207,12 +232,12 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
         <input
           ref={fileInputRef}
           type="file"
+          multiple
           style={{ display: "none" }}
           onChange={handleFileChange}
-          accept="image/*"
         />
         <div
-          className="flex flex-col items-center cursor-pointer border-2 hover:border-gray-300 rounded-md p-1"
+          className="flex flex-col items-center cursor-pointer border-2 hover:font-bold hover:bg-gray-300 rounded-md p-1"
           onClick={() => refetch()}
         >
           {/*onClick={()=>getWorkTable()}>*/}
@@ -220,33 +245,17 @@ const PayRequestAttachment = ({ formId, setCnt }: Props) => {
           <p className="text-xs">بازخوانی</p>
         </div>
       </div>
-      <div className="w-full flex gap-2">
-        <div className="w-1/2">
-          <TTable
-            columns={columns}
-            data={data}
-            changeRowSelectColor={true}
-            fontSize="14px"
-            setSelectedId={setSelectedId}
-            CellColorChange={handleCellColorChange}
-          />
-        </div>
-        <div className="w-1/2 h-full">
-          {imageUrl && (
-            <div className="flex w-full h-full justify-center items-center overflow-y-auto">
-              <AttachmentImageLoader
-                authToken={token}
-                imageUrl={imageUrl}
-                options={{
-                  className:
-                    "attachment-image transition-transform duration-300 ease-in-out",
-                  alt: "Attachment Image",
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      <AttachmentShowTable
+        columns={columns}
+        selectedRowIndex={selectedRowIndex}
+        setSelectedRowIndex={setSelectedRowIndex}
+        data={data}
+        setSelectedId={setSelectedId}
+        imageUrl={imageUrl ?? ""}
+        token={token}
+        handleCellColorChange={handleCellColorChange}
+        isLoading={isFetching || isLoading }
+      />
     </div>
   );
 };

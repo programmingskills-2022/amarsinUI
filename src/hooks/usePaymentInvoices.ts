@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import api from "../api/axios";
 import { usePaymentInvoiceStore } from "../store/paymentInvoiceStore";
 import {
@@ -6,6 +11,7 @@ import {
   InvoiceOutStandingResponse,
   PaymentInvoicesSaveRequest,
   PaymentInvoicesSaveResponse,
+  SettlementAveragesResponse,
 } from "../types/paymentInvoice";
 
 export function usePaymentInvoices() {
@@ -16,6 +22,7 @@ export function usePaymentInvoices() {
     yearId,
     setInvoiceOutStandingResponse,
     setPaymentInvoicesSaveResponse,
+    setSettlementAveragesResponse, //for Payment/settlementAverages
   } = usePaymentInvoiceStore();
 
   //for Payment/paymentInvoicesSave
@@ -50,16 +57,37 @@ export function usePaymentInvoices() {
       console.log(url, "url");
 
       const response = await api.get(url);
-      console.log(response.data, "response.data");
+      //console.log(response.data, "response.data");
       return response.data;
     },
-    enabled: !!paymentId && !!systemId && !!yearId, // Only fetch if params are available
+    enabled: paymentId!==-1 && systemId!==-1 && yearId!==-1, // Only fetch if params are available
     refetchOnWindowFocus: false, // Refetch data when the window is focused
     refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
       setInvoiceOutStandingResponse(data);
     },
   } as UseQueryOptions<InvoiceOutStandingResponse, Error, InvoiceOutStandingResponse, unknown[]>);
+
+  //for Payment/settlementAverages
+  const querySettlementAverages = useQuery<
+    SettlementAveragesResponse,
+    Error,
+    SettlementAveragesResponse,
+    unknown[]
+  >({
+    queryKey: ["settlementAverages"],
+    queryFn: async () => {
+      const url: string = `/api/Payment/settlementAverages`;
+      const response = await api.get(url);
+      //console.log(response.data, "response.data");
+      return response.data;
+    },
+    onSuccess: (data: any) => {
+      setSettlementAveragesResponse(data);
+    },
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
+  } as UseQueryOptions<SettlementAveragesResponse, Error, SettlementAveragesResponse, unknown[]>);
 
   return {
     //output for Payment/paymentInvoicesSave
@@ -69,6 +97,7 @@ export function usePaymentInvoices() {
     paymentInvoicesSaveResponse: paymentInvoicesSavefn.data,
 
     //getInvoiceOutStanding: () => query.refetch(),
+    refetchInvoiceOutStanding: () => query.refetch(),
     isLoading: query.isLoading,
     error: query.error,
     invoiceOutStandingResponse: query.data ?? {
@@ -81,6 +110,14 @@ export function usePaymentInvoices() {
         dsc: "",
         kind: 0,
       },
+    },
+    //getSettlementAverages: () => querySettlementAverages.refetch(),
+    refetchSettlementAverages: () => querySettlementAverages.refetch(),
+    isLoadingSettlementAverages: querySettlementAverages.isLoading,
+    errorSettlementAverages: querySettlementAverages.error,
+    settlementAveragesResponse: querySettlementAverages.data ?? {
+      meta: { errorCode: 0, message: "", type: "" },
+      data: { result: [] },
     },
   };
 }

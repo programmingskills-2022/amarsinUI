@@ -44,14 +44,14 @@ const ProductOfferFormListHeader = ({
       );
     }
     if (
-      columns[8].width &&
-      columns[9].width &&
-      columns[10].width &&
-      columns[11].width &&
-      columns[12].width &&
-      columns[13].width &&
-      columns[14].width &&
-      columns[15].width
+      columns[8]?.width &&
+      columns[9]?.width &&
+      columns[10]?.width &&
+      columns[11]?.width &&
+      columns[12]?.width &&
+      columns[13]?.width &&
+      columns[14]?.width &&
+      columns[15]?.width
     ) {
       setEmptyWidth(
         Number(columns[8].width.replace("%", "")) +
@@ -110,27 +110,33 @@ const ProductOfferFormListHeader = ({
           width: emptyWidth.toString() + "%",
         }}
       ></div>
-      <div
-        className="md:h-full border place-content-center text-center border-x-gray-300 bg-gray-200"
-        style={{
-          width: columns[16].width ? columns[16].width : "10%",
-        }}
-      >
-        بدون
-      </div>
-      <input
-        name="dtlDscSearch"
-        value={convertToFarsiDigits(dtlDscSearch)}
-        onChange={(e) => {
-          setDtlDscSearch(convertToLatinDigits(e.target.value));
-        }}
-        className={`border p-1 text-sm`}
-        style={{ width: columns[17].width }}
-      />
-      <div
-        className="md:h-full border border-x-gray-300 bg-gray-200"
-        style={{ width: columns[18].width }}
-      ></div>
+      {columns[16] && (
+        <div
+          className="md:h-full border place-content-center text-center border-x-gray-300 bg-gray-200"
+          style={{
+            width: columns[16].width ? columns[16].width : "10%",
+          }}
+        >
+          بدون
+        </div>
+      )}
+      {columns[17] && (
+        <input
+          name="dtlDscSearch"
+          value={convertToFarsiDigits(dtlDscSearch)}
+          onChange={(e) => {
+            setDtlDscSearch(convertToLatinDigits(e.target.value));
+          }}
+          className={`border p-1 text-sm`}
+          style={{ width: columns[17].width }}
+        />
+      )}
+      {columns[18] && (
+        <div
+          className="md:h-full border border-x-gray-300 bg-gray-200"
+          style={{ width: columns[18].width }}
+        ></div>
+      )}
     </div>
   );
 };

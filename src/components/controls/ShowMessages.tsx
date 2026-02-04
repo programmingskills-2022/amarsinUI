@@ -1,54 +1,59 @@
-import { HeadCell } from "../../hooks/useTable";
-import { Table } from "./Table";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
+import { colors } from "../../utilities/color";
+import { Column } from "../../types/general";
+import TTable from "./TTable";
 
 type Props = {
   dtlErrMsgs: any;
   color: string;
   heightWindow?: number;
+  children?: React.ReactNode;
 };
-type Message = { index: number; dsc: string };
-function ShowMessages( {dtlErrMsgs,color,heightWindow}: Props ) {
-  //const { regResponse } = useWarehouseStore();
-  const headCells: HeadCell<Message>[] = [
+function ShowMessages({ dtlErrMsgs, color, heightWindow, children }: Props) {
+  const columns: Column[] = [
     {
-      id: "index",
-      label: "ردیف",
-      disableSorting: true,
-      cellWidth: "5%",
-      isNumber: true,
-      changeColor: true,
+      Header: "ردیف",
+      accessor: "index",
+      width: "5%",
     },
     {
-      id: "dsc",
-      label: "شرح",
-      disableSorting: true,
-      cellWidth: "95%",
-      isNumber: true,
-      changeColor: true,
+      Header: "شرح",
+      accessor: "dsc",
+      width: "95%",
+    },
+    {
+      Header: "وضعیت",
+      accessor: "err",
+      width: "5%",
+      visible: false,
     },
   ];
-  const handleCellColorChange = (cell: HeadCell<Message>) => {
-    if (cell.changeColor) {
-      return color;
-    }
-    return "";
+  const handleCellColorChange = (row: any): string | null => {
+    let rowColor = "";
+    if (row.original.err === 1) rowColor = colors.red100;
+    else if (row.original.err === 0) rowColor = colors.yellow100;
+    else rowColor = color;
+    return rowColor;
   };
-  const {height,width}=useCalculateTableHeight()
-//regResponse.data.result.dtlErrMsgs
+  ///////////////////////////////////////////////////////////////
+  const { height, width } = useCalculateTableHeight();
   const data = dtlErrMsgs?.map((dtlErrMsg: any, index: number) => ({
     index: index + 1,
     dsc: dtlErrMsg.msg,
+    err: dtlErrMsg.err,
   }));
   return (
-    <div className="mt-2" style={width > 640 ? { height: heightWindow ?? height } : {}}>
-      <Table
+    <div
+      className="mt-2 overflow-y-auto"
+      style={width > 640 ? { height: heightWindow ?? height } : {}}
+    >
+      <TTable
         data={data}
-        headCells={headCells}
+        columns={columns}
         wordWrap={true}
-        cellColorChangeHandler={handleCellColorChange}
-        cellFontSize="0.75rem"
+        CellColorChange={handleCellColorChange}
       />
+      {children}
     </div>
   );
 }

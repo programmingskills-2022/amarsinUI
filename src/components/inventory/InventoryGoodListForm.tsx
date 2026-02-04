@@ -1,20 +1,24 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 
 import { useBrandStore } from "../../store/brandStore";
 import { useInventoryStore } from "../../store/inventoryStore";
 import { InventoryItem, InventoryItemTbl } from "../../types/inventory";
-import { useInventoryGoodList } from "../../hooks/useInventoryGoodList";
 import { useBrand } from "../../hooks/useBrands";
 import Skeleton from "../layout/Skeleton";
 import { useNavigate } from "react-router-dom";
-import AutoComplete from "../controls/AutoComplete";
+//import AutoComplete from "../controls/AutoComplete";
 import { useGeneralContext } from "../../context/GeneralContext";
-import { HeadCell } from "../../hooks/useTable";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import TTable from "../controls/TTable";
 import { convertToFarsiDigits } from "../../utilities/general";
-import {  DefaultOptionTypeStringId, TableColumns } from "../../types/general";
+import {
+  DefaultOptionTypeStringId,
+  HeadCell,
+  TableColumns,
+} from "../../types/general";
+import { useInventory } from "../../hooks/useInventory";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
 
 export const headCells: HeadCell<InventoryItem>[] = [
   {
@@ -89,17 +93,16 @@ export const columns: TableColumns = [
 ];
 
 export default function InventoryGoodListForm() {
-
-  const { inventoryList, error, isLoading } = useInventoryGoodList();
+  const { inventoryList, error, isLoading } = useInventory();
 
   const { systemId, yearId } = useGeneralContext();
 
-  const [search, setSearch] = useState<string>("");
+  //const [search, setSearch] = useState<string>("");
   const [brand, setBrand] = useState<{ id: string; title: string } | null>({
     id: "0",
     title: "",
   });
-
+  const [isBrandEntered, setIsBrandEntered] = useState<boolean>(false);
   const { setField: setBrandField } = useBrandStore();
 
   const { setField } = useInventoryStore();
@@ -113,10 +116,10 @@ export default function InventoryGoodListForm() {
     }
   }, [error, navigate]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     setBrandField("accSystem", systemId);
     setBrandField("search", search);
-  }, [search, systemId]);
+  }, [search, systemId]);*/
   const { brands } = useBrand();
 
   useEffect(() => {
@@ -128,9 +131,6 @@ export default function InventoryGoodListForm() {
   if (error) return <div>Error: {error.message} </div>;
 
   const [data, setData] = useState<InventoryItemTbl[]>([]);
-
-  //console.log(data, "data");
-  //const [skipPageReset, setSkipPageReset] = useState(false);
 
   useEffect(() => {
     setData(
@@ -149,16 +149,29 @@ export default function InventoryGoodListForm() {
     );
   }, [inventoryList.rpProviderInventories]);
 
-  /*useEffect(() => {
-    setSkipPageReset(false);
-  }, [data]);*/
-
   const { height, width } = useCalculateTableHeight();
 
   return (
     <>
       <Paper className="p-2 m-2 w-full h-fit md:h-full">
-        <div className="flex xl:w-1/4 justify-center items-center gap-2">
+        <AutoCompleteSearch
+          label="برند"
+          labelWidth="w-20"
+          setField={setBrandField}
+          fieldValues={[{ field: "accSystem", value: systemId }]}
+          fieldSearch="search"
+          selectedOption={brand}
+          setSelectedOption={(newValue) => {
+            setBrand(newValue as DefaultOptionTypeStringId);
+          }}
+          options={brands.map((b: any) => ({
+            id: b.id,
+            text: b.text,
+          }))}
+          isEntered={isBrandEntered}
+          setIsEntered={setIsBrandEntered}
+        />
+        {/*<div className="flex xl:w-1/4 justify-center items-center gap-2">
           <label htmlFor="year" className="">
             برند:
           </label>
@@ -168,7 +181,7 @@ export default function InventoryGoodListForm() {
               title: b.text,
             }))}
             value={brand}
-            handleChange={(_event, newValue) => {             
+            handleChange={(_event, newValue) => {
               return setBrand(newValue as DefaultOptionTypeStringId);
             }}
             setSearch={setSearch}
@@ -176,7 +189,7 @@ export default function InventoryGoodListForm() {
             inputPadding="0 !important"
           />
         </div>
-
+*/}
         {isLoading ? (
           <div className="text-center">{<Skeleton />}</div>
         ) : inventoryList.err !== 0 ? (
@@ -188,17 +201,7 @@ export default function InventoryGoodListForm() {
             className="mt-2 overflow-y-auto"
             style={width > 640 ? { height: height } : { height: "fit" }}
           >
-            {/*<Table
-              data={inventoryList.rpProviderInventories}
-              headCells={headCells}
-              wordWrap={true}
-            />*/}
-            <TTable
-              columns={columns}
-              data={data}
-              //updateMyData={updateMyData}
-              //skipPageReset={skipPageReset}
-            />
+            <TTable columns={columns} data={data} />
           </div>
         ) : (
           <p className="p-6 text-red-400 text-sm md:text-base font-bold">

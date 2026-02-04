@@ -21,7 +21,6 @@ import ModalForm from "../layout/ModalForm";
 import ShowMessages from "../controls/ShowMessages";
 import ModalMessage from "../layout/ModalMessage";
 import PlusIcon from "../../assets/images/GrayThem/plus24.png";
-import { WorkflowRowSelectResponse } from "../../types/workflow";
 
 type Props = {
   data: PayRequestDtlTable[];
@@ -34,13 +33,12 @@ type Props = {
   chequeBookDtlSearch: string;
   setChequeBookSearch: React.Dispatch<React.SetStateAction<string>>;
   setChequeBookDtlSearch: React.Dispatch<React.SetStateAction<string>>;
-  canEditForm: boolean;
   customerId: number;
   originalData: PayRequestDtlTable[];
   setOriginalData: (
     data:
       | PayRequestDtlTable[]
-      | ((old: PayRequestDtlTable[]) => PayRequestDtlTable[])
+      | ((old: PayRequestDtlTable[]) => PayRequestDtlTable[]),
   ) => void;
   chequeBookDtlByIdResponse: ChequeBookDtlByIdResponse;
   setShowInvoices: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,7 +47,14 @@ type Props = {
   setPayRequestDtlId: React.Dispatch<React.SetStateAction<number>>;
   setChequeBookId: React.Dispatch<React.SetStateAction<number>>;
   chequeBookId: number;
-  workFlowRowSelectResponse: WorkflowRowSelectResponse;
+  //workFlowRowSelectResponse: WorkflowRowSelectResponse;
+  //setIsPayChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  setPayRequestDtlIndex: React.Dispatch<React.SetStateAction<number>>;
+  isNew: boolean;
+  fromWorkFlow: boolean;
+  canEditForm1: boolean;
+  canEditForm1Dtl1: boolean;
+  canEditForm1Dtl2: boolean;
 };
 
 const PayRequestActiveTab2 = ({
@@ -66,7 +71,6 @@ const PayRequestActiveTab2 = ({
   originalData,
   setOriginalData,
   customerId,
-  canEditForm,
   chequeBookDtlByIdResponse,
   setShowInvoices,
   setPay,
@@ -74,8 +78,25 @@ const PayRequestActiveTab2 = ({
   setPayRequestDtlId,
   setChequeBookId,
   chequeBookId,
-  workFlowRowSelectResponse
+  //workFlowRowSelectResponse,
+  //setIsPayChanged,
+  setPayRequestDtlIndex,
+  isNew,
+  fromWorkFlow,
+  canEditForm1,
+  canEditForm1Dtl1,
+  canEditForm1Dtl2,
 }: Props) => {
+  /*const CanEditForm1Dtl1 =
+    workFlowRowSelectResponse.workTableForms.canEditForm1Dtl1;
+  const CanEditForm1Dtl2 =
+    workFlowRowSelectResponse.workTableForms.canEditForm1Dtl2;*/
+  const [isChecked, setIsChecked] = useState(true); //for showing deleted rows
+  const { id, setField: setPayRequestInvoicesField } = usePayRequestStore();
+  const { yearId, systemId } = useGeneralContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in payRequestActiveTab2 table
+  const [isZeroPayRequestDtlId, setIsZeroPayRequestDtlId] = useState(false);
   const columns: TableColumns = [
     {
       Header: "ردیف",
@@ -89,10 +110,18 @@ const PayRequestActiveTab2 = ({
       width: "27%",
       type: "autoComplete",
       options: options1,
+      setField: setField,
+      fieldValues: [
+        { field: "acc_systemChequeBookSearch", value: systemId },
+        { field: "lastIdChequeBookSearch", value: 0 },
+        { field: "pageChequeBookSearch", value: 1 },
+      ],
+
+      fieldSearch: "searchChequeBookSearch",
       setSearch: setChequeBookSearch,
       search: chequeBookSearch,
       placeholder: "دسته چک را انتخاب کنید...",
-      Cell: canEditForm
+      Cell: canEditForm1Dtl1
         ? EditableInput
         : ({ value }: any) => convertToFarsiDigits(value),
     },
@@ -102,10 +131,18 @@ const PayRequestActiveTab2 = ({
       width: "9%",
       type: "autoComplete",
       options: options2,
+      setField: setField,
+      fieldValues: [
+        { field: "chequeBookIdChequeBookDtlSearch", value: chequeBookId },
+        { field: "lastIdChequeBookDtlSearch", value: 0 },
+        { field: "pageChequeBookDtlSearch", value: 1 },
+      ],
+
+      fieldSearch: "searchChequeBookDtlSearch",
       setSearch: setChequeBookDtlSearch,
       search: chequeBookDtlSearch,
       placeholder: "شماره چک را انتخاب کنید...",
-      Cell: canEditForm
+      Cell: canEditForm1Dtl1
         ? EditableInput
         : ({ value }: any) => convertToFarsiDigits(value),
     },
@@ -113,15 +150,13 @@ const PayRequestActiveTab2 = ({
       Header: "در وجه",
       accessor: "prsn",
       width: "22%",
-      Cell: canEditForm
-        ? EditableInput
-        : ({ value }: any) => convertToFarsiDigits(value),
+      Cell: EditableInput,
     },
     {
       Header: "صیادی",
       accessor: "chqBkNo",
       width: "8%",
-      Cell: canEditForm
+      Cell: canEditForm1Dtl1
         ? EditableInput
         : ({ value }: any) => convertToFarsiDigits(value),
     },
@@ -129,57 +164,64 @@ const PayRequestActiveTab2 = ({
       Header: "سررسید",
       accessor: "dat",
       width: "5%",
-      Cell: canEditForm
-        ? EditableInput
-        : ({ value }: any) => convertToFarsiDigits(value),
+      type: "date",
+      Cell: EditableInput,
     },
     {
       Header: "مبلغ",
       accessor: "amount",
       width: "8%",
-      Cell: canEditForm ? EditableInput : ({ value }: any) => value,
+      Cell: EditableInput,
     },
     {
       Header: "شرح",
       accessor: "dtlDsc",
       width: "15%",
-      Cell: canEditForm
-        ? EditableInput
-        : ({ value }: any) => convertToFarsiDigits(value),
+      Cell: EditableInput,
     },
     {
       Header: " ",
       accessor: "lastColumn",
       width: "3%",
       Cell: ({ row }: any) => (
-        <div className="flex w-full">
-          {canEditForm && (
-            <>
+        <div className="flex w-full items-center justify-center">
+          {canEditForm1Dtl2 && (
+            <button
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                updateToDeleted(row);
+              }}
+            >
               <img
                 src={row.original.del ? RestoreIcon : TrashIcon}
-                onClick={() => updateToDeleted(row)}
-                className="cursor-pointer"
+                style={{ width: "16px", height: "16px" }}
                 alt="TrashIcon"
               />
-              <input
-                type="checkbox"
-                checked={row.original.checked}
-                onChange={() => showInvoices(row)}
-                className="cursor-pointer"
-              />
-            </>
+            </button>
           )}
+          <button
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              showInvoices(row);
+            }}
+            className="flex items-center justify-center"
+          >
+            <input
+              type="checkbox"
+              checked={row.original.checked}
+              className="cursor-pointer place-content-center"
+              onChange={() => console.log("checked", row.original.checked)}
+            />
+          </button>
         </div>
       ),
     },
   ];
-  const [isChecked, setIsChecked] = useState(true); //for showing deleted rows
-  const { id, setField: setPayRequestInvoicesField } = usePayRequestStore();
-  const { systemId, yearId } = useGeneralContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   //////////////////////////////////////////////////////////////
   useEffect(() => {
-    let timeoutId: number;
+    let timeoutId: NodeJS.Timeout;
     if (isModalOpen) {
       timeoutId = setTimeout(() => {
         setIsModalOpen(false);
@@ -191,32 +233,51 @@ const PayRequestActiveTab2 = ({
       }
     };
   }, [isModalOpen]);
+  //////////////////////////////////////////////////////////////
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (isZeroPayRequestDtlId) {
+      timeoutId = setTimeout(() => {
+        setIsZeroPayRequestDtlId(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isZeroPayRequestDtlId]);
   ////////////////////////////////////////////////////////////////
-  //initializing chequeBookSearch requests
-  useEffect(() => {
-    setField("acc_systemChequeBookSearch", systemId);
-    setField("searchChequeBookSearch", chequeBookSearch);
-    setField("pageChequeBookSearch", 1);
-    setField("lastIdChequeBookSearch", 0);
-    //console.log(chequeBookSearch, "chequeBookSearch in useEffect");
-  }, [chequeBookSearch]);
-  useEffect(() => {
-    console.log(chequeBookId, "chequeBookId in useEffect");
+  /*useEffect(() => {
+    //initializing chequeBookSearch requests api/Payment/chequeBookSearch
+    //if can edit form1, initialize chequeBookSearch requests
+    if (CanEditForm1Dtl1) {
+      setField("acc_systemChequeBookSearch", systemId);
+      setField("searchChequeBookSearch", chequeBookSearch);
+      setField("pageChequeBookSearch", 1);
+      setField("lastIdChequeBookSearch", 0);
+    }
+  }, [chequeBookSearch, systemId]);*/
+  /*useEffect(() => {
     setField("searchChequeBookDtlSearch", chequeBookDtlSearch);
     setField("pageChequeBookDtlSearch", 1);
     setField("lastIdChequeBookDtlSearch", 0);
     if (chequeBookId !== 0) {
       setField("chequeBookIdChequeBookDtlSearch", chequeBookId);
     }
-  }, [chequeBookDtlSearch, chequeBookId]);
+  }, [chequeBookDtlSearch, chequeBookId]);*/
   ////////////////////////////////////////////////////////////////
   //initializing payRequestInvoicesField
+  //replace below
+  //api/PayRequest/DtlInvoices?PayRequestDtlId=3290
   useEffect(() => {
-    setPayRequestInvoicesField("payRequestId", id);
-    setPayRequestInvoicesField("systemIdPayRequestInvoice", systemId);
-    setPayRequestInvoicesField("yearIdPayRequestInvoice", yearId);
-    setPayRequestInvoicesField("customerId", customerId);
-  }, [customerId, systemId, yearId, id]);
+    if (!fromWorkFlow) {
+      setPayRequestInvoicesField("payRequestId", id);
+      setPayRequestInvoicesField("systemIdPayRequestInvoice", systemId);
+      setPayRequestInvoicesField("yearIdPayRequestInvoice", yearId);
+      setPayRequestInvoicesField("customerId", customerId);
+    }
+  }, [id, systemId, yearId, customerId, fromWorkFlow]);
   ////////////////////////////////////////////////////////////////
   //initializing data
   useEffect(() => {
@@ -228,7 +289,13 @@ const PayRequestActiveTab2 = ({
   }, [isChecked, originalData]);
   ////////////////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    setData((old: PayRequestDtlTable[]) =>
+    console.log(rowIndex, columnId, value, "updateMyData");
+    /*const currentRow = originalData[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;*/
+    setOriginalData((old: PayRequestDtlTable[]) =>
+      //setData((old: PayRequestDtlTable[]) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -237,7 +304,7 @@ const PayRequestActiveTab2 = ({
           };
         }
         return row;
-      })
+      }),
     );
   };
 
@@ -245,7 +312,7 @@ const PayRequestActiveTab2 = ({
   const changeRowValues = (
     value: string,
     rowIndex: number,
-    columnId: string
+    columnId: string,
   ) => {
     updateMyData(rowIndex, columnId, value);
   };
@@ -253,23 +320,42 @@ const PayRequestActiveTab2 = ({
   const updateToDeleted = (row: any) => {
     setOriginalData((old: PayRequestDtlTable[]) =>
       old.map((origRow) => {
-        if (origRow.id === row.original.id) {
+        if (origRow.index === row.original.index) {
           return { ...origRow, del: !origRow.del };
         }
         return origRow;
-      })
+      }),
     );
   };
 
   ////////////////////////////////////////////////////////////////
   const showInvoices = (row: any) => {
-    console.log(row.original.id, "row.original.id in showInvoices");
+    if (row.original.id === 0 && fromWorkFlow) {
+      setIsZeroPayRequestDtlId(true);
+      return;
+    }
+    //set payRequestDtlId to api/PayRequest/DtlInvoices?PayRequestDtlId=3290
+    if (fromWorkFlow) {
+      setPayRequestInvoicesField("payRequestDtlId", Number(row.original.id));
+      setPayRequestInvoicesField("payRequestDtlIdTrigger", Date.now());
+    }
     setPayRequestDtlId(row.original.id);
+    setPayRequestDtlIndex(row.original.index);
     setOriginalData((old: PayRequestDtlTable[]) => {
       return old.map((origRow) => {
-        // console.log(origRow);
-        if (origRow.id === row.original.id) {
-          return { ...origRow, amount: row.original.amount, checked: true };
+        console.log(origRow, row.original, "origRow in showInvoices");
+        if (isNew && origRow.index === row.original.index) {
+          return {
+            ...origRow,
+            amount: row.original.amount,
+            checked: row.original.checked ?? false,
+          };
+        } else if (!isNew && origRow.id === row.original.id) {
+          return {
+            ...origRow,
+            amount: row.original.amount,
+            checked: row.original.checked ?? false,
+          };
         }
         return origRow;
       });
@@ -278,7 +364,12 @@ const PayRequestActiveTab2 = ({
       currencyStringToNumber(convertToLatinDigits(row.original.amount)) !== 0
     ) {
       setShowInvoices(true);
+      console.log(
+        currencyStringToNumber(convertToLatinDigits(row.original.amount)),
+        "amount in showInvoices",
+      );
       setPay(currencyStringToNumber(convertToLatinDigits(row.original.amount)));
+      //setIsPayChanged(true);
     } else {
       setIsModalOpen(true);
     }
@@ -287,11 +378,13 @@ const PayRequestActiveTab2 = ({
   const updateMyRow = async (
     rowIndex: number,
     value: DefaultOptionType,
-    columnId?: string
+    columnId?: string,
   ) => {
     console.log(value, columnId, "value in updateMyRow");
-    setData((old) =>
+    //setData((old) =>
+    setOriginalData((old) =>
       old.map((row, index) => {
+        //console.log(row, "row in updateMyRow");
         if (index === rowIndex && value && value.id !== 0) {
           return {
             ...old[rowIndex],
@@ -311,7 +404,7 @@ const PayRequestActiveTab2 = ({
           };
         }
         return row;
-      })
+      }),
     );
     if (columnId === "chequeBook" && value) {
       //console.log(value.id, "value.id in updateMyRow");
@@ -322,22 +415,24 @@ const PayRequestActiveTab2 = ({
       setField("chequeBookDtlId", value.id);
     }
   };
+  ////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setAmountTab2(
       data.reduce(
         (acc, curr) =>
           acc + currencyStringToNumber(convertToLatinDigits(curr.amount)),
-        0
-      )
+        0,
+      ),
     );
   }, [data]);
 
   useEffect(() => {
-    setData((old) =>
+    //setData((old) =>
+    setOriginalData((old) =>
       old.map((row, index) => {
         if (
-          row.chequeBookDtlId ===
-          chequeBookDtlByIdResponse.data.result.checkBookDtl.id
+          row.chequeBookDtlId.toString() ===
+          chequeBookDtlByIdResponse.data.result.checkBookDtl.id.toString()
         ) {
           return {
             ...old[index],
@@ -345,7 +440,7 @@ const PayRequestActiveTab2 = ({
           };
         }
         return row;
-      })
+      }),
     );
   }, [chequeBookDtlByIdResponse.data.result.checkBookDtl.id]);
   /////////////////////////////////////////////////////
@@ -376,9 +471,11 @@ const PayRequestActiveTab2 = ({
 
   const handleAddRow = (
     index: number,
-    setData: (value: React.SetStateAction<PayRequestDtlTable[]>) => void
+    //setData: (value: React.SetStateAction<PayRequestDtlTable[]>) => void
   ) => {
-    setData((prev) => [...prev, { ...newRow, index: index }]);
+    console.log(data, "data in handleAddRow");
+    console.log(originalData, "originalData in handleAddRow");
+    setOriginalData((prev) => [...prev, { ...newRow, index: index }]);
   };
 
   return (
@@ -396,7 +493,7 @@ const PayRequestActiveTab2 = ({
           widthDiv="w-full"
           widthLabel="w-40"
           widthInput="w-full-minus-40"
-          disabled={true}
+          disabled={!canEditForm1Dtl2} //{!workFlowRowSelectResponse.workTableForms.canEditForm1Dtl2}
           variant="outlined"
         />
         <a
@@ -417,8 +514,11 @@ const PayRequestActiveTab2 = ({
         />
         <p className="px-2 w-40">نمایش حذف شده ها</p>
       </div>
+      {/*show tab2 table*/}
       <TTable
         columns={columns}
+        selectedRowIndex={selectedRowIndex}
+        setSelectedRowIndex={setSelectedRowIndex}
         data={data}
         updateMyData={updateMyData}
         fontSize="0.75rem"
@@ -427,19 +527,22 @@ const PayRequestActiveTab2 = ({
         wordWrap={true}
         changeRowValues={changeRowValues}
         showToolTip={true}
-        canEditForm={true}
+        canEditForm={canEditForm1} //{workFlowRowSelectResponse.workTableForms.canEditForm1}
         CellColorChange={handleCellColorChange}
       />
-      {workFlowRowSelectResponse.workTableForms.canEditForm1Dtl1 && (
-        <div className="flex items-center justify-start border border-gray-300 rounded-lg p-2 shadow-lg bg-gray-100 w-10 text-sm text-gray-600">
-          <img
-            src={PlusIcon}
-            alt="PlusIcon"
-            className="cursor-pointer"
-            onClick={() => handleAddRow(data.length + 1, setOriginalData)}
-          />
-        </div>
-      )}
+      {
+        //workFlowRowSelectResponse.workTableForms.canEditForm1Dtl2 && (
+        canEditForm1Dtl2 && (
+          <div className="flex items-center justify-start border border-gray-300 rounded-lg p-2 shadow-lg bg-gray-100 w-10 text-sm text-gray-600">
+            <img
+              src={PlusIcon}
+              alt="PlusIcon"
+              className="cursor-pointer"
+              onClick={() => handleAddRow(data.length + 1)} //setOriginalData)}
+            />
+          </div>
+        )
+      }
       <ModalMessage
         isOpen={isModalOpen}
         backgroundColor={
@@ -450,6 +553,16 @@ const PayRequestActiveTab2 = ({
         color="text-white"
         onClose={() => setIsModalOpen(false)}
         message={payRequestSaveResponse?.meta?.message || ""}
+        visibleButton={false}
+      />
+      <ModalMessage
+        isOpen={isZeroPayRequestDtlId}
+        backgroundColor={"bg-red-200"}
+        color="text-white"
+        onClose={() => setIsZeroPayRequestDtlId(false)}
+        message={
+          "برای نمایش فاکتورهای تسویه نشده ابتدا درخواست پرداخت را ذخیره نمایید."
+        }
         visibleButton={false}
       />
       <ModalMessage

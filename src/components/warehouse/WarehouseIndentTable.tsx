@@ -1,7 +1,7 @@
-import { useWarehouse } from "../../hooks/useWarehouse";
 import {
   IndentRequest,
   SelectIndentsRequest,
+  WarehouseIndentListResponse,
   WarehouseTemporaryReceiptIndentTbl,
 } from "../../types/warehouse";
 import React, { useEffect, useState } from "react";
@@ -19,14 +19,18 @@ import Skeleton from "../layout/Skeleton";
 type Props = {
   iocId: number;
   handleWarehouseIndentListClose: () => void;
+  isLoadingWarehouseIndentList: boolean;
+  warehouseIndentList: WarehouseIndentListResponse;
+  editIndents: (request: SelectIndentsRequest) => Promise<any>;
 };
 const WarehouseIndentTable = ({
   iocId,
   handleWarehouseIndentListClose,
+  isLoadingWarehouseIndentList,
+  warehouseIndentList,
+  editIndents,
 }: Props) => {
   const { setIsModalOpen } = useGeneralContext();
-  const { isLoadingWarehouseIndentList, warehouseIndentList, editIndents } =
-    useWarehouse();
 
   const columns = React.useMemo(
     () => [
@@ -107,13 +111,18 @@ const WarehouseIndentTable = ({
   );
 
   const [data, setData] = useState<WarehouseTemporaryReceiptIndentTbl[]>([]);
-
-  //console.log(data, "data");
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in warehouseIndentTable table
 
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    if (!currentRow) return;
+
+    (currentRow as any)[columnId] = value;
     // We also turn on the flag to not reset the page
-    setSkipPageReset(true);
+    /*setSkipPageReset(true);
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -124,7 +133,7 @@ const WarehouseIndentTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   useEffect(() => {
@@ -148,7 +157,10 @@ const WarehouseIndentTable = ({
         )
       );
     }
-  }, [warehouseIndentList.data.result.warehouseTemporaryReceiptIndentLists?.length]);
+  }, [
+    warehouseIndentList.data.result.warehouseTemporaryReceiptIndentLists
+      ?.length,
+  ]);
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -168,20 +180,28 @@ const WarehouseIndentTable = ({
 
     try {
       const response = await editIndents(request);
-      handleWarehouseIndentListClose();
 
       // Now we can check the response directly
-      if (response.meta.errorCode !== -1) {
+      if (response.meta.errorCode > 0) {
         setIsModalOpen(true);
-        console.log(skipPageReset)
-      }
+      } else handleWarehouseIndentListClose();
     } catch (error) {
       setIsModalOpen(true);
     }
   };
   /////////////////////////////////////////////////////////
-  const changeRowValues = (value: string, rowIndex: number, columnId: string) => {
-    setData((old) =>
+  const changeRowValues = (
+    value: string,
+    rowIndex: number,
+    columnId: string
+  ) => {
+    console.log(
+      value,
+      rowIndex,
+      columnId,
+      "come to changeRowValues in WarehouseIndentTable"
+    );
+    /*setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -191,14 +211,14 @@ const WarehouseIndentTable = ({
         }
         return row;
       })
-    );
+    );*/
   };
 
   return (
     <>
       {isLoadingWarehouseIndentList ? (
         <div className="text-center">{<Skeleton />}</div>
-      ) : warehouseIndentList.meta.errorCode !== -1 ? (
+      ) : warehouseIndentList.meta.errorCode > 0 ? (
         <p className="p-6 text-red-400 text-sm md:text-base font-bold">
           {warehouseIndentList.meta.message}
         </p>
@@ -210,6 +230,8 @@ const WarehouseIndentTable = ({
           <TTable
             columns={columns}
             data={data}
+            selectedRowIndex={selectedRowIndex}
+            setSelectedRowIndex={setSelectedRowIndex}
             updateMyData={updateMyData}
             //skipPageReset={skipPageReset}
             changeRowSelectColor={true}
@@ -220,7 +242,7 @@ const WarehouseIndentTable = ({
 
           {data.length > 0 && (
             <ConfirmCard variant="rounded-md justify-end">
-              <Button text="تایید" onClick={handleSubmit}   />
+              <Button text="تایید" onClick={handleSubmit} />
             </ConfirmCard>
           )}
         </div>

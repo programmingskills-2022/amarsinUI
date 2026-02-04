@@ -1,113 +1,150 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useProducts } from "../../hooks/useProducts";
+import {  useState } from "react";
 import { DefaultOptionType } from "../../types/general";
-import { convertToFarsiDigits } from "../../utilities/general";
-import AutoComplete from "../controls/AutoComplete";
+import {
+  convertToFarsiDigits,
+  handleCurrencyInputChange,
+  formatFarsiCurrency,
+} from "../../utilities/general";
 import Input from "../controls/Input";
 import { useProductStore } from "../../store/productStore";
 import { useGeneralContext } from "../../context/GeneralContext";
-import { ProductSearchRequest } from "../../types/product";
-import { debounce } from "lodash";
+import { OrderEditRow } from "./OrderRegShow";
+import AutoCompleteSearch from "../controls/AutoCompleteSearch";
+import Button from "../controls/Button";
+import { Product } from "../../types/product";
 
 type Props = {
-  product: DefaultOptionType | null;
-  setProduct: (product: DefaultOptionType | null) => void;
-  cnt: number;
-  setCnt: (cnt: number) => void;
-  cost: number;
-  setCost: (cost: number) => void;
+  products: Product[]
+  orderEditRow: OrderEditRow;
+  setOrderEditRow: React.Dispatch<React.SetStateAction<OrderEditRow>>;
+  handleSubmit: () => void;
+  isLoadingDtlUpdate: boolean;
 };
 
 const OrderEdit = ({
-  product,
-  setProduct,
-  cnt,
-  setCnt,
-  cost,
-  setCost,
-}: Props) => {
-  const { products } = useProducts();
-  const [productSearch, setProductSearch] = useState("");
-
+  products,
+  orderEditRow,
+  setOrderEditRow,
+  handleSubmit,
+  isLoadingDtlUpdate,
+}: 
+Props) => {
+  const [isProductEntered, setIsProductEntered] = useState(false);
   const { setField: setProductField } = useProductStore();
 
   const { systemId, yearId } = useGeneralContext();
-  const abortControllerRef = useRef<AbortController | null>(null);
-  //send params to /api/Product/search?accSystem=4&accYear=15&page=1&searchTerm=%D8%B3%D9%81
-  useEffect(() => {
-    setProductField("accSystem", systemId);
-    setProductField("accYear", yearId);
-    handleDebounceFilterChange("searchTerm", productSearch);
-    setProductField("page", 1);
-  }, [productSearch, systemId, yearId]);
-
-  ///////////////////////////////////////////////////////
-  const handleDebounceFilterChange = useCallback(
-    debounce((field: string, value: string | number) => {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      // Create a new AbortController for this request
-      abortControllerRef.current = new AbortController();
-
-      setProductField(field as keyof ProductSearchRequest, value);
-    }, 500),
-    [setProductField]
-  );
-  ///////////////////////////////////////////////////////
-  const handleInputChange = (event: any, newInputValue: string) => {
-    console.log(event);
-    const persianInput = convertToFarsiDigits(newInputValue);
-    setProductSearch(persianInput);
+  //////////////////////////////////////////////////////////////
+  const currencyInputChange = (field: string, value: string) => {
+    const numericValue = handleCurrencyInputChange(value, () => {});
+    setOrderEditRow({ ...orderEditRow, [field]: String(numericValue) });
   };
   return (
-    <div className="flex flex-col gap-2">
-      <div className=" flex w-full rounded-md">
-        <AutoComplete
-          options={products.map((p) => ({
-            id: p.pId,
-            title: convertToFarsiDigits(p.n),
-          }))}
-          value={product}
-          handleChange={(_event, newValue) => {
-            return setProduct(newValue as DefaultOptionType | null);
-          }}
-          inputValue={productSearch}
-          onInputChange={handleInputChange}
-          showLabel={false}
-          inputPadding="0 !important"
-          showClearIcon={false}
-          changeColorOnFocus={true}
-          placeholder="کالا را انتخاب کنید."
-        />
-      </div>
+    <div className="flex flex-col gap-2 text-sm">
+      {/*   کالا */}
+      <AutoCompleteSearch
+        label="کالا"
+        labelWidth="w-20"
+        setField={setProductField}
+        fieldValues={[
+          { field: "productSearchAccSystem", value: systemId },
+          { field: "productSearchAccYear", value: yearId },
+          { field: "productSearchPage", value: 1 },
+        ]}
+        fieldSearch="productSearchSearch"
+        selectedOption={orderEditRow.product as DefaultOptionType}
+        setSelectedOption={(product: any) =>
+          setOrderEditRow({
+            ...orderEditRow,
+            product: product as DefaultOptionType,
+          })
+        }
+        options={products.map((p) => ({
+          id: p.pId,
+          text: p.n,
+        }))}
+        isEntered={isProductEntered}
+        setIsEntered={setIsProductEntered}
+      />
       <div className=" flex w-full rounded-md">
         <Input
           name="cnt"
           label="تعداد:"
-          type="number"
-          value={cnt}
+          value={convertToFarsiDigits(orderEditRow.cnt)}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setCnt(Number(e.target.value))
+            setOrderEditRow({ ...orderEditRow, cnt: e.target.value })
           }
           widthDiv="w-1/2"
-          widthLabel="w-12"
-          widthInput="w-full-minus-12"
+          widthLabel="w-24"
+          widthInput="w-full-minus-24"
           variant="outlined"
         />
         <Input
-          name="cost"
-          label="قیمت:"
-          type="number"
-          value={cost}
+          name="oCnt"
+          label="آفر:"
+          value={convertToFarsiDigits(orderEditRow.oCnt)}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setCost(Number(e.target.value))
+            setOrderEditRow({ ...orderEditRow, oCnt: e.target.value })
           }
           widthDiv="w-1/2"
-          widthLabel="w-12"
-          widthInput="w-full-minus-12"
+          widthLabel="w-24"
+          widthInput="w-full-minus-24"
           variant="outlined"
+        />
+      </div>
+      <div className=" flex w-full rounded-md">
+        <Input
+          name="dcrmntPrcnt"
+          label="درصد تخفیف:"
+          value={convertToFarsiDigits(orderEditRow.dcrmntPrcnt)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setOrderEditRow({
+              ...orderEditRow,
+              dcrmntPrcnt: e.target.value,
+            })
+          }
+          widthDiv="w-1/2"
+          widthLabel="w-24"
+          widthInput="w-full-minus-24"
+          variant="outlined"
+        />
+        <Input
+          name="dcrmnt"
+          label="تخفیف:"
+          value={formatFarsiCurrency(orderEditRow.dcrmnt)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            currencyInputChange("dcrmnt", e.target.value)
+          }
+          widthDiv="w-1/2"
+          widthLabel="w-24"
+          widthInput="w-full-minus-24"
+          variant="outlined"
+        />
+      </div>
+      <div className=" flex w-full rounded-md">
+        <Input
+          name="cost"
+          label="قیمت:"
+          value={formatFarsiCurrency(orderEditRow.cost)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            currencyInputChange("cost", e.target.value)
+          }
+          widthDiv="w-1/2"
+          widthLabel="w-24"
+          widthInput="w-full-minus-24"
+          variant="outlined"
+        />
+      </div>
+      <div className="flex justify-end w-full items-end">
+        <Button
+          text={
+            isLoadingDtlUpdate ? "در حال بروزرسانی اطلاعات..." : "ثبت اطلاعات"
+          }
+          backgroundColor="bg-green-500"
+          color="text-white"
+          backgroundColorHover="bg-green-600"
+          colorHover="text-white"
+          variant="shadow-lg w-48 h-10"
+          onClick={handleSubmit}
         />
       </div>
     </div>

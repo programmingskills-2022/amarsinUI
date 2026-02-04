@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthStore } from "../../store/authStore";
 import { useGeneralContext } from "../../context/GeneralContext";
+import packageJson from '../../../package.json'
 
 type Props = {
   activationCode: string;
@@ -70,6 +71,7 @@ const LoginRight = ({
     }
 
     try {
+      setField("appVer", packageJson.version)
       login();
 
       setSystemId(initData?.systemId ?? 0);

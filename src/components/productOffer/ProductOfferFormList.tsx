@@ -1,9 +1,11 @@
-import { Dispatch, SetStateAction, useEffect,  useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ProductOfferDtlHistory,
   ProductOfferProduct,
   ProductOfferProductTable,
   ProductOfferProductTable2,
+  ProductOfferSaveResponse,
+  ShowProductListRequest,
   ShowProductListResponse,
 } from "../../types/productOffer";
 import ConfirmCard from "../layout/ConfirmCard";
@@ -15,14 +17,16 @@ import { DefaultOptionType, TableColumns } from "../../types/general";
 import useCalculateTableHeight from "../../hooks/useCalculateTableHeight";
 import { red } from "@mui/material/colors";
 import ModalMessage from "../layout/ModalMessage";
-
+import { useGeneralContext } from "../../context/GeneralContext";
 
 type Props = {
+  setIsNew: (isNew: boolean) => void;
+  setIsEdit: (isEdit: boolean) => void;
   addList: ProductOfferProductTable[];
   showDeleted: boolean;
   handleSubmit: (
     e?: React.MouseEvent<HTMLButtonElement>,
-    productId?: number
+    request?: ShowProductListRequest
   ) => Promise<ShowProductListResponse | undefined>;
   isLoadingProductOfferSave: boolean;
   handleSubmitSave: () => void;
@@ -37,12 +41,19 @@ type Props = {
   columns: TableColumns;
   showHistory: boolean;
   setShowHistory: Dispatch<SetStateAction<boolean>>;
-  isModalRegOpen:boolean;
-  setIsModalRegOpen:Dispatch<SetStateAction<boolean>>;
+  isModalRegOpen: boolean;
+  setIsModalRegOpen: Dispatch<SetStateAction<boolean>>;
+  canEditForm1: boolean;
+  selectedId: number;
+  isNew: boolean;
+  productOfferSaveResponse: ProductOfferSaveResponse;
+  isLoadingAddList: boolean;
 };
 
-
 const ProductOfferFormList = ({
+  canEditForm1,
+  setIsNew,
+  setIsEdit,
   addList,
   showDeleted,
   handleSubmit,
@@ -58,8 +69,12 @@ const ProductOfferFormList = ({
   setShowHistory,
   isModalRegOpen,
   setIsModalRegOpen,
+  selectedId,
+  isNew,
+  productOfferSaveResponse,
+  isLoadingAddList,
 }: Props) => {
-
+  //const { productOfferSaveResponse } = useProductOfferStore();
   const [brandSearch, setBrandSearch] = useState<string>("");
   const [dtlDscSearch, setDtlDscSearch] = useState<string>("");
   const [productSearch, setProductSearch] = useState<string>("");
@@ -67,60 +82,7 @@ const ProductOfferFormList = ({
     []
   );
   const [data, setData] = useState<ProductOfferProductTable2[]>([]);
-
-  const columnsHistory: TableColumns = [
-    {
-      Header: "ردیف",
-      accessor: "index",
-      width: "5%",
-    },
-    {
-      Header: "تغییر",
-      accessor: "date",
-      width: "10%",
-    },
-    {
-      Header: "تایید",
-      accessor: "accepted",
-      width: "5%",
-    },
-    {
-      Header: "پ 1",
-      accessor: "s1O",
-      width: "10%",
-    },
-    {
-      Header: "پ 2",
-      accessor: "s2O",
-      width: "10%",
-    },
-    {
-      Header: "پ 3",
-      accessor: "s3O",
-      width: "10%",
-    },
-    {
-      Header: "پ 4",
-      accessor: "s4O",
-      width: "10%",
-    },
-    {
-      Header: "پ 5",
-      accessor: "s5O",
-      width: "10%",
-    },
-    {
-      Header: "شرح",
-      accessor: "dtlDsc",
-      width: "25%",
-    },
-    {
-      Header: "بدون آفر",
-      accessor: "no",
-      width: "5%",
-    },
-  ];
-
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index in productOfferFormList table
   // Initialize data when addList changes
   useEffect(() => {
     if (addList.length > 0) {
@@ -167,44 +129,57 @@ const ProductOfferFormList = ({
   }, [!showDeleted]);
   //////////////////////////////////////////////////////
   const updateMyData = (rowIndex: number, columnId: string, value: string) => {
-    // We also turn on the flag to not reset the page
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
+    // Direct mutation - fastest approach
+    // Just find and update the row directly, no state updates needed
+    // The mutation persists in the object, React will see it when state is read
+    const currentRow = data[rowIndex];
+    (currentRow as any)[columnId] = value;
+    if (!currentRow) return;
+
+    const rowInOriginal = originalData.find(
+      (row) => row.index === currentRow.index
     );
-    // Also update the same row in originalData
-    const rowInOriginal = data[rowIndex];
     if (rowInOriginal) {
-      setOriginalData((origOld) =>
-        origOld.map((row) => {
-          if (row.id === rowInOriginal.id && row.pId === rowInOriginal.pId) {
-            return {
-              ...row,
-              [columnId]: value,
-            };
-          }
-          return row;
-        })
-      );
+      (rowInOriginal as any)[columnId] = value;
     }
+  };
+
+  ////////////////////////////////////////////////////
+  const changeRowValues = (
+    value: string,
+    rowIndex: number,
+    columnId: string
+  ) => {
+    console.log(
+      isNew,
+      value,
+      rowIndex,
+      columnId,
+      "come to changeRowValues in productOfferFormList"
+    );
+    //updateMyData(rowIndex, columnId, value);
   };
   /////////////////////////////////////////////////////
   const updateMyRow = async (rowIndex: number, value: DefaultOptionType) => {
     const productId = value?.id ?? 0;
     if (productId === 0) return;
-    const response = await handleSubmit(undefined, productId);
+    const request = {
+      id: 0,
+      productId: productId,
+      acc_Year: yearId,
+      brands: [],
+    };
+    console.log("come to updateMyRow in productOfferFormList", request);
+    const response = await handleSubmit(undefined, request);
     let productOfferProducts: ProductOfferProduct[] | undefined =
-      response?.data.result.productOfferProducts;
+      response?.data.result;
     setOriginalData((old) =>
       old.map((row, index) => {
         if (index === rowIndex && productOfferProducts) {
+          console.log(
+            productOfferProducts[0].product,
+            "productOfferProducts[0].product in updateMyRow"
+          );
           return {
             ...old[rowIndex],
             index: rowIndex + 1,
@@ -258,10 +233,12 @@ const ProductOfferFormList = ({
   const { height, width } = useCalculateTableHeight();
   ////////////////////////////////////////////////////////
   useEffect(() => {
-    let timeoutId: number;
+    let timeoutId: NodeJS.Timeout;
     if (isModalRegOpen) {
       timeoutId = setTimeout(() => {
         setIsModalRegOpen(false);
+        setIsNew(false);
+        setIsEdit(false);
       }, 3000);
     }
     return () => {
@@ -269,7 +246,111 @@ const ProductOfferFormList = ({
         clearTimeout(timeoutId);
       }
     };
-  }, [isModalRegOpen]);  
+  }, [isModalRegOpen]);
+  ////////////////////////////////////////////////////////
+  // on selecting each row, set the id and productId and yearId in productGraceStore for api/productGrace?id=
+  const { yearId } = useGeneralContext();
+  //const [selectedDtlId, setSelectedDtlId] = useState<number>(0); // for selected id in productOfferFormList table
+  const [res, setRes] = useState<ShowProductListResponse | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    console.log(
+      "come to useEffect in productOfferFormList",
+      isLoadingAddList,
+      selectedRowIndex,
+      canEditForm1
+    );
+    if (isLoadingAddList || !canEditForm1 || selectedRowIndex === 0) return;
+    const fetchData = async () => {
+      if (data.length > 0) {
+        console.log(data, selectedRowIndex, "data in useEffect");
+        const found = data.find((item) => item.index === selectedRowIndex + 1);
+        //console.log(found, "found in useEffect");
+        const productId = found?.pId ?? 0;
+        /*console.log(
+          productId,
+          selectedId,
+          canEditForm1,
+          "productId in useEffect"
+        );*/
+        if (productId === 0) return;
+        const request: ShowProductListRequest = {
+          id: selectedId,
+          productId,
+          acc_Year: yearId,
+          brands: [],
+        };
+        const res = await handleSubmit(undefined, request);
+        setRes(res);
+        //console.log(res, "res in useEffect");
+      }
+    };
+    fetchData();
+  }, [selectedRowIndex, yearId]);
+  ////////////////////////////////////////////////////////
+  //initialize selectedRowIndex, selectedDtlId, res when selectedId changes
+  useEffect(() => {
+    if (selectedId === 0) return;
+    setSelectedRowIndex(0);
+    //setSelectedDtlId(0);
+    setRes(undefined);
+  }, [selectedId]);
+  ////////////////////////////////////////////////////////
+  //update originalData when res (productGraceListResponse) changes
+  useEffect(() => {
+    if (res && res.data.result.length > 0) {
+      updateMyRowAfterShowProductList(res);
+    }
+  }, [res]);
+  ////////////////////////////////////////////////////////
+  const updateMyRowAfterShowProductList = (res: ShowProductListResponse) => {
+    console.log(
+      selectedRowIndex,
+      "selectedRowIndex in updateMyRowAfterShowProductList"
+    );
+    setOriginalData((old) =>
+      old.map((row, index) => {
+        if (index === selectedRowIndex && res.data.result.length > 0) {
+          return {
+            ...row,
+            s1O:
+              res.data.result[0].s1DO + res.data.result[0].s1NO > 0
+                ? res.data.result[0].s1DO.toString() +
+                  "+" +
+                  res.data.result[0].s1NO.toString()
+                : "",
+            s2O:
+              res.data.result[0].s2DO + res.data.result[0].s2NO > 0
+                ? res.data.result[0].s2DO.toString() +
+                  "+" +
+                  res.data.result[0].s2NO.toString()
+                : "",
+            s3O:
+              res.data.result[0].s3DO + res.data.result[0].s3NO > 0
+                ? res.data.result[0].s3DO.toString() +
+                  "+" +
+                  res.data.result[0].s3NO.toString()
+                : "",
+            s4O:
+              res.data.result[0].s4DO + res.data.result[0].s4NO > 0
+                ? res.data.result[0].s4DO.toString() +
+                  "+" +
+                  res.data.result[0].s4NO.toString()
+                : "",
+            s5O:
+              res.data.result[0].s5DO + res.data.result[0].s5NO > 0
+                ? res.data.result[0].s5DO.toString() +
+                  "+" +
+                  res.data.result[0].s5NO.toString()
+                : "",
+          };
+        }
+        return row;
+      })
+    );
+  };
+  ////////////////////////////////////////////////////////
   return (
     <>
       <div className="mt-2 w-full bg-white rounded-md">
@@ -286,46 +367,64 @@ const ProductOfferFormList = ({
             dtlDscSearch={dtlDscSearch}
             setDtlDscSearch={setDtlDscSearch}
           />
+
           <TTable
-            canEditForm={true}
+            //setSelectedId={setSelectedDtlId}
+            canEditForm={canEditForm1}
             columns={columns}
+            selectedRowIndex={selectedRowIndex}
+            setSelectedRowIndex={setSelectedRowIndex}
             data={data}
+            originalData={originalData}
             updateMyData={updateMyData}
             fontSize="0.75rem"
             changeRowSelectColor={true}
             wordWrap={true}
             updateMyRow={updateMyRow}
             CellColorChange={handleCellColorChange}
-            //changeRowValues={changeRowValues}
+            changeRowValues={changeRowValues}
             showToolTip={true}
           />
         </div>
-        <ConfirmCard variant="flex-row gap-2 rounded-bl-md rounded-br-md justify-end ">
-          <Button
-            text={isLoadingProductOfferSave ? "در حال ثبت اطلاعات..." : "ثبت"}
-            backgroundColor="bg-green-500"
-            color="text-white"
-            backgroundColorHover="bg-green-600"
-            colorHover="text-white"
-            variant="shadow-lg w-64"
-            onClick={handleSubmitSave}
-          />
-        </ConfirmCard>
+        {canEditForm1 && (
+          <ConfirmCard variant="flex-row gap-2 rounded-bl-md rounded-br-md justify-end ">
+            <Button
+              text={isLoadingProductOfferSave ? "در حال ثبت اطلاعات..." : "ثبت"}
+              backgroundColor="bg-green-500"
+              color="text-white"
+              backgroundColorHover="bg-green-600"
+              colorHover="text-white"
+              variant="shadow-lg w-64"
+              onClick={handleSubmitSave}
+            />
+          </ConfirmCard>
+        )}
       </div>
       <ProductOfferFormListHistory
         showHistory={showHistory}
         setShowHistory={setShowHistory}
         isDtlHistoryLoading={isDtlHistoryLoading}
         productOfferDtlHistory={productOfferDtlHistory}
-        columnsHistory={columnsHistory}
       />
-      <ModalMessage 
+      <ModalMessage
         isOpen={isModalRegOpen}
         onClose={() => setIsModalRegOpen(false)}
-        backgroundColor="bg-green-200"
-        bgColorButton="bg-green-500"
+        backgroundColor={
+          productOfferSaveResponse?.meta.errorCode <= 0
+            ? "bg-green-200"
+            : "bg-red-200"
+        }
+        bgColorButton={
+          productOfferSaveResponse?.meta.errorCode <= 0
+            ? "bg-green-500"
+            : "bg-red-500"
+        }
         color="text-white"
-        message={"اطلاعات با موفقیت ثبت شد."}
+        message={
+          productOfferSaveResponse?.meta.errorCode > 0
+            ? productOfferSaveResponse?.meta.message || ""
+            : "اطلاعات با موفقیت ثبت شد."
+        }
         visibleButton={false}
       />
     </>

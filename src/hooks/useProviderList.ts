@@ -49,13 +49,13 @@ export function useProviderList() {
       }&fDate=${encodeURIComponent(params.fDate)}&tDate=${encodeURIComponent(
         params.tDate
       )}`;
-
+      console.log(url, "url");
       const response = await api.get(url);
       return response.data;
     },
-    enabled: !!accSystem && !!accYear && !!brandId && !!sanadKind, // Only fetch if params are available
-    refetchOnWindowFocus: true, // Refetch data when the window is focused
-    refetchOnReconnect: true, // Refetch data when the network reconnects
+    enabled: accSystem!==-1 && accYear!==-1 && brandId!==-1 && sanadKind!==-1, // Only fetch if params are available
+    refetchOnWindowFocus: false, // Refetch data when the window is focused
+    refetchOnReconnect: false, // Refetch data when the network reconnects
     onSuccess: (data: any) => {
       setProviderList(data);
     },
@@ -107,7 +107,7 @@ export function useProviderDetailList() {
         tDate,
         productId,
       };
-      const url: string = `http://apitest.dotis.ir/api/ProviderReport/details?productId=${
+      const url: string = `/api/ProviderReport/details?productId=${
         params.productId
       }&accSystem=${params.accSystem}&accYear=${params.accYear}&brandId=${
         params.brandId
@@ -121,9 +121,9 @@ export function useProviderDetailList() {
       return response.data;
     },
     enabled:
-      !!accSystem && !!accYear && !!brandId && !!sanadKind && !!productId,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+      accSystem!==-1 && accYear!==-1 && brandId!==-1 && sanadKind!==-1 && productId!==-1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     onSuccess: (data: any) => {
       setProviderDetailList(data);
     },

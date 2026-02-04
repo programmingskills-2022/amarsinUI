@@ -1,36 +1,19 @@
-import React, { ReactNode,  useMemo } from "react";
+import React, { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import SideMenu from "../sideMenu/SideMenu";
 import { AppBar, Box, CssBaseline } from "@mui/material";
 import { useGeneralContext } from "../../context/GeneralContext";
 import ToolBar from "./ToolBar";
-import axios from "axios";
-import api from "../../api/axios";
-import { useAuthStore } from "../../store/authStore";
+import { DefinitionInvironment } from "../../types/definitionInvironment";
 
 interface Props {
   children: ReactNode;
+  definitionInvironment: DefinitionInvironment;
 }
 
-const Layout: React.FC<Props> = ({ children }) => {
+const Layout: React.FC<Props> = ({ children, definitionInvironment }) => {
   const location = useLocation();
-  const {  setUrl, isMenuOpened } = useGeneralContext();
-  const { isAuthenticated } = useAuthStore();
-
-  const customerCode = localStorage.getItem("customerCode");
-
-  const setApiUrl = async () => {
-    const response = await axios.get(
-      `${api.defaults.baseURL}/api/AppConfig/${customerCode}`
-    );
-    const url = response.data.data?.result.url ?? "";
-    setUrl(url.slice(0, url.length - 4));
-  };
-
-  useMemo(() => {
-    setApiUrl();
-  }, [isAuthenticated]);
-
+  const {   isMenuOpened } = useGeneralContext();
   // Check if the current route is the login page
   const isLoginPage = location.pathname === "/login";
 
@@ -57,7 +40,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       {!isLoginPage && (
         <div className="w-full flex flex-col justify-start sm:flex-row mt-12 sm:mt-16">
           {/* SideMenu on the Right */}
-          <SideMenu />
+          <SideMenu definitionInvironment={definitionInvironment} />
           {/* Main Content */}
           <Box
             component="main"

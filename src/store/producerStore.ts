@@ -7,9 +7,9 @@ export const useProducerStore = create<ProducerState>()((set) => ({
   sanadKind: 1,
   fDate: "",
   tDate: "",
-  accSystem: 4, // Provide a default value for accSystem
-  accYear: 15, // Provide a default value for accYear
-  brandId: 72, // Provide a default value for brandId
+  accSystem: -1, // Provide a default value for accSystem
+  accYear: -1, // Provide a default value for accYear
+  brandId: 0, // Provide a default value for brandId
   setField: (field: string, value: any) =>
     set((state) => ({ ...state, [field]: value })),
   setProducerList: (producerList) => set({ producerList }), 

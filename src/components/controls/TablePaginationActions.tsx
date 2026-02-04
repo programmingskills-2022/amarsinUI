@@ -1,4 +1,4 @@
-import { IconButton } from "@mui/material";
+import { IconButton, Switch, FormControlLabel } from "@mui/material";
 import { useGeneralContext } from "../../context/GeneralContext";
 import {
   convertToFarsiDigits,
@@ -13,27 +13,40 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
+  setSelectedRowIndex?: (index: number) => void;
   page?: number;
   setPage?: (page: number) => void;
   pageSize?: number;
   setPageSize?: (pageSize: number) => void;
   totalCount: number;
+  hasPagination?: boolean;
+  showPagination?: boolean;
+  setShowPagination?: (showPagination: boolean) => void;
 };
 
 export function TablePaginationActions(props: Props) {
   const { setDefaultRowsPerPage } = useGeneralContext();
-  //const pages = pageNumbers.map((num) => ({
-  //  label: convertToFarsiDigits(num),
-  //  value: num,
-  //}));
 
-  const { page = 1, setPage, totalCount, pageSize = 10 } = props;
+  const {
+    setSelectedRowIndex,
+    page = 1,
+    setPage,
+    totalCount,
+    pageSize = 10,
+    hasPagination,
+    showPagination,
+    setShowPagination,
+  } = props;
 
   const [inputValue, setInputValue] = useState<string>((page || 0) + 1 + "");
   const inputRef = useRef<boolean>(false);
   const timeoutRef = useRef<number | null>(null);
-  setDefaultRowsPerPage(pageSize || 10);
   const lastPage = Math.max(0, Math.ceil(totalCount / pageSize) - 1);
+
+  // Update defaultRowsPerPage in useEffect to avoid setState during render
+  useEffect(() => {
+    setDefaultRowsPerPage(pageSize || 10);
+  }, [pageSize, setDefaultRowsPerPage]);
 
   // Update input value when page changes
   useEffect(() => {
@@ -66,84 +79,89 @@ export function TablePaginationActions(props: Props) {
   const handleChangePage = (_event: unknown, newPage: number): void => {
     // Convert from 0-based to 1-based for API
     setPage?.(newPage + 1);
+    setSelectedRowIndex?.(0);
   };
 
-  //const handleChangeRowsPerPage = (
-  //  event: React.ChangeEvent<HTMLInputElement>
-  //): void => {
-  //  setPageSize?.(parseInt(event.target.value, 10));
-  //  setPage?.(1);
-  //};
-
   return (
-    <div className="flex w-full bg-gray-100 justify-center">
-      <IconButton
-        onClick={() => handleChangePage(null, lastPage)}
-        disabled={page >= lastPage}
-        aria-label="last page"
-      >
-        <LastPage />
-      </IconButton>
-      <IconButton
-        onClick={() => handleChangePage(null, page + 1)}
-        disabled={page >= lastPage}
-        aria-label="next page"
-      >
-        <KeyboardArrowRight />
-      </IconButton>
-
-      <div className="border m-2 px-2 py-1 border-gray-200 place-content-center rounded-md">
-        {totalCount
-          ? convertToFarsiDigits(
-              Math.ceil(totalCount / (pageSize === undefined ? 10 : pageSize))
-            )
-          : convertToFarsiDigits(0)}
-      </div>
-      <input
-        className="w-16 m-2 rounded-md border border-gray-200 text-center"
-        /*type="number"
-        min={1}
-        max={
-          totalCount
-            ? Math.ceil(totalCount / (pageSize === undefined ? 10 : pageSize))
-            : 0
-        }*/
-        type="text"
-        inputMode="decimal"
-        pattern="[۰-۹0-9]*"
-        value={convertToFarsiDigits(inputValue)}
-        autoFocus={inputRef.current}
-        onChange={(e) => {
-          const value = e.target.value;
-          setInputValue(convertToLatinDigits(value));
-          inputRef.current = true;
-
-          // Clear existing timeout
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
+    <div className="flex justify-between items-center bg-gray-100 w-full">
+      {/* Toggle Switch for Pagination */}
+      {hasPagination ? (
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showPagination}
+              onChange={(e) => setShowPagination?.(e.target.checked)}
+              color="primary"
+              size="small"
+            />
           }
+          label={<span className="text-sm text-gray-700">نمایش صفحه‌بندی</span>}
+          style={{width: "200px"}}
+          labelPlacement="start"
+        />
+      ) : null}
+       {showPagination ? <div className="flex w-full bg-gray-100 justify-center h-12">
+        <IconButton
+          onClick={() => handleChangePage(null, lastPage)}
+          disabled={page >= lastPage}
+          aria-label="last page"
+        >
+          <LastPage />
+        </IconButton>
+        <IconButton
+          onClick={() => handleChangePage(null, page + 1)}
+          disabled={page >= lastPage}
+          aria-label="next page"
+        >
+          <KeyboardArrowRight />
+        </IconButton>
 
-          // Set new timeout for debounced API call
-          timeoutRef.current = window.setTimeout(() => {
-            debouncedSetPage(value);
-          }, 500); // 500ms delay
-        }}
-      />
+        <div className="border m-2 px-2 py-1 border-gray-200 place-content-center rounded-md">
+          {totalCount
+            ? convertToFarsiDigits(
+                Math.ceil(totalCount / (pageSize === undefined ? 10 : pageSize))
+              )
+            : convertToFarsiDigits(0)}
+        </div>
+        <input
+          className="w-16 m-2 rounded-md border border-gray-200 text-center"
+          type="text"
+          inputMode="decimal"
+          pattern="[۰-۹0-9]*"
+          value={convertToFarsiDigits(inputValue)}
+          autoFocus={inputRef.current}
+          onChange={(e) => {
+            const value = e.target.value;
+            setInputValue(convertToLatinDigits(value));
+            inputRef.current = true;
 
-      <IconButton
-        onClick={() => handleChangePage(null, page - 1)}
-        disabled={page === 0}
-        aria-label="previous page"
-      >
-        <KeyboardArrowLeft />
-      </IconButton>
-      <IconButton
-        onClick={() => handleChangePage(null, 0)}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        <FirstPage />
-      </IconButton>
+            // Clear existing timeout
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            // Set new timeout for debounced API call
+            timeoutRef.current = window.setTimeout(() => {
+              debouncedSetPage(value);
+            }, 500); // 500ms delay
+          }}
+        />
+
+        <IconButton
+          onClick={() => handleChangePage(null, page - 1)}
+          disabled={page === 0}
+          aria-label="previous page"
+        >
+          <KeyboardArrowLeft />
+        </IconButton>
+        <IconButton
+          onClick={() => handleChangePage(null, 0)}
+          disabled={page === 0}
+          aria-label="first page"
+        >
+          <FirstPage />
+        </IconButton>
+      </div> : <div className="flex w-full bg-gray-100 h-12"></div>}
     </div>
   );
 }
