@@ -783,6 +783,7 @@ const InvoiceReceiptShow1 = ({
         isModalRegOpen={isModalRegOpen}
         setIsModalRegOpen={setIsModalRegOpen}
         selectedId={selectedId}
+        isFromWorkFlow={fromWorkFlow}
         //isLoading={isLoading}
       />
     </div>

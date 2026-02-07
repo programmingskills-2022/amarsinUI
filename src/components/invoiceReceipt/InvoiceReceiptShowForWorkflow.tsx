@@ -109,7 +109,6 @@ const InvoiceReceiptShowForWorkflow = ({
 
   return (
     <div className="w-full h-full py-2">
-      <p>{workFlowRowSelectResponse.workTableRow.formId}</p>
       <InvoiceReceiptShow1
         canEditForm1={workFlowRowSelectResponse.workTableForms.canEditForm1}
         addProductList={addProductList}

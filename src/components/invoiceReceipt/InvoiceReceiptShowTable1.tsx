@@ -50,6 +50,7 @@ type Props = {
   selectedId: number;
   isNew: boolean;
   saveListResponse: any;
+  isFromWorkFlow: boolean;
   //isLoadingAddList: boolean;
 };
 
@@ -75,6 +76,7 @@ const InvoiceReceiptShowTable1 = ({
   selectedId,
   isNew,
   saveListResponse,
+  isFromWorkFlow,
   //isLoadingAddList,
 }: Props) => {
   //const { productOfferSaveResponse } = useProductOfferStore();
@@ -493,8 +495,8 @@ const InvoiceReceiptShowTable1 = ({
     <>
       <div className="mt-2 w-full bg-white rounded-md">
         <div
-          className="overflow-y-auto"
-          style={width > 640 ? { height: height - 450 } : {}}
+          className={!isFromWorkFlow ? "overflow-y-auto" : ""}
+          style={{ height: !isFromWorkFlow ? height - 450 : "auto" }}
         >
           <InvoiceReceiptShowTableHeader
             brandSearch={brandSearch}
