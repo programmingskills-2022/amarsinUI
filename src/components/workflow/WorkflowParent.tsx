@@ -299,9 +299,6 @@ export default function WorkflowParent({
     setSkipPageReset(false);
   }, [data]);
 
-  useEffect(() => {
-    console.log(columnWidths, "columnWidths");
-  }, [columnWidths]);
   return (
     <>
       <Paper className="p-2 mt-2 w-full">

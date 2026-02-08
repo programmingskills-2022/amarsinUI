@@ -380,11 +380,11 @@ const PurchaseRequest = ({
   }, []);
 
   useEffect(() => {
-    console.log(selectedId, "selectedId");
+    //console.log(selectedId, "selectedId");
     const currentIndent = indentList.find((item) => item.id === selectedId);
-    console.log("currentIndent", currentIndent);
+    //console.log("currentIndent", currentIndent);
     if (currentIndent && prevId !== selectedId) {
-      console.log("mrsIdIndentRequest", currentIndent.mrsId);
+      //console.log("mrsIdIndentRequest", currentIndent.mrsId);
       setField("mrsIdIndentRequest", currentIndent.mrsId);
     }
     selectedId !== 0 && setSelectedIndent(currentIndent || null);

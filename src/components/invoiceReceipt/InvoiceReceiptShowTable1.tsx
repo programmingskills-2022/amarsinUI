@@ -221,11 +221,6 @@ const InvoiceReceiptShowTable1 = ({
       columnId === "tax" ||
       columnId === "dcrmnt"
     ) {
-      console.log(
-        data[rowIndex],
-        data[rowIndex]["cnt"],
-        "data[rowIndex]*********************",
-      );
       let val = currencyStringToNumber(convertToLatinDigits(value)).toString();
       if (Number.isNaN(Number(val))) {
         val = "0";
@@ -258,33 +253,16 @@ const InvoiceReceiptShowTable1 = ({
               convertToLatinDigits(data[rowIndex]["tax"].toString() ?? "0"),
             ); //tax
 
-      console.log(
-        value0,
-        value1,
-        value2,
-        value3,
-        "value0,value1,value2,value3",
-      );
       value0 = Number.isNaN(Number(value0)) ? 0 : value0;
       value1 = Number.isNaN(Number(value1)) ? 0 : value1;
       value2 = Number.isNaN(Number(value2)) ? 0 : value2;
       value3 = Number.isNaN(Number(value3)) ? 0 : value3;
 
-      console.log(
-        value0 * value1 + (value0 * value1 * value3) / 100 - value2,
-        "total",
-      );
       const total = Math.round(
         value0 * value1 + (value0 * value1 * value3) / 100 - value2,
       );
       const taxValue = Math.round((value0 * value1 * value3) / 100);
 
-      console.log(total, taxValue, rowIndex);
-      console.log(
-        [...data],
-        [...originalData],
-        "[...data],[[...originalData]********",
-      );
       (data as any)[rowIndex]["total"] = total;
       (data as any)[rowIndex]["taxValue"] = taxValue;
       if (rowInOriginal) {
