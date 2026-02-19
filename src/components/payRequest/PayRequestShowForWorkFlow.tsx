@@ -46,12 +46,17 @@ const PayRequestShowForWorkFlow = ({
     //for tab 1
     rpCustomerBillsResponse,
     isLoadingRpCustomerBills,
+    //for PayRequest/DtlSettleInvoices
+    payRequestDtlSettleInvoices,
+    payRequestDtlSettleInvoicesResponse,
+    /*
     //for PayRequest/DtlRemoveInvoice
     payRequestDtlRemoveInvoice,
     payRequestDtlRemoveInvoiceResponse,
     //for PayRequest/DtlAddInvoice
     payRequestDtlAddInvoice,
     payRequestDtlAddInvoiceResponse,
+    */
   } = usePayRequest();
 
   const { setField, id } = usePayRequestStore();
@@ -139,12 +144,17 @@ const PayRequestShowForWorkFlow = ({
         //for tab 1
         rpCustomerBillsResponse={rpCustomerBillsResponse}
         isLoadingRpCustomerBills={isLoadingRpCustomerBills}
+        //for PayRequest/DtlSettleInvoices
+        payRequestDtlSettleInvoices={payRequestDtlSettleInvoices}
+        payRequestDtlSettleInvoicesResponse={payRequestDtlSettleInvoicesResponse}
+        /*
         //for PayRequest/DtlRemoveInvoice
         payRequestDtlRemoveInvoice={payRequestDtlRemoveInvoice}
         payRequestDtlRemoveInvoiceResponse={payRequestDtlRemoveInvoiceResponse}
         //for PayRequest/DtlAddInvoice
         payRequestDtlAddInvoice={payRequestDtlAddInvoice}
         payRequestDtlAddInvoiceResponse={payRequestDtlAddInvoiceResponse}
+        */
         canEditForm1Dtl1={workFlowRowSelectResponse.workTableForms.canEditForm1Dtl1}
         canEditForm1Dtl2={workFlowRowSelectResponse.workTableForms.canEditForm1Dtl2}
         canEditForm1Mst1={workFlowRowSelectResponse.workTableForms.canEditForm1Mst1}

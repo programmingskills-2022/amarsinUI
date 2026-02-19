@@ -218,6 +218,18 @@ export const usePayRequestStore = create<PayRequestState>()((set) => ({
       result: 0,
     },
   },
+  //for PayRequest/DtlSettleInvoices
+  payRequestDtlSettleInvoicesResponse: {
+    meta: {
+      errorCode: 0,
+      message: "",
+      type: "",
+    },
+    data: { result: 0 },
+  },
+  //for PayRequest/DtlSettleInvoices
+  setPayRequestDtlSettleInvoicesResponse: (payRequestDtlSettleInvoicesResponse) =>
+    set({ payRequestDtlSettleInvoicesResponse }),
   setPayRequestDoFirstFlowResponse: (payRequestDoFirstFlowResponse) =>
     set({ payRequestDoFirstFlowResponse }),
   //for PayRequest/del

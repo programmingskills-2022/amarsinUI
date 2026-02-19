@@ -71,12 +71,17 @@ const PayRequest = ({ definitionInvironment, definitionDateTime }: Props) => {
     //for tab 1
     rpCustomerBillsResponse,
     isLoadingRpCustomerBills,
+    //for PayRequest/DtlSettleInvoices
+    payRequestDtlSettleInvoices,
+    payRequestDtlSettleInvoicesResponse,
+    /*
     //for PayRequest/DtlRemoveInvoice
     payRequestDtlRemoveInvoice,
     payRequestDtlRemoveInvoiceResponse,
     //for PayRequest/DtlAddInvoice
     payRequestDtlAddInvoice,
     payRequestDtlAddInvoiceResponse,
+    */
   } = usePayRequest();
 
   const [data, setData] = useState<any[]>([]);
@@ -368,7 +373,7 @@ const PayRequest = ({ definitionInvironment, definitionDateTime }: Props) => {
   }, []);
 
   useEffect(() => {
-    console.log("selectedId", selectedId,selectedPayRequest);
+    console.log("selectedId", selectedId, selectedPayRequest);
     if (prevId !== selectedId) {
       setField("id", selectedId);
     }
@@ -745,7 +750,7 @@ const PayRequest = ({ definitionInvironment, definitionDateTime }: Props) => {
           isNew={isNew} //for check if isNew new else edit
           setIsNew={setIsNew}
           setIsEdit={setIsEdit}
-          fromWorkFlow={false} 
+          fromWorkFlow={false}
           selectedId={selectedId}
           definitionDateTime={definitionDateTime}
           payRequestSaveResponse={payRequestSaveResponse}
@@ -763,14 +768,19 @@ const PayRequest = ({ definitionInvironment, definitionDateTime }: Props) => {
           //for tab 1
           rpCustomerBillsResponse={rpCustomerBillsResponse}
           isLoadingRpCustomerBills={isLoadingRpCustomerBills}
-          //for PayRequest/DtlRemoveInvoice
-          payRequestDtlRemoveInvoice={payRequestDtlRemoveInvoice}
-          payRequestDtlRemoveInvoiceResponse={
-            payRequestDtlRemoveInvoiceResponse
-          }
-          //for PayRequest/DtlAddInvoice
-          payRequestDtlAddInvoice={payRequestDtlAddInvoice}
-          payRequestDtlAddInvoiceResponse={payRequestDtlAddInvoiceResponse}
+          //for PayRequest/DtlSettleInvoices
+          payRequestDtlSettleInvoices={payRequestDtlSettleInvoices}
+          payRequestDtlSettleInvoicesResponse={payRequestDtlSettleInvoicesResponse}
+          /*
+            //for PayRequest/DtlRemoveInvoice
+            payRequestDtlRemoveInvoice={payRequestDtlRemoveInvoice}
+            payRequestDtlRemoveInvoiceResponse={
+              payRequestDtlRemoveInvoiceResponse
+            }
+            //for PayRequest/DtlAddInvoice
+            payRequestDtlAddInvoice={payRequestDtlAddInvoice}
+            payRequestDtlAddInvoiceResponse={payRequestDtlAddInvoiceResponse}
+            */
           canEditForm1Dtl1={false}
           canEditForm1Dtl2={true}
           canEditForm1Mst1={true}

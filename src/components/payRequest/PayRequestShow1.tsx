@@ -9,8 +9,7 @@ import {
   ChequeBookDtlByIdResponse,
   ChequeBookDtlSearchResponse,
   ChequeBookSearchResponse,
-  PayRequestDtlAddInvoiceRequest,
-  PayRequestDtlRemoveInvoiceRequest,
+  PayRequestDtlSettleInvoicesRequest,
   PayRequestDtlTable,
   PayRequestInvoiceIncludeChecks,
   PayRequestInvoicesResponse,
@@ -100,7 +99,14 @@ type Props = {
   isLoadingPayRequestInvoices: boolean;
   rpCustomerBillsResponse: RpCustomerBillsResponse;
   isLoadingRpCustomerBills: boolean;
-  payRequestDtlRemoveInvoice: UseMutateAsyncFunction<
+  payRequestDtlSettleInvoices: UseMutateAsyncFunction<
+    any,
+    Error,
+    PayRequestDtlSettleInvoicesRequest,
+    unknown
+  >;
+  payRequestDtlSettleInvoicesResponse: any;
+  /*payRequestDtlRemoveInvoice: UseMutateAsyncFunction<
     any,
     Error,
     PayRequestDtlRemoveInvoiceRequest,
@@ -114,6 +120,7 @@ type Props = {
     unknown
   >;
   payRequestDtlAddInvoiceResponse: any;
+  */
   canEditForm1Dtl1: boolean;
   canEditForm1Dtl2: boolean;
   canEditForm1Mst1: boolean;
@@ -146,12 +153,17 @@ const PayRequestShow1 = ({
   //for tab 1
   rpCustomerBillsResponse,
   isLoadingRpCustomerBills,
+  /*
   //for PayRequest/DtlRemoveInvoice
   payRequestDtlRemoveInvoice,
   payRequestDtlRemoveInvoiceResponse,
   //for PayRequest/DtlAddInvoice
   payRequestDtlAddInvoice,
   payRequestDtlAddInvoiceResponse,
+  */
+  //for PayRequest/DtlSettleInvoices
+  payRequestDtlSettleInvoices,
+  payRequestDtlSettleInvoicesResponse,
   canEditForm1Dtl1,
   canEditForm1Dtl2,
   canEditForm1Mst1,
@@ -466,8 +478,8 @@ const PayRequestShow1 = ({
         index: index + 1,
         dcrmntPercent: 0,
         dcrmnt: 0,
-        checked: invoicePayByClickedCheck ? true : checked,
-        settle: invoicePayByClickedCheck ? invoicePayByClickedCheck.settle : 0,
+        checked: fromWorkFlow ? item.settlement > 0 ? true : false : invoicePayByClickedCheck ? true : checked ?? false,
+        settle: fromWorkFlow ? item.settlement : invoicePayByClickedCheck ? invoicePayByClickedCheck.settle : 0,
         rem: fromWorkFlow ? item.rem : item.total - pay, //جمع فاکتور -پرداختی
         payed: fromWorkFlow ? item.payed ?? 0 : pay,
         payRequestDtlId: payRequestDtlId,
@@ -639,6 +651,7 @@ const PayRequestShow1 = ({
         };
       })
     );
+
     setShowInvoices(false);
   };
 
@@ -769,12 +782,14 @@ const PayRequestShow1 = ({
           newPay={newPay}
           payRequestDtlIndex={payRequestDtlIndex}
           isNew={isNew}
-          payRequestDtlRemoveInvoice={payRequestDtlRemoveInvoice}
+          payRequestDtlSettleInvoices={payRequestDtlSettleInvoices}
+          payRequestDtlSettleInvoicesResponse={payRequestDtlSettleInvoicesResponse}
+          /*payRequestDtlRemoveInvoice={payRequestDtlRemoveInvoice}
           payRequestDtlRemoveInvoiceResponse={
             payRequestDtlRemoveInvoiceResponse
           }
           payRequestDtlAddInvoice={payRequestDtlAddInvoice}
-          payRequestDtlAddInvoiceResponse={payRequestDtlAddInvoiceResponse}
+          payRequestDtlAddInvoiceResponse={payRequestDtlAddInvoiceResponse}*/
           fromWorkFlow={fromWorkFlow}
         />
       </ModalForm>

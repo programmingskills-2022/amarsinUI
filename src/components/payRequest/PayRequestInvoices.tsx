@@ -6,9 +6,8 @@ import {
 import TTable from "../controls/TTable";
 import Input from "../controls/Input";
 import {
-  PayRequestDtlAddInvoiceRequest,
-  PayRequestDtlAddRemoveInvoiceResponse,
-  PayRequestDtlRemoveInvoiceRequest,
+  PayRequestDtlSettleInvoicesRequest,
+  PayRequestDtlSettleInvoicesResponse,
   PayRequestInvoiceIncludeChecks,
   PayRequestInvoicesTable,
 } from "../../types/payRequest";
@@ -28,7 +27,14 @@ type Props = {
   isNew: boolean;
   tempData: PayRequestInvoiceIncludeChecks[];
   setTempData: (data: PayRequestInvoiceIncludeChecks[]) => void;
-  payRequestDtlRemoveInvoice: UseMutateAsyncFunction<
+  payRequestDtlSettleInvoices: UseMutateAsyncFunction<
+    any,
+    Error,
+    PayRequestDtlSettleInvoicesRequest,
+    unknown
+  >;
+  payRequestDtlSettleInvoicesResponse: PayRequestDtlSettleInvoicesResponse;
+  /*payRequestDtlRemoveInvoice: UseMutateAsyncFunction<
     any,
     Error,
     PayRequestDtlRemoveInvoiceRequest,
@@ -41,7 +47,7 @@ type Props = {
     PayRequestDtlAddInvoiceRequest,
     unknown
   >;
-  payRequestDtlAddInvoiceResponse: PayRequestDtlAddRemoveInvoiceResponse;
+  payRequestDtlAddInvoiceResponse: PayRequestDtlAddRemoveInvoiceResponse;*/
   fromWorkFlow: boolean;
 };
 
@@ -56,15 +62,18 @@ const PayRequestInvoices = ({
   isNew,
   tempData,
   setTempData,
-  payRequestDtlRemoveInvoice,
-  payRequestDtlRemoveInvoiceResponse,
-  payRequestDtlAddInvoice,
-  payRequestDtlAddInvoiceResponse,
+  payRequestDtlSettleInvoices,
+  payRequestDtlSettleInvoicesResponse,
+  //payRequestDtlRemoveInvoice,
+  //payRequestDtlRemoveInvoiceResponse,
+  //payRequestDtlAddInvoice,
+  //payRequestDtlAddInvoiceResponse,
   fromWorkFlow,
 }: Props) => {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(0); //for selected row index
-  const [isAddInvoiceOpen, setIsAddInvoiceOpen] = useState(false);
-  const [isRemoveInvoiceOpen, setIsRemoveInvoiceOpen] = useState(false);
+  const [isSettleInvoiceOpen, setIsSettleInvoiceOpen] = useState(false);
+  //const [isAddInvoiceOpen, setIsAddInvoiceOpen] = useState(false);
+  //const [isRemoveInvoiceOpen, setIsRemoveInvoiceOpen] = useState(false);
   const [payValue, setPayValue] = useState(0);
   // in payRequestInvoices table
   const columns: TableColumns = [
@@ -187,22 +196,38 @@ const PayRequestInvoices = ({
 
   const handleCheckClick = (value: boolean, row: PayRequestInvoicesTable) => {
     // Handle checkbox click logic here
-    console.log("Checkbox clicked:", value, row);
-   if (Number(row.rem)<0 && !value) return
-    let request:
+    console.log("Checkbox clicked:", value, row, data);
+    if (Number(row.rem) < 0 && !value) return
+    /*let request:
       | PayRequestDtlRemoveInvoiceRequest
-      | PayRequestDtlAddInvoiceRequest;
+      | PayRequestDtlAddInvoiceRequest;*/
+    let request: PayRequestDtlSettleInvoicesRequest
+    let items: {
+      invoiceId: number;
+      settlement: number;
+    }[] = [];
     let settlementValue = 0;
-    if (value) {
+    //remove check if comes from workflow
+    const newDataTable = tempData.filter((item) => item.id !== row.id)
+    if (value && fromWorkFlow) {
+      newDataTable.forEach((item) => {
+        item.settlement > 0 && items.push({
+          invoiceId: item.id,
+          settlement: item.settlement,
+        });
+      });
+
       request = {
         payRequestDtlId: payRequestDtlId,
-        invoiceId: row.id,
+        items
       };
+
+      //tempData[row.index].settle=0 //remove settlement
+      //tempData[row.index].checked=false //remove settlement
+
       console.log(request, "request in remove handleCheckClick ");
-      if (fromWorkFlow) {
-        payRequestDtlRemoveInvoice(request);
-        setIsRemoveInvoiceOpen(true);
-      }
+      payRequestDtlSettleInvoices(request);
+      setIsSettleInvoiceOpen(true);
     }
     const newData = [...tempData]; //[...data];
     let payValueTemp = payValue;
@@ -214,13 +239,16 @@ const PayRequestInvoices = ({
           if (payValueTemp > item.rem) {
             payValueTemp = payValueTemp - item.rem;
             item.settle = item.rem;
+            item.settlement = item.rem
           } else {
             item.settle = payValueTemp;
+            item.settlement = payValueTemp;
             payValueTemp = 0;
           }
         } else {
           payValueTemp = payValueTemp + item.settle;
           item.settle = 0;
+          item.settlement = 0;
         }
       }
       //remove invc from item.invcs if item.checked is false
@@ -281,6 +309,7 @@ const PayRequestInvoices = ({
         }
       }
     });
+    console.log(newData,"newData")
     setTempData(newData); //setData(newData);
     setInvoicesWithChecks(newData);
     setPayValue(payValueTemp);
@@ -288,23 +317,37 @@ const PayRequestInvoices = ({
     settlementValue = newData.find((p) => p.id === row.id)?.settle ?? 0;
     console.log(settlementValue, "settlementValue in handleCheckClick");
     if (!value && settlementValue > 0 && fromWorkFlow) {
-      request = {
+      /*request = {
         payRequestDtlId: payRequestDtlId,
         invoiceId: row.id,
         settlement: settlementValue,
+      };*/
+      newDataTable.forEach((item) => {
+        item.settlement > 0 && items.push({
+          invoiceId: item.id,
+          settlement: item.settlement,
+        });
+      });
+      items.push({
+        invoiceId: row.id,
+        settlement: settlementValue,
+      });
+      request = {
+        payRequestDtlId: payRequestDtlId,
+        items
       };
       console.log(request, "request in add handleCheckClick ");
-      payRequestDtlAddInvoice(request);
-      setIsAddInvoiceOpen(true);
+      payRequestDtlSettleInvoices(request);
+      setIsSettleInvoiceOpen(true);
     }
   };
 
   ////////////////////////////////////////////////////////
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    if (isAddInvoiceOpen) {
+    if (isSettleInvoiceOpen) {
       timeoutId = setTimeout(() => {
-        setIsAddInvoiceOpen(false);
+        setIsSettleInvoiceOpen(false);
       }, 3000);
     }
     return () => {
@@ -312,9 +355,9 @@ const PayRequestInvoices = ({
         clearTimeout(timeoutId);
       }
     };
-  }, [isAddInvoiceOpen]);
+  }, [isSettleInvoiceOpen]);
   ////////////////////////////////////////////////////////
-  useEffect(() => {
+  /*useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (isRemoveInvoiceOpen) {
       timeoutId = setTimeout(() => {
@@ -326,7 +369,7 @@ const PayRequestInvoices = ({
         clearTimeout(timeoutId);
       }
     };
-  }, [isRemoveInvoiceOpen]);
+  }, [isRemoveInvoiceOpen]);*/
   ////////////////////////////////////////////////////////
   return (
     <div>
@@ -351,24 +394,24 @@ const PayRequestInvoices = ({
       </div>
 
       <ModalMessage
-        isOpen={isAddInvoiceOpen}
-        onClose={() => setIsAddInvoiceOpen(false)}
+        isOpen={isSettleInvoiceOpen}
+        onClose={() => setIsSettleInvoiceOpen(false)}
         backgroundColor={
-          payRequestDtlAddInvoiceResponse?.meta.errorCode <= 0
+          payRequestDtlSettleInvoicesResponse?.meta.errorCode <= 0
             ? "bg-green-200"
             : "bg-red-200"
         }
         bgColorButton={
-          payRequestDtlAddInvoiceResponse?.meta.errorCode <= 0
+          payRequestDtlSettleInvoicesResponse?.meta.errorCode <= 0
             ? "bg-green-500"
             : "bg-red-500"
         }
         color="text-white"
-        message={payRequestDtlAddInvoiceResponse.meta.message ?? ""}
+        message={payRequestDtlSettleInvoicesResponse.meta.message ?? ""}
         visibleButton={false}
       />
 
-      <ModalMessage
+      {/*<ModalMessage
         isOpen={isRemoveInvoiceOpen}
         onClose={() => setIsRemoveInvoiceOpen(false)}
         backgroundColor={
@@ -384,7 +427,7 @@ const PayRequestInvoices = ({
         color="text-white"
         message={payRequestDtlRemoveInvoiceResponse.meta.message ?? ""}
         visibleButton={false}
-      />
+      />*/}
     </div>
   );
 };

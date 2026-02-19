@@ -327,7 +327,7 @@ const InvoiceReceiptShowTable1 = ({
     return null;
   };
   /////////////////////////////////////////////////////
-  const { height, width } = useCalculateTableHeight();
+  const { height } = useCalculateTableHeight();
   ////////////////////////////////////////////////////////
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;

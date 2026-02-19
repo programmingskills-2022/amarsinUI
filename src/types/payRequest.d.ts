@@ -335,7 +335,19 @@ interface PayRequestDtlAddRemoveInvoiceResponse {
   data: { result: number };
 }
 //////////////////////////////////////////////////////
-
+//http://apitest.dotis.ir/api/PayRequest/DtlSettleInvoices
+interface PayRequestDtlSettleInvoicesRequest {
+  payRequestDtlId: number;
+  items: {
+    invoiceId: number;
+    settlement: number;
+  }[];
+}
+interface PayRequestDtlSettleInvoicesResponse {
+  meta: Meta;
+  data: { result: number };
+}
+//////////////////////////////////////////////////////
 export interface PayRequestState
   extends
     PayRequestRequest,
@@ -357,6 +369,7 @@ export interface PayRequestState
   payRequestDelResponse: PayRequestDelResponse; // for PayRequest/del
   payRequestDtlRemoveInvoiceResponse: PayRequestDtlAddRemoveInvoiceResponse; // for PayRequest/DtlRemoveInvoice
   payRequestDtlAddInvoiceResponse: PayRequestDtlAddRemoveInvoiceResponse; // for PayRequest/DtlAddInvoice
+  payRequestDtlSettleInvoicesResponse: PayRequestDtlSettleInvoicesResponse;
   setField: (field: string | number | symbol, value: any) => void;
   setPayRequestResponse: (payRequestResponse: PayRequestResponse) => void;
   setPayRequestInvoicesResponse: (
@@ -385,4 +398,7 @@ export interface PayRequestState
   setPayRequestDtlAddInvoiceResponse: (
     payRequestDtlAddInvoiceResponse: PayRequestDtlAddRemoveInvoiceResponse,
   ) => void; //for PayRequest/DtlAddInvoice
+  setPayRequestDtlSettleInvoicesResponse: (
+    payRequestDtlSettleInvoicesResponse: PayRequestDtlSettleInvoicesResponse,
+  ) => void; //for PayRequest/DtlSettleInvoices
 }

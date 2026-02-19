@@ -14,6 +14,7 @@ import {
   PayRequestDtlAddInvoiceRequest,
   PayRequestDtlAddRemoveInvoiceResponse,
   PayRequestDtlRemoveInvoiceRequest,
+  PayRequestDtlSettleInvoicesRequest,
   PayRequestInvoicesResponse,
   PayRequestResponse,
   PayRequestSaveRequest,
@@ -90,6 +91,8 @@ export function usePayRequest() {
     setPayRequestDtlRemoveInvoiceResponse,
     // for PayRequest/DtlAddInvoice
     setPayRequestDtlAddInvoiceResponse,
+    // for PayRequest/DtlSettleInvoices
+    setPayRequestDtlSettleInvoicesResponse
   } = usePayRequestStore();
   const queryClient = useQueryClient();
   //for SaleReport/RpCustomerBills
@@ -636,6 +639,25 @@ export function usePayRequest() {
       queryClient.invalidateQueries({ queryKey: ["payRequestDtl"] });
     },
   });
+  //for PayRequest/DtlSettleInvoices
+  const payRequestDtlSettleInvoices = useMutation({
+    mutationFn: async (request: PayRequestDtlSettleInvoicesRequest) => {
+      const url: string = `api/PayRequest/DtlSettleInvoices`;
+      
+      console.log("url",url)
+      const response = await api.post(url, {
+        payRequestDtlId: request.payRequestDtlId,
+        items: request.items
+      });
+
+      return response.data;
+    },
+    onSuccess: (data: any) => {
+      setPayRequestDtlSettleInvoicesResponse(data);
+      //queryClient.invalidateQueries({ queryKey: ["payRequestDtl"] });
+      //queryClient.invalidateQueries({ queryKey: ["payRequestInvoicesWorkFlow"] });
+    },
+  });
   return {
     //output for PayRequest (using fpr PayRequestShow)
     refetch: payRequest.refetch,
@@ -859,5 +881,19 @@ export function usePayRequest() {
         result: 0,
       },
     },
+    //for PayRequest/DtlSettleInvoices
+    isLoadingPayRequestDtlSettleInvoices: payRequestDtlSettleInvoices.isPending,
+    errorPayRequestDtlSettleInvoices: payRequestDtlSettleInvoices.error,
+    payRequestDtlSettleInvoices: payRequestDtlSettleInvoices.mutateAsync,
+    payRequestDtlSettleInvoicesResponse: payRequestDtlSettleInvoices.data ?? {
+      meta: {
+        errorCode: 0,
+        message: "",
+        type: "",
+      },
+      data: {
+        result: 0,
+      },
+    },    
   };
 }
